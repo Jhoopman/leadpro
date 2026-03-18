@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 const PORT = 3000;
-const API_KEY = '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';
+const API_KEY = 'sk-ant-...yournewkeyhere';
 
 if (!API_KEY) {
   console.log('\n❌ No API key provided.');
