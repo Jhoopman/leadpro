@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LeadPro — AI Scheduling for Contractors</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --green: #1a4d2e; --green-mid: #2d7a4e; --green-lite: #e1f5ee;
+  --green-text: #0f4024; --accent: #4cca74;
+  --bg: #f5f5f3; --bg2: #ffffff; --bg3: #ebebea;
+  --text: #2c2c2a; --text2: #5f5e5a; --text3: #888780;
+  --border: rgba(0,0,0,0.1); --border2: rgba(0,0,0,0.18);
+  --radius: 8px; --radius-lg: 12px;
+  --amber: #854f0b; --amber-lite: #faeeda;
+  --blue: #185fa5; --blue-lite: #e6f1fb;
+}
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+#app { display: flex; height: 100vh; overflow: hidden; }
+
+/* SIDEBAR */
+#sidebar { width: 210px; background: var(--green); display: flex; flex-direction: column; flex-shrink: 0; }
+#sidebar-logo { padding: 18px 16px 14px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+.brand { font-size: 16px; font-weight: 600; color: #e8f5ec; display: flex; align-items: center; gap: 8px; }
+.brand svg { width: 20px; height: 20px; fill: var(--accent); }
+.brand-sub { font-size: 11px; color: #7db896; margin-top: 2px; }
+nav { flex: 1; padding: 8px 0; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 16px; cursor: pointer; color: #a8d5b5; font-size: 13px; border-left: 2px solid transparent; transition: all .15s; user-select: none; }
+.nav-item:hover { background: rgba(255,255,255,0.07); }
+.nav-item.active { color: #e8f5ec; background: rgba(255,255,255,0.1); border-left-color: var(--accent); }
+.nav-item svg { width: 15px; height: 15px; fill: currentColor; flex-shrink: 0; }
+.nav-badge { margin-left: auto; background: #e85d3a; color: #fff; font-size: 10px; padding: 1px 6px; border-radius: 10px; font-weight: 600; }
+#sidebar-footer { padding: 12px 16px; border-top: 1px solid rgba(255,255,255,0.1); }
+.c-av { width: 30px; height: 30px; border-radius: 50%; background: #2d7a4e; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #a8d5b5; flex-shrink: 0; }
+
+/* MAIN */
+#main { flex: 1; overflow-y: auto; background: var(--bg); }
+.screen { display: none; padding: 22px 26px; }
+.screen.active { display: block; }
+.topbar { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; }
+.topbar h1 { font-size: 18px; font-weight: 600; }
+.topbar .sub { font-size: 12px; color: var(--text3); margin-top: 2px; }
+
+/* API KEY BANNER */
+#api-banner { background: #fff8e6; border: 1px solid #f0c040; border-radius: var(--radius); padding: 12px 16px; margin-bottom: 18px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+#api-banner svg { width: 16px; height: 16px; fill: #c49000; flex-shrink: 0; }
+#api-banner .ab-text { font-size: 13px; color: #7a5c00; flex: 1; min-width: 200px; }
+#api-banner .ab-text strong { font-weight: 600; }
+#api-key-input { flex: 1; min-width: 220px; padding: 7px 11px; font-size: 12px; border: 1px solid #f0c040; border-radius: 6px; background: #fffdf0; color: var(--text); font-family: 'Courier New', monospace; outline: none; }
+#api-key-input:focus { border-color: #c49000; }
+#api-save-btn { padding: 7px 16px; background: var(--green); color: #e8f5ec; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; white-space: nowrap; }
+#api-save-btn:hover { background: var(--green-mid); }
+#api-status { font-size: 11px; margin-top: 4px; width: 100%; }
+#api-status.ok { color: #2d7a4e; } #api-status.err { color: #a32d2d; }
+
+/* CARDS */
+.card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 14px; }
+.panel-header { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.panel-title { font-size: 13px; font-weight: 600; }
+.panel-action { font-size: 12px; color: var(--green-mid); background: none; border: none; cursor: pointer; font-family: inherit; }
+
+/* METRICS */
+.metrics { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 16px; }
+.metric { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 13px 15px; }
+.metric .ml { font-size: 11px; color: var(--text3); margin-bottom: 5px; }
+.metric .mv { font-size: 23px; font-weight: 600; line-height: 1; }
+.metric .ms { display: inline-block; font-size: 11px; padding: 2px 7px; border-radius: 10px; margin-top: 5px; }
+.up { background: #eaf3de; color: #27500a; } .warn { background: var(--amber-lite); color: var(--amber); }
+
+/* TABLE */
+.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.tbl th { text-align: left; padding: 8px 14px; font-size: 11px; color: var(--text3); background: var(--bg3); border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: .04em; font-weight: 500; }
+.tbl td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.tbl tr:last-child td { border-bottom: none; }
+.tbl tr:hover td { background: #fafaf9; }
+.pill { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 500; }
+.p-new { background: var(--blue-lite); color: var(--blue); }
+.p-sched { background: #eaf3de; color: #27500a; }
+.p-follow { background: var(--amber-lite); color: var(--amber); }
+.p-done { background: var(--bg3); color: var(--text3); }
+.lname { font-weight: 500; } .laddr { font-size: 11px; color: var(--text3); }
+.btn-sm { font-size: 11px; padding: 4px 9px; border-radius: 6px; border: 1px solid var(--border2); background: none; cursor: pointer; color: var(--text2); margin-right: 3px; font-family: inherit; }
+.btn-sm:hover { background: var(--bg3); }
+.btn-sm.primary { background: var(--green); color: #e8f5ec; border-color: var(--green); }
+.btn-sm.primary:hover { background: var(--green-mid); }
+.btn-sm.danger { background: none; color: #a32d2d; border-color: #f09595; }
+
+/* ALERT BANNER */
+.alert-banner { background: #fff8e6; border: 1px solid #f0c040; border-radius: var(--radius); padding: 10px 14px; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; font-size: 13px; color: #7a5c00; }
+.alert-banner svg { width: 15px; height: 15px; fill: #c49000; flex-shrink: 0; }
+.alert-banner a { font-weight: 600; cursor: pointer; text-decoration: underline; }
+
+/* TWO COL */
+.two-col { display: grid; grid-template-columns: 1fr 300px; gap: 14px; }
+.right-col { display: flex; flex-direction: column; gap: 12px; }
+
+/* APPTS */
+.appt { padding: 10px 14px; border-bottom: 1px solid var(--border); display: flex; gap: 10px; align-items: flex-start; }
+.appt:last-child { border-bottom: none; }
+.appt-date { background: var(--green); color: #e8f5ec; border-radius: var(--radius); padding: 5px 9px; text-align: center; min-width: 38px; flex-shrink: 0; }
+.appt-date .dd { font-size: 14px; font-weight: 600; line-height: 1; }
+.appt-date .dm { font-size: 9px; color: #7db896; margin-top: 1px; }
+.appt-info .an { font-size: 13px; font-weight: 500; }
+.appt-info .ad { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.appt-info .at { font-size: 11px; color: var(--green-mid); margin-top: 2px; font-weight: 500; }
+
+/* ACTIVITY */
+.act { padding: 9px 14px; border-bottom: 1px solid var(--border); display: flex; gap: 9px; align-items: flex-start; }
+.act:last-child { border-bottom: none; }
+.act-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.a-green { background: #4cca74; } .a-amber { background: #ef9f27; } .a-blue { background: #378add; }
+.act-text { font-size: 12px; line-height: 1.5; }
+.act-time { font-size: 10px; color: var(--text3); margin-top: 2px; }
+
+/* CHAT */
+#chat-wrap { max-width: 420px; margin: 0 auto; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; display: flex; flex-direction: column; height: 570px; background: var(--bg2); }
+#chat-header { background: var(--green); padding: 13px 15px; display: flex; align-items: center; gap: 10px; }
+#chat-header .av { width: 34px; height: 34px; border-radius: 50%; background: #2d7a4e; display: flex; align-items: center; justify-content: center; }
+#chat-header .av svg { width: 17px; height: 17px; fill: #a8d5b5; }
+.cn { font-size: 13px; font-weight: 500; color: #e8f5ec; }
+.cs { font-size: 11px; color: #7db896; display: flex; align-items: center; gap: 4px; }
+.cdot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+#messages { flex: 1; overflow-y: auto; padding: 13px; display: flex; flex-direction: column; gap: 8px; }
+.msg { max-width: 82%; display: flex; flex-direction: column; gap: 2px; }
+.msg.bot { align-self: flex-start; } .msg.user { align-self: flex-end; }
+.bubble { padding: 8px 12px; border-radius: 14px; font-size: 13px; line-height: 1.5; }
+.bot .bubble { background: var(--bg3); color: var(--text); border-bottom-left-radius: 3px; }
+.user .bubble { background: var(--green); color: #e8f5ec; border-bottom-right-radius: 3px; }
+.mts { font-size: 10px; color: var(--text3); padding: 0 3px; }
+.user .mts { text-align: right; }
+#typing { align-self: flex-start; padding: 9px 13px; background: var(--bg3); border-radius: 14px; border-bottom-left-radius: 3px; display: none; gap: 4px; align-items: center; }
+#typing span { width: 6px; height: 6px; border-radius: 50%; background: var(--text3); animation: blink 1.2s infinite; display: block; }
+#typing span:nth-child(2){animation-delay:.2s} #typing span:nth-child(3){animation-delay:.4s}
+@keyframes blink { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-4px)} }
+#lead-card { display: none; margin: 0 12px 10px; background: var(--bg3); border-radius: var(--radius); padding: 10px 12px; border: 1px solid var(--border); }
+#lead-card .lct { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 7px; font-weight: 500; }
+.lf { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 10px; }
+.lf label { font-size: 10px; color: var(--text3); display: block; }
+.lf span { font-size: 12px; font-weight: 500; }
+#lead-card-btns { display: flex; gap: 6px; margin-top: 9px; }
+.lc-btn { flex: 1; font-size: 11px; padding: 5px; border-radius: 6px; border: 1px solid var(--border2); background: none; cursor: pointer; font-family: inherit; color: var(--text2); }
+.lc-btn.green { background: var(--green); color: #e8f5ec; border-color: var(--green); }
+#input-row { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--border); }
+#user-input { flex: 1; border: 1px solid var(--border2); border-radius: 18px; padding: 7px 13px; font-size: 13px; font-family: inherit; background: var(--bg3); color: var(--text); outline: none; }
+#user-input:focus { border-color: var(--green-mid); }
+#send-btn { width: 34px; height: 34px; border-radius: 50%; background: var(--green); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+#send-btn:hover { background: var(--green-mid); }
+#send-btn svg { width: 15px; height: 15px; fill: #e8f5ec; }
+
+/* CALENDAR */
+.cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 1px; background: var(--border); border-radius: 0 0 var(--radius-lg) var(--radius-lg); overflow: hidden; }
+.cal-header-row { display: grid; grid-template-columns: repeat(7,1fr); background: var(--bg3); }
+.cal-header-cell { padding: 8px; text-align: center; font-size: 11px; color: var(--text3); font-weight: 500; text-transform: uppercase; letter-spacing: .04em; }
+.cal-cell { background: var(--bg2); padding: 7px 8px; min-height: 80px; cursor: pointer; transition: background .1s; }
+.cal-cell:hover { background: #f7faf8; }
+.cal-cell.other-month { background: var(--bg3); }
+.cal-cell.today { background: var(--green-lite); }
+.cal-cell .cal-day { font-size: 12px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+.cal-cell.today .cal-day { color: var(--green-text); font-weight: 700; }
+.cal-cell.other-month .cal-day { color: var(--text3); }
+.cal-event { font-size: 10px; background: var(--green); color: #e8f5ec; border-radius: 3px; padding: 2px 5px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+.cal-event.pest { background: #854f0b; }
+.cal-event.lawn { background: #185fa5; }
+.cal-event.tree { background: #534ab7; }
+.cal-nav { display: flex; align-items: center; gap: 12px; }
+.cal-nav button { background: none; border: 1px solid var(--border2); border-radius: 6px; padding: 5px 10px; cursor: pointer; font-size: 13px; color: var(--text2); font-family: inherit; }
+.cal-nav button:hover { background: var(--bg3); }
+.cal-month-label { font-size: 15px; font-weight: 600; min-width: 140px; text-align: center; }
+
+/* BOOKING MODAL */
+#book-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; align-items: center; justify-content: center; }
+#book-overlay.open { display: flex; }
+#book-modal { background: var(--bg2); border-radius: var(--radius-lg); padding: 22px; width: 380px; border: 1px solid var(--border); }
+#book-modal h2 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+#book-modal .bm-sub { font-size: 12px; color: var(--text3); margin-bottom: 16px; }
+.field { margin-bottom: 12px; }
+.field label { font-size: 12px; color: var(--text2); display: block; margin-bottom: 4px; }
+.field input, .field select, .field textarea { width: 100%; padding: 8px 11px; font-size: 13px; border: 1px solid var(--border2); border-radius: var(--radius); background: var(--bg3); color: var(--text); font-family: inherit; outline: none; }
+.field input:focus, .field select:focus { border-color: var(--green-mid); }
+.modal-btns { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
+.btn-cancel { font-size: 13px; padding: 7px 14px; border-radius: var(--radius); border: 1px solid var(--border2); background: none; cursor: pointer; color: var(--text2); font-family: inherit; }
+.btn-save { font-size: 13px; padding: 7px 16px; border-radius: var(--radius); background: var(--green); color: #e8f5ec; border: none; cursor: pointer; font-family: inherit; font-weight: 500; }
+
+/* SMS TOAST */
+#sms-toast { position: fixed; bottom: 24px; right: 24px; background: var(--green); color: #e8f5ec; border-radius: var(--radius-lg); padding: 14px 18px; font-size: 13px; line-height: 1.6; max-width: 300px; z-index: 300; transform: translateY(100px); opacity: 0; transition: all .35s; pointer-events: none; }
+#sms-toast.show { transform: translateY(0); opacity: 1; }
+#sms-toast .st-label { font-size: 10px; color: #7db896; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; font-weight: 600; }
+
+/* EVENT DETAIL */
+#event-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; align-items: center; justify-content: center; }
+#event-overlay.open { display: flex; }
+#event-modal { background: var(--bg2); border-radius: var(--radius-lg); padding: 22px; width: 340px; border: 1px solid var(--border); }
+#event-modal h2 { font-size: 15px; font-weight: 600; margin-bottom: 12px; }
+.ev-row { display: flex; gap: 10px; margin-bottom: 8px; align-items: flex-start; }
+.ev-label { font-size: 11px; color: var(--text3); width: 70px; flex-shrink: 0; padding-top: 1px; }
+.ev-val { font-size: 13px; color: var(--text); }
+
+/* SETTINGS */
+.settings-section { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 20px; margin-bottom: 12px; }
+.settings-section h3 { font-size: 11px; font-weight: 600; color: var(--text); margin-bottom: 13px; padding-bottom: 9px; border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: .05em; }
+.srow { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.srow:last-child { border-bottom: none; }
+.srow-info .sl { font-size: 13px; color: var(--text); }
+.srow-info .ss { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.toggle { width: 36px; height: 20px; background: var(--border2); border-radius: 10px; position: relative; cursor: pointer; transition: background .2s; flex-shrink: 0; }
+.toggle.on { background: var(--green); }
+.tthumb { width: 16px; height: 16px; background: #fff; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: transform .2s; pointer-events: none; }
+.toggle.on .tthumb { transform: translateX(16px); }
+.snippet { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; font-family: 'Courier New', monospace; font-size: 11px; color: var(--text); line-height: 1.6; position: relative; word-break: break-all; }
+.snippet .cc { position: absolute; top: 7px; right: 7px; font-size: 10px; background: var(--bg2); border: 1px solid var(--border2); padding: 2px 8px; border-radius: 5px; cursor: pointer; color: var(--text3); font-family: inherit; }
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- SIDEBAR -->
+<div id="sidebar">
+  <div id="sidebar-logo">
+    <div class="brand"><svg viewBox="0 0 24 24"><path d="M17 8C8 10 5.9 16.17 3.82 19.83 3.36 20.63 2 20.28 2 19.37V4.5A2.5 2.5 0 014.5 2h15A2.5 2.5 0 0122 4.5v10a2.5 2.5 0 01-2.5 2.5H17V8z"/></svg>LeadPro</div>
+    <div class="brand-sub">AI Scheduling</div>
+  </div>
+  <nav>
+    <div class="nav-item active" onclick="showScreen('dashboard',this)"><svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>Dashboard</div>
+    <div class="nav-item" onclick="showScreen('chatbot',this)"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>Live chatbot<span class="nav-badge" id="new-badge" style="display:none">!</span></div>
+    <div class="nav-item" onclick="showScreen('leads',this)"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>Leads<span class="nav-badge" id="leads-badge">3</span></div>
+    <div class="nav-item" onclick="showScreen('calendar',this)"><svg viewBox="0 0 24 24"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>Calendar</div>
+    <div class="nav-item" onclick="showScreen('settings',this)"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96a7.01 7.01 0 00-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.47.47 0 00-.59.22L2.74 8.87a.47.47 0 00.12.61l2.03 1.58c-.05.3-.07.63-.07.94s.02.64.07.94l-2.03 1.58a.47.47 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.37 1.04.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.57 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.47.47 0 00-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>Settings</div>
+  </nav>
+  <div id="sidebar-footer">
+    <div style="display:flex;align-items:center;gap:9px">
+      <div class="c-av">JM</div>
+      <div><div style="font-size:12px;color:#a8d5b5">Jake Morrison</div><div style="font-size:10px;color:#5a8a6a">GreenPro Landscaping</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+
+<!-- ── DASHBOARD ── -->
+<div id="s-dashboard" class="screen active">
+  <div class="topbar"><div><h1>Dashboard</h1><div class="sub" id="dash-date">Loading...</div></div><button class="btn-sm primary" onclick="openBookModal()">+ Book appointment</button></div>
+  <div id="api-banner">
+    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+    <div class="ab-text"><strong>Add your Anthropic API key</strong> to activate the AI chatbot. Get one free at console.anthropic.com</div>
+    <input type="password" id="api-key-input" placeholder="Paste your key: sk-ant-...">
+    <button id="api-save-btn" onclick="saveApiKey()">Save key</button>
+    <div id="api-status"></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="ml">New leads this week</div><div class="mv" id="m-leads">8</div><span class="ms up">+3 vs last week</span></div>
+    <div class="metric"><div class="ml">Appointments booked</div><div class="mv" id="m-appts">5</div><span class="ms up">+2 vs last week</span></div>
+    <div class="metric"><div class="ml">Pending follow-ups</div><div class="mv" id="m-followups">3</div><span class="ms warn">needs action</span></div>
+    <div class="metric"><div class="ml">Avg response time</div><div class="mv">&lt;1m</div><div style="font-size:11px;color:var(--text3);margin-top:3px">AI handles it</div></div>
+  </div>
+  <div class="two-col">
+    <div class="card">
+      <div class="panel-header"><span class="panel-title">Recent leads</span><button class="panel-action" onclick="showScreen('leads',document.querySelectorAll('.nav-item')[2])">View all →</button></div>
+      <table class="tbl" id="dash-leads-tbl"></table>
+    </div>
+    <div class="right-col">
+      <div class="card">
+        <div class="panel-header"><span class="panel-title">Upcoming appointments</span><button class="panel-action" onclick="showScreen('calendar',document.querySelectorAll('.nav-item')[3])">Calendar →</button></div>
+        <div id="dash-appts"></div>
+      </div>
+      <div class="card">
+        <div class="panel-header"><span class="panel-title">Activity</span></div>
+        <div id="dash-feed"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── CHATBOT ── -->
+<div id="s-chatbot" class="screen">
+  <div class="topbar"><div><h1>Live chatbot</h1><div class="sub">What visitors see on your website — leads book directly into your calendar</div></div><button class="btn-sm" onclick="resetChat()">Reset chat</button></div>
+  <div id="chat-wrap">
+    <div id="chat-header">
+      <div class="av"><svg viewBox="0 0 24 24"><path d="M17 8C8 10 5.9 16.17 3.82 19.83 3.36 20.63 2 20.28 2 19.37V4.5A2.5 2.5 0 014.5 2h15A2.5 2.5 0 0122 4.5v10a2.5 2.5 0 01-2.5 2.5H17V8z"/></svg></div>
+      <div><div class="cn">GreenPro Assistant</div><div class="cs"><div class="cdot"></div>Online — replies instantly</div></div>
+    </div>
+    <div id="messages"><div id="typing"><span></span><span></span><span></span></div></div>
+    <div id="lead-card">
+      <div class="lct">Lead captured — ready to schedule</div>
+      <div class="lf" id="lead-fields"></div>
+      <div id="lead-card-btns">
+        <button class="lc-btn green" onclick="bookFromLead()">Book appointment</button>
+        <button class="lc-btn" onclick="copyLead()">Copy summary</button>
+      </div>
+    </div>
+    <div id="input-row">
+      <input type="text" id="user-input" placeholder="Type a message...">
+      <button id="send-btn" onclick="sendMsg()"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
+    </div>
+  </div>
+  <p style="text-align:center;font-size:12px;color:var(--text3);margin-top:10px">Leads captured here appear instantly in your dashboard and calendar</p>
+</div>
+
+<!-- ── LEADS ── -->
+<div id="s-leads" class="screen">
+  <div class="topbar"><div><h1>Leads</h1><div class="sub">All leads captured by your AI chatbot</div></div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <select id="filter-status" onchange="renderLeadsTable()" style="font-size:12px;padding:5px 9px;border:1px solid var(--border2);border-radius:6px;background:var(--bg3);color:var(--text);font-family:inherit">
+        <option value="">All statuses</option><option value="new">New</option><option value="scheduled">Scheduled</option><option value="followup">Follow-up</option><option value="done">Done</option>
+      </select>
+      <button class="btn-sm primary" onclick="openBookModal()">+ Add lead</button>
+    </div>
+  </div>
+  <div class="card">
+    <table class="tbl"><thead><tr><th>Customer</th><th>Service</th><th>Phone</th><th>Requested</th><th>Status</th><th></th></tr></thead><tbody id="leads-body"></tbody></table>
+  </div>
+</div>
+
+<!-- ── CALENDAR ── -->
+<div id="s-calendar" class="screen">
+  <div class="topbar">
+    <div><h1>Calendar</h1><div class="sub">All booked appointments</div></div>
+    <div class="cal-nav">
+      <button onclick="prevMonth()">&#8592;</button>
+      <div class="cal-month-label" id="cal-month-label"></div>
+      <button onclick="nextMonth()">&#8594;</button>
+      <button class="btn-sm primary" onclick="openBookModal()" style="margin-left:8px">+ Book</button>
+    </div>
+  </div>
+  <div class="card" style="overflow:hidden">
+    <div class="cal-header-row">
+      <div class="cal-header-cell">Sun</div><div class="cal-header-cell">Mon</div><div class="cal-header-cell">Tue</div>
+      <div class="cal-header-cell">Wed</div><div class="cal-header-cell">Thu</div><div class="cal-header-cell">Fri</div><div class="cal-header-cell">Sat</div>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+  </div>
+</div>
+
+<!-- ── SETTINGS ── -->
+<div id="s-settings" class="screen">
+  <div class="topbar"><div><h1>Settings</h1></div></div>
+  <div class="settings-section">
+    <h3>API key</h3>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:10px">Your Anthropic API key powers the AI chatbot. Get one at <a href="https://console.anthropic.com" style="color:var(--green-mid)">console.anthropic.com</a></p>
+    <div class="field"><label>API key</label><input type="password" id="settings-api-key" placeholder="sk-ant-..." oninput="document.getElementById('api-key-input').value=this.value"></div>
+    <button class="btn-sm primary" onclick="saveApiKey()">Save &amp; test key</button>
+    <div id="settings-api-status" style="font-size:12px;margin-top:6px"></div>
+  </div>
+  <div class="settings-section">
+    <h3>Business info</h3>
+    <div class="field"><label>Business name (shown in chatbot)</label><input type="text" id="biz-name" value="GreenPro Landscaping &amp; Pest Control"></div>
+    <div class="field"><label>Your phone number (SMS alerts go here)</label><input type="tel" id="biz-phone" value="(540) 555-0192"></div>
+    <div class="field"><label>Services offered</label><select><option>Landscaping + Pest control</option><option>Landscaping only</option><option>Pest control only</option><option>All services</option></select></div>
+    <button class="btn-sm primary" onclick="saveBizInfo()">Save</button>
+  </div>
+  <div class="settings-section">
+    <h3>Notifications</h3>
+    <div class="srow"><div class="srow-info"><div class="sl">SMS alert on new lead</div><div class="ss">Text me the moment the AI captures a lead</div></div><div class="toggle on" onclick="this.classList.toggle('on')"><div class="tthumb"></div></div></div>
+    <div class="srow"><div class="srow-info"><div class="sl">Daily email digest</div><div class="ss">Summary of all leads sent at 7am</div></div><div class="toggle on" onclick="this.classList.toggle('on')"><div class="tthumb"></div></div></div>
+    <div class="srow"><div class="srow-info"><div class="sl">Follow-up reminders</div><div class="ss">Alert if a lead hasn't been contacted in 2 hrs</div></div><div class="toggle" onclick="this.classList.toggle('on')"><div class="tthumb"></div></div></div>
+  </div>
+  <div class="settings-section">
+    <h3>Website embed code</h3>
+    <p style="font-size:12px;color:var(--text2);margin-bottom:10px">Paste before &lt;/body&gt; on your website. Works on any site.</p>
+    <div class="snippet">&lt;script src="https://leadpro.ai/widget.js" data-id="<span style="color:var(--green-mid)">lp_a3f9c12b</span>"&gt;&lt;/script&gt;<button class="cc" onclick="this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1800)">Copy</button></div>
+  </div>
+</div>
+
+</div><!-- /main -->
+</div><!-- /app -->
+
+<!-- BOOKING MODAL -->
+<div id="book-overlay">
+  <div id="book-modal">
+    <h2>Book appointment</h2>
+    <div class="bm-sub" id="book-sub">Fill in the details to add to your calendar</div>
+    <div class="field"><label>Customer name *</label><input type="text" id="bk-name" placeholder="Jane Smith"></div>
+    <div class="field"><label>Phone</label><input type="tel" id="bk-phone" placeholder="(540) 555-0192"></div>
+    <div class="field"><label>Address</label><input type="text" id="bk-addr" placeholder="123 Oak St, Lynchburg VA"></div>
+    <div class="field"><label>Service type *</label>
+      <select id="bk-service"><option>Lawn care</option><option>Pest control</option><option>Tree trimming</option><option>Landscaping design</option><option>Irrigation</option><option>General estimate</option></select>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="field"><label>Date *</label><input type="date" id="bk-date"></div>
+      <div class="field"><label>Time *</label><input type="time" id="bk-time" value="09:00"></div>
+    </div>
+    <div class="field"><label>Notes</label><textarea id="bk-notes" placeholder="Any extra details..." style="height:60px;resize:none"></textarea></div>
+    <div class="modal-btns"><button class="btn-cancel" onclick="closeBookModal()">Cancel</button><button class="btn-save" onclick="saveBooking()">Book appointment</button></div>
+  </div>
+</div>
+
+<!-- EVENT DETAIL MODAL -->
+<div id="event-overlay">
+  <div id="event-modal">
+    <h2 id="ev-title"></h2>
+    <div class="ev-row"><div class="ev-label">Date</div><div class="ev-val" id="ev-date"></div></div>
+    <div class="ev-row"><div class="ev-label">Time</div><div class="ev-val" id="ev-time"></div></div>
+    <div class="ev-row"><div class="ev-label">Service</div><div class="ev-val" id="ev-service"></div></div>
+    <div class="ev-row"><div class="ev-label">Phone</div><div class="ev-val" id="ev-phone"></div></div>
+    <div class="ev-row"><div class="ev-label">Address</div><div class="ev-val" id="ev-addr"></div></div>
+    <div class="ev-row" id="ev-notes-row"><div class="ev-label">Notes</div><div class="ev-val" id="ev-notes"></div></div>
+    <div class="modal-btns"><button class="btn-cancel" onclick="closeEventModal()">Close</button><button class="btn-save" style="background:#a32d2d" onclick="deleteEvent()">Remove</button></div>
+  </div>
+</div>
+
+<!-- SMS TOAST -->
+<div id="sms-toast">
+  <div class="st-label">SMS alert sent to (540) 555-0192</div>
+  <div id="sms-body"></div>
+</div>
+
+<script>
+// ── STATE ──
+let apiKey = localStorage.getItem('lp_api_key') || '';
+let bizName = 'GreenPro Landscaping & Pest Control';
+let chatHistory = [], chatStarted = false, capturedLead = null;
+let calYear = 2026, calMonth = 2; // 0-indexed, March = 2
+let selectedEventIdx = null;
+
+const leads = [
+  { name:'Terri Walsh', addr:'417 Boxwood Ln, Lynchburg', service:'Pest control', phone:'(540) 555-0183', requested:'Today, 10:14am', status:'new' },
+  { name:'Derek Huang', addr:'82 Ridgecrest Dr, Forest VA', service:'Lawn care', phone:'(434) 555-0271', requested:'Today, 8:47am', status:'new' },
+  { name:'Sandra Okonkwo', addr:'209 Maple Ave, Lynchburg', service:'Tree trimming', phone:'(540) 555-0104', requested:'Mar 14, 3:22pm', status:'followup' },
+  { name:'Mike Travers', addr:'55 Sunridge Ct, Bedford VA', service:'Landscaping design', phone:'(540) 555-0346', requested:'Mar 13, 11:05am', status:'scheduled' },
+  { name:'Pam Delgado', addr:'1108 Heritage Blvd, Amherst', service:'Lawn care', phone:'(434) 555-0088', requested:'Mar 12, 2:38pm', status:'done' },
+];
+
+let appointments = [
+  { name:'Mike Travers', phone:'(540) 555-0346', addr:'55 Sunridge Ct, Bedford VA', service:'Landscaping design', date:'2026-03-17', time:'09:00', notes:'Initial consult' },
+  { name:'Terri Walsh', phone:'(540) 555-0183', addr:'417 Boxwood Ln, Lynchburg', service:'Pest control', date:'2026-03-18', time:'11:30', notes:'' },
+  { name:'Beth Nguyen', phone:'(434) 555-0122', addr:'340 Creekside Dr, Lynchburg', service:'Lawn care', date:'2026-03-19', time:'08:00', notes:'Recurring' },
+  { name:'Chris Martin', phone:'(540) 555-0214', addr:'71 Willow Way, Forest VA', service:'Irrigation', date:'2026-03-22', time:'14:00', notes:'' },
+];
+
+const feed = [
+  { color:'a-green', text:'New lead from chatbot: Terri Walsh — pest control', time:'10:14 AM today' },
+  { color:'a-green', text:'New lead from chatbot: Derek Huang — lawn care', time:'8:47 AM today' },
+  { color:'a-amber', text:'Follow-up reminder: Sandra Okonkwo', time:'Yesterday, 5:00 PM' },
+  { color:'a-blue', text:'Appointment confirmed: Mike Travers Mar 17', time:'Mar 14, 4:01 PM' },
+];
+
+const SL = { new:'p-new', scheduled:'p-sched', followup:'p-follow', done:'p-done' };
+const ST = { new:'New', scheduled:'Scheduled', followup:'Follow-up', done:'Done' };
+const SC = { 'Lawn care':'lawn', 'Pest control':'pest', 'Tree trimming':'tree', 'Landscaping design':'', 'Irrigation':'' };
+
+// ── SCREENS ──
+function showScreen(id, el) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('s-'+id).classList.add('active');
+  if (el) el.classList.add('active');
+  if (id==='dashboard') { renderDashLeads(); renderDashAppts(); renderFeed(); updateMetrics(); }
+  if (id==='leads') renderLeadsTable();
+  if (id==='calendar') renderCalendar();
+  if (id==='chatbot' && !chatStarted) startChat();
+}
+
+// ── API KEY ──
+function saveApiKey() {
+  const k = document.getElementById('api-key-input').value.trim() || document.getElementById('settings-api-key').value.trim();
+  if (!k.startsWith('sk-ant-')) {
+    setApiStatus('Key should start with sk-ant-', false); return;
+  }
+  apiKey = k; localStorage.setItem('lp_api_key', k);
+  document.getElementById('api-key-input').value = k;
+  document.getElementById('settings-api-key').value = k;
+  setApiStatus('Key saved — chatbot is active!', true);
+  setTimeout(() => { document.getElementById('api-banner').style.display = 'none'; }, 2000);
+}
+function setApiStatus(msg, ok) {
+  ['api-status','settings-api-status'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = msg; el.className = ok ? 'ok' : 'err'; }
+  });
+}
+
+// ── METRICS ──
+function updateMetrics() {
+  document.getElementById('m-leads').textContent = leads.filter(l=>l.status==='new').length + 5;
+  document.getElementById('m-appts').textContent = appointments.length;
+  document.getElementById('m-followups').textContent = leads.filter(l=>l.status==='followup').length;
+  document.getElementById('leads-badge').textContent = leads.filter(l=>l.status==='new').length;
+}
+
+// ── DASHBOARD RENDERS ──
+function renderDashLeads() {
+  document.getElementById('dash-leads-tbl').innerHTML =
+    `<thead><tr><th>Customer</th><th>Service</th><th>Received</th><th>Status</th></tr></thead><tbody>${
+      leads.slice(0,4).map(l=>`<tr>
+        <td><div class="lname">${l.name}</div><div class="laddr">${l.addr}</div></td>
+        <td>${l.service}</td>
+        <td style="font-size:12px;color:var(--text3)">${l.requested}</td>
+        <td><span class="pill ${SL[l.status]}">${ST[l.status]}</span></td>
+      </tr>`).join('')
+    }</tbody>`;
+}
+function renderDashAppts() {
+  const sorted = [...appointments].sort((a,b)=>a.date.localeCompare(b.date));
+  document.getElementById('dash-appts').innerHTML = sorted.slice(0,4).map(a => {
+    const d = new Date(a.date+'T12:00:00');
+    return `<div class="appt">
+      <div class="appt-date"><div class="dd">${d.getDate()}</div><div class="dm">${d.toLocaleString('default',{month:'short'}).toUpperCase()}</div></div>
+      <div class="appt-info"><div class="an">${a.name}</div><div class="ad">${a.service}</div><div class="at">${fmt12(a.time)} · ${a.addr.split(',')[0]}</div></div>
+    </div>`;
+  }).join('');
+}
+function renderFeed() {
+  document.getElementById('dash-feed').innerHTML = feed.map(f=>`
+    <div class="act"><div class="act-dot ${f.color}"></div><div><div class="act-text">${f.text}</div><div class="act-time">${f.time}</div></div></div>`).join('');
+}
+
+// ── LEADS TABLE ──
+function renderLeadsTable() {
+  const f = document.getElementById('filter-status')?.value || '';
+  const data = f ? leads.filter(l=>l.status===f) : leads;
+  document.getElementById('leads-body').innerHTML = data.map((l,i) => `<tr>
+    <td><div class="lname">${l.name}</div><div class="laddr">${l.addr}</div></td>
+    <td>${l.service}</td><td>${l.phone}</td>
+    <td style="font-size:12px;color:var(--text3)">${l.requested}</td>
+    <td><span class="pill ${SL[l.status]}">${ST[l.status]}</span></td>
+    <td>
+      <button class="btn-sm primary" onclick="schedLead(${leads.indexOf(l)})">Schedule</button>
+      <button class="btn-sm" onclick="doneLead(${leads.indexOf(l)})">Done</button>
+    </td>
+  </tr>`).join('');
+  updateMetrics();
+}
+function schedLead(i) {
+  leads[i].status = 'scheduled';
+  // Pre-fill booking modal with lead info
+  document.getElementById('bk-name').value = leads[i].name;
+  document.getElementById('bk-phone').value = leads[i].phone;
+  document.getElementById('bk-addr').value = leads[i].addr;
+  document.getElementById('bk-service').value = leads[i].service;
+  document.getElementById('bk-date').value = todayStr();
+  openBookModal('Schedule: ' + leads[i].name);
+  renderLeadsTable();
+}
+function doneLead(i) { leads[i].status='done'; renderLeadsTable(); }
+
+// ── CALENDAR ──
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+function renderCalendar() {
+  document.getElementById('cal-month-label').textContent = MONTHS[calMonth] + ' ' + calYear;
+  const grid = document.getElementById('cal-grid');
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+  const daysInPrev = new Date(calYear, calMonth, 0).getDate();
+  const today = new Date(); const todayKey = dateKey(today);
+  let cells = '';
+  let totalCells = Math.ceil((firstDay + daysInMonth) / 7) * 7;
+  for (let i = 0; i < totalCells; i++) {
+    let day, month = calMonth, year = calYear, isOther = false;
+    if (i < firstDay) { day = daysInPrev - firstDay + i + 1; month = calMonth-1; isOther = true; if(month<0){month=11;year--;} }
+    else if (i >= firstDay + daysInMonth) { day = i - firstDay - daysInMonth + 1; month = calMonth+1; isOther = true; if(month>11){month=0;year++;} }
+    else { day = i - firstDay + 1; }
+    const key = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const isToday = key === todayKey;
+    const dayAppts = appointments.filter(a => a.date === key);
+    cells += `<div class="cal-cell${isOther?' other-month':''}${isToday?' today':''}" onclick="calDayClick('${key}')">
+      <div class="cal-day">${day}</div>
+      ${dayAppts.map((a,idx) => `<div class="cal-event ${SC[a.service]||''}" onclick="event.stopPropagation();showEvent(${appointments.indexOf(a)})">${fmt12(a.time)} ${a.name.split(' ')[0]}</div>`).join('')}
+    </div>`;
+  }
+  grid.innerHTML = cells;
+}
+function prevMonth() { calMonth--; if(calMonth<0){calMonth=11;calYear--;} renderCalendar(); }
+function nextMonth() { calMonth++; if(calMonth>11){calMonth=0;calYear++;} renderCalendar(); }
+function calDayClick(dateStr) { document.getElementById('bk-date').value = dateStr; openBookModal(); }
+
+// ── BOOKING MODAL ──
+function openBookModal(subText) {
+  document.getElementById('book-sub').textContent = subText || 'Fill in the details to add to your calendar';
+  if (!document.getElementById('bk-date').value) document.getElementById('bk-date').value = todayStr();
+  document.getElementById('book-overlay').classList.add('open');
+}
+function closeBookModal() {
+  document.getElementById('book-overlay').classList.remove('open');
+  ['bk-name','bk-phone','bk-addr','bk-notes'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('bk-time').value = '09:00';
+}
+function saveBooking() {
+  const name = document.getElementById('bk-name').value.trim();
+  const date = document.getElementById('bk-date').value;
+  if (!name || !date) { alert('Name and date are required'); return; }
+  const appt = {
+    name, phone: document.getElementById('bk-phone').value||'—',
+    addr: document.getElementById('bk-addr').value||'—',
+    service: document.getElementById('bk-service').value,
+    date, time: document.getElementById('bk-time').value,
+    notes: document.getElementById('bk-notes').value
+  };
+  appointments.push(appt);
+  appointments.sort((a,b)=>a.date.localeCompare(b.date));
+  feed.unshift({ color:'a-blue', text:`Appointment booked: ${name} — ${appt.service}`, time:'Just now' });
+  closeBookModal();
+  renderCalendar(); renderDashAppts(); renderFeed(); updateMetrics();
+  showSMSToast(`New booking: ${name}\n${appt.service} on ${fmtDate(date)} at ${fmt12(appt.time)}\n${appt.addr}`);
+}
+
+// ── EVENT DETAIL ──
+function showEvent(idx) {
+  selectedEventIdx = idx;
+  const a = appointments[idx];
+  document.getElementById('ev-title').textContent = a.name;
+  document.getElementById('ev-date').textContent = fmtDate(a.date);
+  document.getElementById('ev-time').textContent = fmt12(a.time);
+  document.getElementById('ev-service').textContent = a.service;
+  document.getElementById('ev-phone').textContent = a.phone;
+  document.getElementById('ev-addr').textContent = a.addr;
+  document.getElementById('ev-notes').textContent = a.notes || '—';
+  document.getElementById('event-overlay').classList.add('open');
+}
+function closeEventModal() { document.getElementById('event-overlay').classList.remove('open'); selectedEventIdx = null; }
+function deleteEvent() {
+  if (selectedEventIdx === null) return;
+  appointments.splice(selectedEventIdx, 1);
+  closeEventModal(); renderCalendar(); renderDashAppts(); updateMetrics();
+}
+
+// ── CHATBOT ──
+const SYSTEM_PROMPT = `You are a friendly, professional scheduling assistant for a local landscaping and pest control company. Your job is to have a warm, natural conversation to gather information and book appointments or estimates.
+
+Goals in order:
+1. Greet the customer warmly and ask how you can help
+2. Naturally collect these 5 things (one at a time, conversationally): their name, phone number, address/zip code, type of service needed (landscaping, lawn care, pest control, tree trimming, etc.), and preferred date and time
+3. Confirm all details back to them warmly
+4. Tell them the team will follow up to confirm within a few hours
+
+Rules:
+- Sound HUMAN and conversational — no bullet lists, no robotic tone
+- Ask one question at a time
+- Keep responses SHORT — 1-3 sentences max
+- If they give multiple pieces of info at once, acknowledge it all naturally
+- Once you have all 5 fields, output this at the END of your message (after your normal reply) and nowhere else:
+LEAD_DATA:{"name":"...","phone":"...","address":"...","service":"...","datetime":"..."}
+- Only output LEAD_DATA once total`;
+
+function startChat() {
+  chatStarted = true;
+  chatHistory = [{ role:'user', content:'hello' }];
+  callClaude();
+}
+function resetChat() {
+  chatStarted = false; chatHistory = []; capturedLead = null;
+  document.getElementById('messages').innerHTML = '<div id="typing"><span></span><span></span><span></span></div>';
+  document.getElementById('lead-card').style.display = 'none';
+  setTimeout(() => { chatStarted = true; chatHistory = [{role:'user',content:'hello'}]; callClaude(); }, 100);
+}
+async function callClaude() {
+  showTyping(true);
+  try {
+    const payload = { model:'claude-sonnet-4-20250514', max_tokens:500, system: SYSTEM_PROMPT, messages: chatHistory };
+    const res = await fetch('http://localhost:3000/api', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) {
+      const errText = await res.text();
+      showTyping(false);
+      addMsg('bot', 'Server error ' + res.status + ': ' + errText.slice(0,100));
+      return;
+    }
+    const data = await res.json();
+    const raw = data.content?.map(c=>c.text||'').join('') || "Sorry, having trouble right now. Please try again.";
+    const match = raw.match(/LEAD_DATA:(\{[^}]+\})/);
+    if (match && !capturedLead) {
+      try {
+        capturedLead = JSON.parse(match[1]);
+        showLeadCard(capturedLead);
+        feed.unshift({ color:'a-green', text:`New lead: ${capturedLead.name} — ${capturedLead.service}`, time:'Just now' });
+        document.getElementById('new-badge').style.display = '';
+        showSMSToast(`New lead!\n${capturedLead.name} — ${capturedLead.service}\n${capturedLead.address}\nWants: ${capturedLead.datetime}`);
+        leads.unshift({ name:capturedLead.name, addr:capturedLead.address, service:capturedLead.service, phone:capturedLead.phone||'—', requested:'Just now', status:'new' });
+        updateMetrics();
+      } catch(e) {}
+    }
+    const clean = raw.replace(/LEAD_DATA:\{[^}]+\}/,'').trim();
+    showTyping(false); addMsg('bot', clean);
+    chatHistory.push({ role:'assistant', content: raw });
+  } catch(e) { showTyping(false); addMsg('bot','Connection error. Check your API key in Settings.'); }
+}
+async function sendMsg() {
+  const input = document.getElementById('user-input'), text = input.value.trim();
+  if (!text) return; input.value = '';
+  addMsg('user', text); chatHistory.push({ role:'user', content: text });
+  await callClaude();
+}
+document.getElementById('user-input').addEventListener('keydown', e => { if(e.key==='Enter') sendMsg(); });
+
+function addMsg(role, text) {
+  const msgs = document.getElementById('messages');
+  const d = document.createElement('div');
+  d.className = 'msg ' + (role==='user' ? 'user' : 'bot');
+  d.innerHTML = `<div class="bubble">${text.replace(/\n/g,'<br>')}</div><div class="mts">${now()}</div>`;
+  msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight;
+}
+function showTyping(v) {
+  const t = document.getElementById('typing'), m = document.getElementById('messages');
+  t.style.display = v ? 'flex' : 'none'; if(v) m.scrollTop = m.scrollHeight;
+}
+function showLeadCard(d) {
+  document.getElementById('lead-card').style.display = 'block';
+  const labels = { name:'Name', phone:'Phone', address:'Address', service:'Service', datetime:'Requested time' };
+  document.getElementById('lead-fields').innerHTML = Object.entries(d).map(([k,v])=>`<div><label>${labels[k]||k}</label><span>${v||'—'}</span></div>`).join('');
+}
+function bookFromLead() {
+  if (!capturedLead) return;
+  document.getElementById('bk-name').value = capturedLead.name || '';
+  document.getElementById('bk-phone').value = capturedLead.phone || '';
+  document.getElementById('bk-addr').value = capturedLead.address || '';
+  if (capturedLead.service) { const sel = document.getElementById('bk-service'); for(let o of sel.options) if(o.value.toLowerCase().includes(capturedLead.service.toLowerCase())) { sel.value=o.value; break; } }
+  document.getElementById('bk-date').value = todayStr();
+  openBookModal('Booking for: ' + capturedLead.name);
+}
+function copyLead() {
+  if (!capturedLead) return;
+  navigator.clipboard.writeText(Object.entries(capturedLead).map(([k,v])=>`${k}: ${v}`).join('\n'));
+  const btn = document.querySelector('#lead-card-btns .lc-btn:last-child');
+  btn.textContent = 'Copied!'; setTimeout(()=>btn.textContent='Copy summary',2000);
+}
+
+// ── SMS TOAST ──
+function showSMSToast(msg) {
+  const t = document.getElementById('sms-toast');
+  document.getElementById('sms-body').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 5000);
+}
+
+// ── SETTINGS ──
+function saveBizInfo() {
+  bizName = document.getElementById('biz-name').value;
+  const btn = document.querySelector('#s-settings .btn-sm.primary');
+  btn.textContent = 'Saved!'; setTimeout(()=>btn.textContent='Save',2000);
+}
+
+// ── UTILS ──
+function now() { return new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); }
+function todayStr() { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function dateKey(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function fmtDate(s) { return new Date(s+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}); }
+function fmt12(t) { if(!t) return ''; const [h,m]=t.split(':'); const hr=parseInt(h); return `${hr>12?hr-12:hr||12}:${m}${hr>=12?'pm':'am'}`; }
+
+// ── INIT ──
+document.getElementById('dash-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+if (apiKey) { document.getElementById('api-key-input').value = apiKey; document.getElementById('settings-api-key').value = apiKey; document.getElementById('api-banner').style.display='none'; }
+document.getElementById('book-overlay').addEventListener('click', e=>{ if(e.target===document.getElementById('book-overlay')) closeBookModal(); });
+document.getElementById('event-overlay').addEventListener('click', e=>{ if(e.target===document.getElementById('event-overlay')) closeEventModal(); });
+renderDashLeads(); renderDashAppts(); renderFeed(); updateMetrics();
+</script>
+</body>
+</html>
