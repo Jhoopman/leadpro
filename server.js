@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 const PORT = 3000;
-const API_KEY = 'sk-ant-...yournewkeyhere';
+const API_KEY = process.env.ANTHROPIC_API_KEY || '';
 
 if (!API_KEY) {
   console.log('\n❌ No API key provided.');
