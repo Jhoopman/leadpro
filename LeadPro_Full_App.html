@@ -214,6 +214,17 @@ nav { flex: 1; padding: 8px 0; }
 
 /* SETTINGS */
 .settings-section { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 20px; margin-bottom: 12px; }
+.scrape-input-row { display: flex; gap: 8px; }
+.scrape-input-row input { flex: 1; padding: 8px 11px; font-size: 13px; border: 1px solid var(--border2); border-radius: var(--radius); background: var(--bg3); color: var(--text); font-family: inherit; outline: none; }
+.scrape-input-row input:focus { border-color: var(--green-mid); }
+#scrape-status { font-size: 12px; margin-top: 6px; color: var(--text3); min-height: 16px; }
+#scrape-status.err { color: #a32d2d; }
+#scrape-timestamp { font-size: 11px; color: var(--text3); margin-top: 4px; }
+#scrape-profile-card { display: none; margin-top: 14px; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.profile-row { display: flex; gap: 0; border-bottom: 1px solid var(--border); }
+#scrape-profile-card .profile-row:last-child { border-bottom: none; }
+.profile-label { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .04em; padding: 8px 12px; width: 110px; flex-shrink: 0; background: var(--bg3); display: flex; align-items: flex-start; padding-top: 10px; }
+.profile-value { font-size: 13px; color: var(--text); padding: 8px 12px; line-height: 1.5; flex: 1; }
 
 /* AUTH OVERLAY */
 #auth-overlay { position: fixed; inset: 0; background: linear-gradient(135deg, #1a4d2e 0%, #0f2d1c 100%); z-index: 9999; display: flex; align-items: center; justify-content: center; }
@@ -442,8 +453,19 @@ nav { flex: 1; padding: 8px 0; }
     <h3>Business info</h3>
     <div class="field"><label>Business name (shown in chatbot)</label><input type="text" id="biz-name" value="GreenPro Landscaping &amp; Pest Control"></div>
     <div class="field"><label>Your phone number (SMS alerts go here)</label><input type="tel" id="biz-phone" value="(540) 555-0192"></div>
-    <div class="field"><label>Services offered</label><select><option>Landscaping + Pest control</option><option>Landscaping only</option><option>Pest control only</option><option>All services</option></select></div>
-    <button class="btn-sm primary" onclick="saveBizInfo()">Save</button>
+    <div class="field"><label>Services offered <span style="font-size:10px;color:var(--text3);font-weight:400">(comma-separated — auto-filled by scraper below)</span></label><input type="text" id="biz-services" placeholder="Lawn care, Pest control, Tree trimming..."></div>
+    <button class="btn-sm primary" id="biz-save-btn" onclick="saveBizInfo()">Save</button>
+  </div>
+  <div class="settings-section">
+    <h3>Website scraper</h3>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:12px">Paste your business website URL and LeadPro will extract your business info to power the AI chatbot automatically.</p>
+    <div class="scrape-input-row">
+      <input type="url" id="scrape-url" placeholder="https://yourbusiness.com">
+      <button class="btn-sm primary" id="scrape-btn" onclick="scrapeWebsite()">Scrape site</button>
+    </div>
+    <div id="scrape-status"></div>
+    <div id="scrape-timestamp"></div>
+    <div id="scrape-profile-card"></div>
   </div>
   <div class="settings-section">
     <h3>Notifications</h3>
@@ -748,7 +770,15 @@ function extractLeadJson(raw) {
 
 // ── CHATBOT ──
 function getSystemPrompt() {
+  const p = contractorProfile?.profile || {};
+  const services = document.getElementById('biz-services')?.value.trim() || contractorProfile?.services || 'general services';
+  const areaLine = p.service_area ? `\nService area: ${p.service_area}` : '';
+  const hoursLine = p.hours ? `\nHours: ${p.hours}` : '';
+  const pricingLine = p.pricing_notes ? `\nPricing: ${p.pricing_notes}` : '';
+  const aboutLine = p.about ? `\nAbout: ${p.about}` : '';
   return `You are a friendly, professional scheduling assistant for ${bizName}. Your job is to have a warm, natural conversation to gather information and book appointments or estimates.
+
+Services offered: ${services}${areaLine}${hoursLine}${pricingLine}${aboutLine}
 
 Goals in order:
 1. Greet the customer warmly and ask how you can help
@@ -873,15 +903,87 @@ function showSMSToast(msg) {
 
 // ── SETTINGS ──
 async function saveBizInfo() {
-  bizName = document.getElementById('biz-name').value;
-  const phone = document.getElementById('biz-phone').value;
+  bizName = document.getElementById('biz-name').value.trim() || bizName;
+  const phone = document.getElementById('biz-phone').value.trim();
+  const services = document.getElementById('biz-services').value.trim();
   if (sb && currentUser) {
-    await sb.from('contractors').update({ business_name: bizName, phone }).eq('id', currentUser.id);
-    if (contractorProfile) { contractorProfile.business_name = bizName; contractorProfile.phone = phone; }
+    const upd = { business_name: bizName, phone };
+    if (services) upd.services = services;
+    await sb.from('contractors').update(upd).eq('id', currentUser.id);
+    if (contractorProfile) { contractorProfile.business_name = bizName; contractorProfile.phone = phone; if (services) contractorProfile.services = services; }
     renderSidebarUser();
   }
-  const btn = document.querySelector('#s-settings .btn-sm.primary');
+  const btn = document.getElementById('biz-save-btn');
   btn.textContent = 'Saved!'; setTimeout(() => btn.textContent = 'Save', 2000);
+}
+
+async function scrapeWebsite() {
+  const url = document.getElementById('scrape-url').value.trim();
+  if (!url) { showScrapeStatus('Please enter a URL', true); return; }
+  const btn = document.getElementById('scrape-btn');
+  btn.textContent = 'Scraping…'; btn.disabled = true;
+  showScrapeStatus('Fetching page and extracting profile…');
+  try {
+    const res = await fetch('/scrape', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url })
+    });
+    if (!res.ok) throw new Error('Server error ' + res.status);
+    const { profile, error } = await res.json();
+    if (error) throw new Error(error);
+    if (!profile) throw new Error('No profile extracted');
+
+    renderScrapeProfile(profile);
+
+    // Auto-fill business info fields
+    if (profile.business_name) {
+      bizName = profile.business_name;
+      document.getElementById('biz-name').value = bizName;
+    }
+    const svcStr = Array.isArray(profile.services) ? profile.services.join(', ') : (profile.services || '');
+    if (svcStr) document.getElementById('biz-services').value = svcStr;
+
+    const scrapedAt = new Date().toISOString();
+    document.getElementById('scrape-timestamp').textContent = 'Last scraped: ' + new Date().toLocaleString();
+    showScrapeStatus('Profile extracted — business info updated below.', false);
+
+    // Persist to Supabase
+    if (sb && currentUser) {
+      const upd = { profile, scraped_at: scrapedAt, website_url: url };
+      if (profile.business_name) upd.business_name = profile.business_name;
+      if (svcStr) upd.services = svcStr;
+      await sb.from('contractors').update(upd).eq('id', currentUser.id);
+      if (contractorProfile) Object.assign(contractorProfile, upd);
+      renderSidebarUser();
+    }
+  } catch (e) {
+    showScrapeStatus('Error: ' + e.message, true);
+  }
+  btn.textContent = 'Scrape site'; btn.disabled = false;
+}
+
+function showScrapeStatus(msg, isErr) {
+  const el = document.getElementById('scrape-status');
+  el.textContent = msg;
+  el.className = isErr ? 'err' : '';
+}
+
+function renderScrapeProfile(profile) {
+  const card = document.getElementById('scrape-profile-card');
+  const rows = [
+    ['Business', profile.business_name],
+    ['Owner', profile.owner_name],
+    ['Services', Array.isArray(profile.services) ? profile.services.join(', ') : profile.services],
+    ['Area', profile.service_area],
+    ['Hours', profile.hours],
+    ['Pricing', profile.pricing_notes],
+    ['About', profile.about],
+    ['Specialties', profile.specialties],
+  ].filter(([, v]) => v);
+  card.innerHTML = rows.map(([label, val]) =>
+    `<div class="profile-row"><div class="profile-label">${label}</div><div class="profile-value">${val}</div></div>`
+  ).join('');
+  card.style.display = rows.length ? 'block' : 'none';
 }
 
 // ── CHARTS ──
@@ -1092,6 +1194,15 @@ async function loadContractorProfile() {
     bizName = contractorProfile.business_name || bizName;
     document.getElementById('biz-name').value = bizName;
     document.getElementById('biz-phone').value = contractorProfile.phone || '';
+    document.getElementById('biz-services').value = contractorProfile.services || '';
+    if (contractorProfile.website_url) document.getElementById('scrape-url').value = contractorProfile.website_url;
+    if (contractorProfile.profile && Object.keys(contractorProfile.profile).length) {
+      renderScrapeProfile(contractorProfile.profile);
+    }
+    if (contractorProfile.scraped_at) {
+      document.getElementById('scrape-timestamp').textContent =
+        'Last scraped: ' + new Date(contractorProfile.scraped_at).toLocaleString();
+    }
   }
 }
 

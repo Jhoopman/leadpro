@@ -69,6 +69,12 @@ CREATE POLICY "appointments_all_own" ON appointments
 
 
 -- ─────────────────────────────────────────────────────────
+-- Run these if upgrading an existing database (safe to re-run):
+ALTER TABLE contractors ADD COLUMN IF NOT EXISTS website_url  text             DEFAULT '';
+ALTER TABLE contractors ADD COLUMN IF NOT EXISTS profile      jsonb            DEFAULT '{}'::jsonb;
+ALTER TABLE contractors ADD COLUMN IF NOT EXISTS scraped_at   timestamptz;
+
+-- ─────────────────────────────────────────────────────────
 -- After running this SQL, copy the following values from
 -- Supabase Dashboard → Settings → API and add them to your
 -- Render.com environment variables:
