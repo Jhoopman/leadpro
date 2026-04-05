@@ -136,18 +136,31 @@ async function callAPI(messages) {
   return res.json();
 }
 
+function extractLeadJson(raw) {
+  var idx = raw.indexOf('LEAD_DATA:');
+  if (idx === -1) return null;
+  var start = raw.indexOf('{', idx);
+  if (start === -1) return null;
+  var depth = 0;
+  for (var i = start; i < raw.length; i++) {
+    if (raw[i] === '{') depth++;
+    else if (raw[i] === '}') { depth--; if (depth === 0) { try { return JSON.parse(raw.slice(start, i + 1)); } catch(e) { return null; } } }
+  }
+  return null;
+}
+
 async function handleResponse(data) {
   var raw = (data.content || []).map(function(c) { return c.text || ''; }).join('');
-  var match = raw.match(/LEAD_DATA:(\{[^}]+\})/);
-  if (match && !capturedLead) {
+  var capturedJson = extractLeadJson(raw);
+  if (capturedJson && !capturedLead) {
     try {
-      capturedLead = JSON.parse(match[1]);
+      capturedLead = capturedJson;
       showLeadCard(capturedLead);
       // Notify parent frame for badge
       try { window.parent.postMessage('lp:new_lead', '*'); } catch(e) {}
     } catch(e) {}
   }
-  var clean = raw.replace(/LEAD_DATA:\{[^}]+\}/, '').trim();
+  var clean = raw.replace(/LEAD_DATA:\{[\s\S]*?\}(?=\s*$)/, '').trim();
   showTyping(false);
   addMsg('bot', clean || 'Sorry, I had trouble with that. Please try again.');
   chatHistory.push({ role: 'assistant', content: raw });

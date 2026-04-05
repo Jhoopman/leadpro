@@ -76,7 +76,7 @@ Return ONLY a JSON object with these fields (null if not found):
   "about": "1 sentence about the business",
   "specialties": "what they emphasize as their differentiator"
 }`;
-    const pd = JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:600, messages:[{role:'user',content:prompt}] });
+    const pd = JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:600, messages:[{role:'user',content:prompt}] });
     const req = https.request({
       hostname:'api.anthropic.com', port:443, path:'/v1/messages', method:'POST',
       headers:{'Content-Type':'application/json','Content-Length':Buffer.byteLength(pd),'x-api-key':API_KEY,'anthropic-version':'2023-06-01'}
@@ -96,7 +96,7 @@ function leadAlertHTML(lead, source) {
 }
 
 function confirmHTML(lead) {
-  return `<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px"><div style="background:#1a4d2e;border-radius:12px;padding:20px 24px;margin-bottom:20px"><h1 style="color:#e8f5ec;font-size:20px;margin:0">You're all set, ${(lead.name||'').split(' ')[0]}!</h1></div><p style="color:#2c2c2a;font-size:14px;line-height:1.7">Thanks for reaching out. Here's a summary of your request:</p><div style="background:#f5f5f3;border-radius:8px;padding:16px;margin:16px 0"><table style="width:100%;font-size:13px;color:#2c2c2a"><tr><td style="color:#888;padding:4px 0;width:120px">Service</td><td style="font-weight:500">${lead.service||'—'}</td></tr><tr><td style="color:#888;padding:4px 0">Address</td><td style="font-weight:500">${lead.address||'—'}</td></tr><tr><td style="color:#888;padding:4px 0">Requested time</td><td style="font-weight:500">${lead.datetime||'—'}</td></tr></table></div><p style="color:#2c2c2a;font-size:14px;line-height:1.7">Jake will be in touch soon to lock in your exact time. Reply to this email if anything changes.</p><p style="color:#2c2c2a;font-size:14px;margin-top:20px">Talk soon,<br><strong>GreenPro Landscaping & Pest Control</strong></p></div>`;
+  return `<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px"><div style="background:#1a4d2e;border-radius:12px;padding:20px 24px;margin-bottom:20px"><h1 style="color:#e8f5ec;font-size:20px;margin:0">You're all set, ${(lead.name||'').split(' ')[0]}!</h1></div><p style="color:#2c2c2a;font-size:14px;line-height:1.7">Thanks for reaching out. Here's a summary of your request:</p><div style="background:#f5f5f3;border-radius:8px;padding:16px;margin:16px 0"><table style="width:100%;font-size:13px;color:#2c2c2a"><tr><td style="color:#888;padding:4px 0;width:120px">Service</td><td style="font-weight:500">${lead.service||'—'}</td></tr><tr><td style="color:#888;padding:4px 0">Address</td><td style="font-weight:500">${lead.address||'—'}</td></tr><tr><td style="color:#888;padding:4px 0">Requested time</td><td style="font-weight:500">${lead.datetime||'—'}</td></tr></table></div><p style="color:#2c2c2a;font-size:14px;line-height:1.7">Our team will be in touch soon to lock in your exact time. Reply to this email if anything changes.</p><p style="color:#2c2c2a;font-size:14px;margin-top:20px">Talk soon,<br><strong>${lead.bizName||'Our Team'}</strong></p></div>`;
 }
 
 async function saveLead(lead, source) {
@@ -148,6 +148,55 @@ app.get(['/', '/app'], (req, res) => {
   res.sendFile(path.join(__dirname, files[0]));
 });
 
+// Contractor profile by widget ID (used by embedded widget)
+app.get('/contractor/:id', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('contractors')
+      .select('id, business_name, services')
+      .eq('widget_id', req.params.id)
+      .single();
+    if (error || !data) { res.status(404).json({ error: 'Not found' }); return; }
+    res.json(data);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Widget chat API — builds personalized system prompt from contractor data
+app.post('/widget-api', (req, res) => {
+  const { messages, bizName, services } = req.body;
+  if (!messages) { res.status(400).json({ error: 'No messages' }); return; }
+  const biz = bizName || 'our company';
+  const svcList = services || 'general services';
+  const systemPrompt = `You are a friendly scheduling assistant for ${biz}. Your job is to have a warm, natural conversation to gather info and book an appointment or estimate.
+
+Services offered: ${svcList}
+
+Goals:
+1. Greet the customer warmly and ask how you can help
+2. Naturally collect these 5 things (one at a time): name, phone number, address/zip code, service needed, preferred date and time
+3. Confirm all details back to them warmly
+4. Tell them the team will follow up to confirm within a few hours
+
+Rules:
+- Sound human and conversational — no bullet lists, no robotic tone
+- Ask one question at a time
+- Keep responses SHORT — 1-3 sentences max
+- Once you have all 5 fields, output this ONCE at the END of your message:
+LEAD_DATA:{"name":"...","phone":"...","address":"...","service":"...","datetime":"..."}`;
+  const pd = JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 500, system: systemPrompt, messages });
+  const proxyReq = https.request({
+    hostname: 'api.anthropic.com', port: 443, path: '/v1/messages', method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(pd), 'x-api-key': API_KEY, 'anthropic-version': '2023-06-01' }
+  }, proxyRes => {
+    let d = ''; proxyRes.on('data', c => d += c);
+    proxyRes.on('end', () => { res.status(proxyRes.statusCode).json(JSON.parse(d)); });
+  });
+  proxyReq.on('error', e => res.status(500).json({ error: e.message }));
+  proxyReq.write(pd); proxyReq.end();
+});
+
 // Claude API proxy
 app.post('/api', (req, res) => {
   const pd = JSON.stringify(req.body);
@@ -184,8 +233,13 @@ app.post('/send-confirmation', async (req, res) => {
   const lead = req.body;
   try {
     await saveLead(lead, 'chat');
+    let bizName = lead.bizName || 'Our Team';
+    if (!lead.bizName && lead.contractorId) {
+      const { data } = await supabase.from('contractors').select('business_name').eq('id', lead.contractorId).single();
+      if (data) bizName = data.business_name;
+    }
     if (lead.email) {
-      await sendEmail(lead.email, `You're booked — ${lead.service} estimate confirmed`, confirmHTML(lead));
+      await sendEmail(lead.email, `You're booked — ${lead.service} estimate confirmed`, confirmHTML({ ...lead, bizName }));
       console.log('Customer email sent:', lead.email);
     }
     await sendEmail(ALERT_EMAIL, `New chat lead: ${lead.name} — ${lead.service}`, leadAlertHTML(lead, 'Website chat'));
