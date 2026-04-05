@@ -156,6 +156,20 @@ async function handleResponse(data) {
     try {
       capturedLead = capturedJson;
       showLeadCard(capturedLead);
+      // Save lead + send confirmation email
+      fetch(BASE + '/send-confirmation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: capturedLead.name || '',
+          phone: capturedLead.phone || '',
+          address: capturedLead.address || '',
+          service: capturedLead.service || '',
+          datetime: capturedLead.datetime || '',
+          contractorId: contractor ? contractor.id : null,
+          bizName: contractor ? contractor.business_name : ''
+        })
+      }).catch(function(e) { console.warn('Confirmation failed:', e.message); });
       // Notify parent frame for badge
       try { window.parent.postMessage('lp:new_lead', '*'); } catch(e) {}
     } catch(e) {}

@@ -747,11 +747,12 @@ function extractLeadJson(raw) {
 }
 
 // ── CHATBOT ──
-const SYSTEM_PROMPT = `You are a friendly, professional scheduling assistant for a local landscaping and pest control company. Your job is to have a warm, natural conversation to gather information and book appointments or estimates.
+function getSystemPrompt() {
+  return `You are a friendly, professional scheduling assistant for ${bizName}. Your job is to have a warm, natural conversation to gather information and book appointments or estimates.
 
 Goals in order:
 1. Greet the customer warmly and ask how you can help
-2. Naturally collect these 5 things (one at a time, conversationally): their name, phone number, address/zip code, type of service needed (landscaping, lawn care, pest control, tree trimming, etc.), and preferred date and time
+2. Naturally collect these 5 things (one at a time, conversationally): their name, phone number, address/zip code, type of service needed, and preferred date and time
 3. Confirm all details back to them warmly
 4. Tell them the team will follow up to confirm within a few hours
 
@@ -763,6 +764,7 @@ Rules:
 - Once you have all 5 fields, output this at the END of your message (after your normal reply) and nowhere else:
 LEAD_DATA:{"name":"...","phone":"...","address":"...","service":"...","datetime":"..."}
 - Only output LEAD_DATA once total`;
+}
 
 function startChat() {
   chatStarted = true;
@@ -778,7 +780,7 @@ function resetChat() {
 async function callClaude() {
   showTyping(true);
   try {
-    const payload = { model:'claude-sonnet-4-6', max_tokens:500, system: SYSTEM_PROMPT, messages: chatHistory };
+    const payload = { model:'claude-sonnet-4-6', max_tokens:500, system: getSystemPrompt(), messages: chatHistory };
     const res = await fetch('https://leadpro-1d5l.onrender.com/api', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
@@ -952,6 +954,40 @@ function renderCharts() {
   });
 }
 
+// ── REALTIME ──
+function setupRealtime() {
+  if (!sb || !currentUser) return;
+  sb.channel('leads-live')
+    .on('postgres_changes', {
+      event: 'INSERT',
+      schema: 'public',
+      table: 'leads',
+      filter: `contractor_id=eq.${currentUser.id}`
+    }, (payload) => {
+      const l = payload.new;
+      if (leads.find(x => x.id === l.id)) return; // already added locally
+      const newLead = {
+        id: l.id,
+        name: l.name,
+        addr: l.address,
+        service: l.service,
+        phone: l.phone || '—',
+        notes: l.notes,
+        requested: new Date(l.requested_at).toLocaleString('en-US', { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' }),
+        status: l.status
+      };
+      leads.unshift(newLead);
+      feed.unshift({ color: 'a-green', text: `New widget lead: ${l.name} — ${l.service}`, time: 'Just now' });
+      document.getElementById('new-badge').style.display = '';
+      updateMetrics();
+      if (document.getElementById('s-dashboard').classList.contains('active')) {
+        renderDashLeads(); renderFeed(); setTimeout(renderCharts, 50);
+      }
+      showSMSToast(`New lead!\n${l.name} — ${l.service}\n${l.address}`);
+    })
+    .subscribe((status) => { console.log('Realtime:', status); });
+}
+
 // ── UTILS ──
 function initials(name) { return (name||'').split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase()||'?'; }
 function avatarColors(name) {
@@ -1045,6 +1081,7 @@ async function afterLogin() {
   hideAuthScreen();
   renderSidebarUser();
   renderWidgetCode();
+  setupRealtime();
 }
 
 async function loadContractorProfile() {

@@ -100,16 +100,20 @@ function confirmHTML(lead) {
 }
 
 async function saveLead(lead, source) {
+  if (!lead.contractor_id) {
+    console.warn('saveLead: no contractor_id — skipping Supabase insert');
+    return;
+  }
+  const notes = [lead.datetime, lead.transcript ? lead.transcript.slice(0, 500) : null]
+    .filter(Boolean).join(' | ');
   const { error } = await supabase.from('leads').insert({
-    name: lead.name || null,
-    phone: lead.phone || null,
-    email: lead.email || null,
-    address: lead.address || null,
-    service: lead.service || null,
-    datetime: lead.datetime || null,
-    source,
-    transcript: lead.transcript || null,
-    created_at: new Date().toISOString()
+    contractor_id: lead.contractor_id,
+    name: lead.name || '',
+    phone: lead.phone || '',
+    address: lead.address || '',
+    service: lead.service || '',
+    notes: notes || '',
+    status: 'new'
   });
   if (error) console.error('Supabase insert error:', error.message);
   else console.log('Lead saved to Supabase');
@@ -232,12 +236,13 @@ app.post('/scrape', async (req, res) => {
 app.post('/send-confirmation', async (req, res) => {
   const lead = req.body;
   try {
-    await saveLead(lead, 'chat');
     let bizName = lead.bizName || 'Our Team';
-    if (!lead.bizName && lead.contractorId) {
-      const { data } = await supabase.from('contractors').select('business_name').eq('id', lead.contractorId).single();
+    const contractorId = lead.contractorId || null;
+    if (contractorId && !lead.bizName) {
+      const { data } = await supabase.from('contractors').select('business_name').eq('id', contractorId).single();
       if (data) bizName = data.business_name;
     }
+    await saveLead({ ...lead, contractor_id: contractorId }, 'chat');
     if (lead.email) {
       await sendEmail(lead.email, `You're booked — ${lead.service} estimate confirmed`, confirmHTML({ ...lead, bizName }));
       console.log('Customer email sent:', lead.email);
