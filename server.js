@@ -374,12 +374,13 @@ app.post('/create-checkout-session', async (req, res) => {
   const priceId = plan === 'pro' ? STRIPE_PRO_PRICE_ID : STRIPE_STARTER_PRICE_ID;
   if (!priceId) { res.status(503).json({ error: 'Price ID not configured for plan: ' + plan }); return; }
   try {
-    const { data: contractor, error: dbErr } = await supabase
-      .from('contractors').select('id, business_name, stripe_customer_id').eq('id', contractorId).single();
+    const { data: rows, error: dbErr } = await supabase
+      .from('contractors').select('id, business_name, stripe_customer_id').eq('id', contractorId).limit(1);
     if (dbErr) {
       console.error('Supabase lookup error for contractorId', contractorId, ':', dbErr.message);
       res.status(500).json({ error: 'Database error: ' + dbErr.message }); return;
     }
+    const contractor = rows?.[0];
     if (!contractor) { res.status(404).json({ error: 'Contractor not found for id: ' + contractorId }); return; }
 
     let customerId = contractor.stripe_customer_id;
