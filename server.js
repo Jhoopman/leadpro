@@ -3,6 +3,7 @@ const https = require('https');
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const { createClient } = require('@supabase/supabase-js');
 
 const PORT = process.env.PORT || 3000;
@@ -10,6 +11,20 @@ const API_KEY = process.env.ANTHROPIC_API_KEY || '';
 const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
 const ALERT_EMAIL = process.env.ALERT_EMAIL || 'hstratigies@gmail.com';
 const FROM_EMAIL = 'onboarding@resend.dev';
+const STRIPE_SECRET_KEY      = process.env.STRIPE_SECRET_KEY      || '';
+const STRIPE_WEBHOOK_SECRET  = process.env.STRIPE_WEBHOOK_SECRET  || '';
+const STRIPE_STARTER_PRICE_ID = process.env.STRIPE_STARTER_PRICE_ID || '';
+const STRIPE_PRO_PRICE_ID    = process.env.STRIPE_PRO_PRICE_ID    || '';
+
+/*
+  Supabase migration — run once in the SQL editor:
+  ALTER TABLE contractors
+    ADD COLUMN IF NOT EXISTS stripe_customer_id     text,
+    ADD COLUMN IF NOT EXISTS stripe_subscription_id text,
+    ADD COLUMN IF NOT EXISTS plan                   text DEFAULT 'free',
+    ADD COLUMN IF NOT EXISTS plan_status            text DEFAULT 'trial',
+    ADD COLUMN IF NOT EXISTS trial_ends_at          timestamptz;
+*/
 
 if (!API_KEY) { console.log('\n❌ No API key.\n'); process.exit(1); }
 
@@ -21,6 +36,8 @@ const supabase = createClient(
 console.log('\n✅ API key loaded');
 console.log('✅ Resend email configured');
 console.log('✅ Supabase admin client initialized');
+if (STRIPE_SECRET_KEY) console.log('✅ Stripe billing configured');
+else console.log('⚠️  No STRIPE_SECRET_KEY — billing endpoints disabled');
 console.log('✅ LeadPro server running on port', PORT, '\n');
 
 // ── HELPERS ──
@@ -119,9 +136,71 @@ async function saveLead(lead, source) {
   else console.log('Lead saved to Supabase');
 }
 
+// ── STRIPE HELPERS ──
+// Flattens nested objects into Stripe's form-encoded key format
+// e.g. { line_items: [{ price: 'p', quantity: 1 }] }
+//   -> { 'line_items[0][price]': 'p', 'line_items[0][quantity]': '1' }
+function flattenStripeParams(obj, prefix) {
+  const out = {};
+  (function walk(o, p) {
+    Object.keys(o).forEach(k => {
+      const key = p ? `${p}[${k}]` : k;
+      if (Array.isArray(o[k])) {
+        o[k].forEach((item, i) => {
+          if (item !== null && typeof item === 'object') walk(item, `${key}[${i}]`);
+          else out[`${key}[${i}]`] = String(item);
+        });
+      } else if (o[k] !== null && typeof o[k] === 'object') {
+        walk(o[k], key);
+      } else if (o[k] !== undefined) {
+        out[key] = String(o[k]);
+      }
+    });
+  })(obj, prefix || '');
+  return out;
+}
+
+function stripeRequest(method, path, params) {
+  return new Promise((resolve, reject) => {
+    const flat  = params ? flattenStripeParams(params) : {};
+    const body  = new URLSearchParams(flat).toString();
+    const req = https.request({
+      hostname: 'api.stripe.com', port: 443,
+      path: '/v1/' + path, method,
+      headers: {
+        'Authorization':  'Bearer ' + STRIPE_SECRET_KEY,
+        'Content-Type':   'application/x-www-form-urlencoded',
+        'Content-Length': Buffer.byteLength(body)
+      }
+    }, res => {
+      let d = ''; res.on('data', c => d += c);
+      res.on('end', () => { try { resolve(JSON.parse(d)); } catch(e) { reject(e); } });
+    });
+    req.on('error', reject);
+    if (body) req.write(body);
+    req.end();
+  });
+}
+
+function verifyStripeSignature(rawBody, sigHeader) {
+  const parts  = sigHeader.split(',');
+  const tsPart = parts.find(p => p.startsWith('t='));
+  const sigPart = parts.find(p => p.startsWith('v1='));
+  if (!tsPart || !sigPart) throw new Error('Invalid Stripe-Signature header');
+  const ts  = tsPart.slice(2);
+  const sig = sigPart.slice(3);
+  const expected = crypto.createHmac('sha256', STRIPE_WEBHOOK_SECRET)
+    .update(ts + '.' + rawBody).digest('hex');
+  if (!crypto.timingSafeEqual(Buffer.from(sig, 'hex'), Buffer.from(expected, 'hex')))
+    throw new Error('Stripe signature mismatch');
+}
+
 // ── APP ──
 const app = express();
-app.use(express.json());
+// Capture raw body for Stripe webhook signature verification
+app.use(express.json({
+  verify: (req, res, buf) => { if (req.path === '/stripe-webhook') req.rawBody = buf; }
+}));
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -283,6 +362,115 @@ app.post('/vapi-webhook', async (req, res) => {
     if (lead.email) await sendEmail(lead.email, `Thanks for calling — ${lead.service} estimate requested`, confirmHTML(lead));
     console.log('Phone lead emails sent');
   } catch (e) { console.error('Phone email error:', e.message); }
+});
+
+// ── STRIPE BILLING ──
+
+// POST /create-checkout-session — start Stripe Checkout for a plan
+app.post('/create-checkout-session', async (req, res) => {
+  if (!STRIPE_SECRET_KEY) { res.status(503).json({ error: 'Billing not configured' }); return; }
+  const { plan, contractorId, successUrl, cancelUrl } = req.body;
+  if (!plan || !contractorId) { res.status(400).json({ error: 'Missing plan or contractorId' }); return; }
+  const priceId = plan === 'pro' ? STRIPE_PRO_PRICE_ID : STRIPE_STARTER_PRICE_ID;
+  if (!priceId) { res.status(503).json({ error: 'Price ID not configured for plan: ' + plan }); return; }
+  try {
+    const { data: contractor, error: dbErr } = await supabase
+      .from('contractors').select('id, business_name, stripe_customer_id').eq('id', contractorId).single();
+    if (dbErr || !contractor) { res.status(404).json({ error: 'Contractor not found' }); return; }
+
+    let customerId = contractor.stripe_customer_id;
+    if (!customerId) {
+      const customer = await stripeRequest('POST', 'customers', {
+        description: contractor.business_name,
+        metadata: { contractor_id: contractorId }
+      });
+      if (customer.error) throw new Error(customer.error.message);
+      customerId = customer.id;
+      await supabase.from('contractors').update({ stripe_customer_id: customerId }).eq('id', contractorId);
+    }
+
+    const session = await stripeRequest('POST', 'checkout/sessions', {
+      customer: customerId,
+      mode: 'subscription',
+      line_items: [{ price: priceId, quantity: 1 }],
+      success_url: successUrl || 'https://leadpro-1d5l.onrender.com/app?billing=success',
+      cancel_url:  cancelUrl  || 'https://leadpro-1d5l.onrender.com/app',
+      metadata: { contractor_id: contractorId, plan }
+    });
+    if (session.error) throw new Error(session.error.message);
+    res.json({ url: session.url });
+  } catch(e) {
+    console.error('Checkout session error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /stripe-webhook — handle Stripe events
+app.post('/stripe-webhook', async (req, res) => {
+  const sig = req.headers['stripe-signature'];
+  if (!sig || !req.rawBody) { res.status(400).json({ error: 'Missing signature or raw body' }); return; }
+  if (!STRIPE_WEBHOOK_SECRET) { res.status(503).json({ error: 'Webhook secret not configured' }); return; }
+  try {
+    verifyStripeSignature(req.rawBody.toString(), sig);
+  } catch(e) {
+    console.warn('Stripe webhook rejected:', e.message);
+    res.status(400).json({ error: 'Invalid signature' }); return;
+  }
+  const event = req.body;
+  try {
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object;
+      const contractorId = session.metadata?.contractor_id;
+      const plan = session.metadata?.plan || 'starter';
+      if (contractorId) {
+        await supabase.from('contractors').update({
+          stripe_customer_id:     session.customer,
+          stripe_subscription_id: session.subscription,
+          plan,
+          plan_status: 'active'
+        }).eq('id', contractorId);
+        console.log('Subscription activated — contractor:', contractorId, 'plan:', plan);
+      }
+    } else if (event.type === 'customer.subscription.deleted') {
+      const sub = event.data.object;
+      const { data } = await supabase.from('contractors')
+        .select('id').eq('stripe_subscription_id', sub.id).single();
+      if (data) {
+        await supabase.from('contractors').update({
+          plan_status: 'inactive',
+          stripe_subscription_id: null
+        }).eq('id', data.id);
+        console.log('Subscription cancelled — contractor:', data.id);
+      }
+    }
+    res.json({ received: true });
+  } catch(e) {
+    console.error('Webhook processing error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// GET /billing-portal — open Stripe Customer Portal
+app.get('/billing-portal', async (req, res) => {
+  if (!STRIPE_SECRET_KEY) { res.status(503).json({ error: 'Billing not configured' }); return; }
+  const contractorId = req.query.contractorId;
+  if (!contractorId) { res.status(400).json({ error: 'Missing contractorId' }); return; }
+  try {
+    const { data: contractor } = await supabase
+      .from('contractors').select('stripe_customer_id').eq('id', contractorId).single();
+    if (!contractor?.stripe_customer_id) {
+      res.status(404).json({ error: 'No billing account found — subscribe first' }); return;
+    }
+    const portal = await stripeRequest('POST', 'billing_portal/sessions', {
+      customer:   contractor.stripe_customer_id,
+      return_url: 'https://leadpro-1d5l.onrender.com/app'
+    });
+    if (portal.error) throw new Error(portal.error.message);
+    res.json({ url: portal.url });
+  } catch(e) {
+    console.error('Billing portal error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
 });
 
 app.listen(PORT, () => {

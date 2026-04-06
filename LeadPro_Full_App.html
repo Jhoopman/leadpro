@@ -259,6 +259,35 @@ nav { flex: 1; padding: 8px 0; }
 .snippet { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; font-family: 'Courier New', monospace; font-size: 11px; color: var(--text); line-height: 1.6; position: relative; word-break: break-all; }
 .snippet .cc { position: absolute; top: 7px; right: 7px; font-size: 10px; background: var(--bg2); border: 1px solid var(--border2); padding: 2px 8px; border-radius: 5px; cursor: pointer; color: var(--text3); font-family: inherit; }
 
+/* PAYWALL OVERLAY */
+#paywall-overlay { position: fixed; inset: 0; background: rgba(10,24,16,0.93); z-index: 8000; display: none; align-items: center; justify-content: center; }
+#paywall-overlay.show { display: flex; }
+#paywall-box { background: #fff; border-radius: 20px; padding: 36px 32px; width: 490px; max-width: calc(100vw - 32px); box-shadow: 0 32px 80px rgba(0,0,0,0.45); text-align: center; }
+.pw-icon { width: 52px; height: 52px; background: #faeeda; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; }
+.pw-icon svg { width: 24px; height: 24px; fill: #854f0b; }
+.pw-title { font-size: 20px; font-weight: 700; color: var(--green); margin-bottom: 8px; }
+.pw-sub { font-size: 13px; color: var(--text2); margin-bottom: 24px; line-height: 1.65; }
+.pw-plans { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+.pw-plan { border: 2px solid var(--border); border-radius: 12px; padding: 16px 14px; cursor: pointer; transition: all .15s; text-align: left; background: none; font-family: inherit; }
+.pw-plan:hover { border-color: var(--green-mid); background: var(--green-lite); }
+.pw-plan.featured { border-color: var(--green); background: var(--green-lite); }
+.pw-plan-name { font-size: 13px; font-weight: 700; color: var(--green); margin-bottom: 5px; }
+.pw-plan-price { font-size: 24px; font-weight: 700; color: var(--text); line-height: 1; }
+.pw-plan-price span { font-size: 13px; font-weight: 400; color: var(--text2); }
+.pw-plan-desc { font-size: 11px; color: var(--text2); margin-top: 6px; line-height: 1.45; }
+.pw-portal { font-size: 12px; color: var(--text3); cursor: pointer; text-decoration: underline; margin-top: 4px; display: inline-block; }
+
+/* BILLING SECTION */
+.plan-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
+.plan-trial    { background: #faeeda; color: #854f0b; }
+.plan-active   { background: #eaf6ef; color: #1a4d2e; }
+.plan-inactive { background: #fde8e8; color: #a32d2d; }
+.plan-free     { background: var(--bg3); color: var(--text2); }
+.upgrade-btn { padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; border: none; transition: opacity .15s; }
+.upgrade-btn:hover { opacity: 0.85; }
+.upgrade-btn.starter { background: #185fa5; color: #fff; }
+.upgrade-btn.pro     { background: var(--green); color: #e8f5ec; }
+
 /* PHONE CALLS */
 .p-answered { background: #eaf3de; color: #27500a; }
 .p-missed { background: #fde8e8; color: #a32d2d; }
@@ -325,6 +354,28 @@ nav { flex: 1; padding: 8px 0; }
       <div class="auth-err" id="signup-error"></div>
       <div class="auth-ok" id="signup-success">Account created! Check your email to confirm, then sign in.</div>
     </div>
+  </div>
+</div>
+
+<!-- PAYWALL OVERLAY — shown when trial expired or plan inactive -->
+<div id="paywall-overlay">
+  <div id="paywall-box">
+    <div class="pw-icon"><svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg></div>
+    <div class="pw-title">Your free trial has ended</div>
+    <div class="pw-sub">Choose a plan to keep capturing leads and booking appointments with LeadPro AI.</div>
+    <div class="pw-plans">
+      <button class="pw-plan" onclick="startCheckout('starter')">
+        <div class="pw-plan-name">Starter</div>
+        <div class="pw-plan-price">$49<span>/mo</span></div>
+        <div class="pw-plan-desc">AI chat widget, lead capture, email &amp; SMS alerts</div>
+      </button>
+      <button class="pw-plan featured" onclick="startCheckout('pro')">
+        <div class="pw-plan-name">Pro ★ Most popular</div>
+        <div class="pw-plan-price">$149<span>/mo</span></div>
+        <div class="pw-plan-desc">Everything in Starter + AI phone calls &amp; priority support</div>
+      </button>
+    </div>
+    <span class="pw-portal" onclick="openBillingPortal()">Already subscribed? Manage billing →</span>
   </div>
 </div>
 
@@ -558,6 +609,29 @@ nav { flex: 1; padding: 8px 0; }
     <p style="font-size:12px;color:var(--text2);margin-bottom:10px">Paste before &lt;/body&gt; on your website. The AI chatbot will appear as a floating button. Works on any site.</p>
     <div class="snippet" id="widget-embed-code">&lt;script src="https://leadpro-1d5l.onrender.com/widget.js" data-id="<span id="widget-id-span" style="color:var(--green-mid)">loading...</span>"&gt;&lt;/script&gt;<button class="cc" onclick="copyEmbedCode(this)">Copy</button></div>
     <p style="font-size:11px;color:var(--text3);margin-top:8px">Your widget ID: <strong id="widget-id-display" style="color:var(--text)">—</strong></p>
+  </div>
+  <div class="settings-section" id="billing-section">
+    <h3>Plan &amp; billing</h3>
+    <div class="srow">
+      <div class="srow-info">
+        <div class="sl">Current plan</div>
+        <div class="ss" id="billing-plan-detail">Loading…</div>
+      </div>
+      <span class="plan-badge plan-free" id="billing-badge">Free</span>
+    </div>
+    <div class="srow" id="billing-trial-row" style="display:none">
+      <div class="srow-info">
+        <div class="sl">Trial ends</div>
+        <div class="ss" id="billing-trial-end">—</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
+      <button class="upgrade-btn starter" onclick="startCheckout('starter')">Upgrade to Starter — $49/mo</button>
+      <button class="upgrade-btn pro" onclick="startCheckout('pro')">Upgrade to Pro — $149/mo</button>
+    </div>
+    <div style="margin-top:10px">
+      <button class="btn-sm" id="billing-portal-btn" style="display:none" onclick="openBillingPortal()">Manage billing &amp; invoices →</button>
+    </div>
   </div>
 </div>
 
@@ -1270,7 +1344,16 @@ async function signUp() {
   if (error) { errEl.textContent = error.message; return; }
   if (data.user) {
     const widgetId = 'lp_' + Math.random().toString(36).substr(2, 8);
-    await sb.from('contractors').insert({ id: data.user.id, business_name: biz, widget_id: widgetId });
+    const trialEnds = new Date();
+    trialEnds.setDate(trialEnds.getDate() + 14);
+    await sb.from('contractors').insert({
+      id: data.user.id,
+      business_name: biz,
+      widget_id: widgetId,
+      plan: 'free',
+      plan_status: 'trial',
+      trial_ends_at: trialEnds.toISOString()
+    });
   }
   successEl.style.display = 'block';
 }
@@ -1307,6 +1390,8 @@ async function loadContractorProfile() {
         'Last scraped: ' + new Date(contractorProfile.scraped_at).toLocaleString();
     }
   }
+  checkPaywall();
+  renderBillingSection();
 }
 
 async function loadData() {
@@ -1500,11 +1585,102 @@ async function loadCallsFromSupabase() {
   }
 }
 
+// ── BILLING ──
+function checkPaywall() {
+  if (!contractorProfile) return; // no profile = demo mode, no paywall
+  const status    = contractorProfile.plan_status;
+  const trialEnds = contractorProfile.trial_ends_at ? new Date(contractorProfile.trial_ends_at) : null;
+  const trialExpired = !trialEnds || trialEnds < new Date();
+  const blocked = status === 'inactive'
+    || (status === 'trial' && trialExpired)
+    || (!status && trialExpired);
+  document.getElementById('paywall-overlay').classList.toggle('show', !!blocked);
+}
+
+function renderBillingSection() {
+  if (!contractorProfile) return;
+  const status    = contractorProfile.plan_status || 'trial';
+  const plan      = contractorProfile.plan || 'free';
+  const trialEnds = contractorProfile.trial_ends_at ? new Date(contractorProfile.trial_ends_at) : null;
+  const badge  = document.getElementById('billing-badge');
+  const detail = document.getElementById('billing-plan-detail');
+  const trialRow   = document.getElementById('billing-trial-row');
+  const trialEndEl = document.getElementById('billing-trial-end');
+  const portalBtn  = document.getElementById('billing-portal-btn');
+
+  if (status === 'active') {
+    badge.textContent = plan === 'pro' ? 'Pro' : 'Starter';
+    badge.className   = 'plan-badge plan-active';
+    detail.textContent = plan === 'pro' ? '$149/mo — AI chat + phone calls' : '$49/mo — AI chat widget';
+    trialRow.style.display = 'none';
+    portalBtn.style.display = '';
+  } else if (status === 'trial') {
+    const daysLeft = trialEnds ? Math.max(0, Math.ceil((trialEnds - new Date()) / 86400000)) : 0;
+    badge.textContent = 'Trial';
+    badge.className   = 'plan-badge plan-trial';
+    detail.textContent = daysLeft > 0
+      ? `${daysLeft} day${daysLeft !== 1 ? 's' : ''} remaining in your free trial`
+      : 'Trial expired — upgrade to continue';
+    if (trialEnds) {
+      trialRow.style.display = '';
+      trialEndEl.textContent = trialEnds.toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
+    }
+    portalBtn.style.display = 'none';
+  } else if (status === 'inactive') {
+    badge.textContent  = 'Inactive';
+    badge.className    = 'plan-badge plan-inactive';
+    detail.textContent = 'Subscription cancelled — upgrade to reactivate';
+    trialRow.style.display = 'none';
+    portalBtn.style.display = '';
+  } else {
+    badge.textContent  = 'Free trial';
+    badge.className    = 'plan-badge plan-free';
+    detail.textContent = '14-day free trial';
+    trialRow.style.display = 'none';
+    portalBtn.style.display = 'none';
+  }
+}
+
+async function startCheckout(plan) {
+  if (!currentUser) { alert('Please sign in first'); return; }
+  try {
+    const res = await fetch('https://leadpro-1d5l.onrender.com/create-checkout-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ plan, contractorId: currentUser.id })
+    });
+    const data = await res.json();
+    if (data.url) { window.location.href = data.url; }
+    else alert('Could not start checkout: ' + (data.error || 'Unknown error'));
+  } catch(e) {
+    alert('Connection error — please try again');
+  }
+}
+
+async function openBillingPortal() {
+  if (!currentUser) { alert('Please sign in first'); return; }
+  try {
+    const res = await fetch('https://leadpro-1d5l.onrender.com/billing-portal?contractorId=' + currentUser.id);
+    const data = await res.json();
+    if (data.url) { window.open(data.url, '_blank'); }
+    else alert('Billing portal error: ' + (data.error || 'No billing account found'));
+  } catch(e) {
+    alert('Connection error — please try again');
+  }
+}
+
 // ── INIT ──
 document.getElementById('dash-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
 if (apiKey) { document.getElementById('api-key-input').value = apiKey; document.getElementById('settings-api-key').value = apiKey; document.getElementById('api-banner').style.display='none'; }
 document.getElementById('book-overlay').addEventListener('click', e=>{ if(e.target===document.getElementById('book-overlay')) closeBookModal(); });
 document.getElementById('event-overlay').addEventListener('click', e=>{ if(e.target===document.getElementById('event-overlay')) closeEventModal(); });
+// Clear Stripe redirect params after returning from checkout
+(function() {
+  const p = new URLSearchParams(window.location.search);
+  if (p.get('billing') === 'success') {
+    window.history.replaceState({}, '', '/app');
+  }
+})();
 initSupabase();
 </script>
 </body>
