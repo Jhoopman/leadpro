@@ -89,11 +89,18 @@ CREATE POLICY "calls_all_own" ON calls
 
 -- ─────────────────────────────────────────────────────────
 -- Run these if upgrading an existing database (safe to re-run):
-ALTER TABLE contractors ADD COLUMN IF NOT EXISTS website_url        text             DEFAULT '';
-ALTER TABLE contractors ADD COLUMN IF NOT EXISTS profile            jsonb            DEFAULT '{}'::jsonb;
-ALTER TABLE contractors ADD COLUMN IF NOT EXISTS scraped_at         timestamptz;
-ALTER TABLE contractors ADD COLUMN IF NOT EXISTS vapi_phone         text             DEFAULT '';
-ALTER TABLE contractors ADD COLUMN IF NOT EXISTS vapi_assistant_id  text             DEFAULT '';
+ALTER TABLE contractors ADD COLUMN IF NOT EXISTS website_url          text             DEFAULT '';
+ALTER TABLE contractors ADD COLUMN IF NOT EXISTS profile              jsonb            DEFAULT '{}'::jsonb;
+ALTER TABLE contractors ADD COLUMN IF NOT EXISTS scraped_at           timestamptz;
+ALTER TABLE contractors ADD COLUMN IF NOT EXISTS vapi_phone           text             DEFAULT '';
+ALTER TABLE contractors ADD COLUMN IF NOT EXISTS vapi_assistant_id    text             DEFAULT '';
+
+-- Stripe billing columns (required for /create-checkout-session):
+ALTER TABLE contractors ADD COLUMN IF NOT EXISTS stripe_customer_id     text;
+ALTER TABLE contractors ADD COLUMN IF NOT EXISTS stripe_subscription_id text;
+ALTER TABLE contractors ADD COLUMN IF NOT EXISTS plan                   text DEFAULT 'free';
+ALTER TABLE contractors ADD COLUMN IF NOT EXISTS plan_status            text DEFAULT 'trial';
+ALTER TABLE contractors ADD COLUMN IF NOT EXISTS trial_ends_at          timestamptz;
 
 -- ─────────────────────────────────────────────────────────
 -- After running this SQL, copy the following values from

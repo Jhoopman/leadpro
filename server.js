@@ -376,7 +376,11 @@ app.post('/create-checkout-session', async (req, res) => {
   try {
     const { data: contractor, error: dbErr } = await supabase
       .from('contractors').select('id, business_name, stripe_customer_id').eq('id', contractorId).single();
-    if (dbErr || !contractor) { res.status(404).json({ error: 'Contractor not found' }); return; }
+    if (dbErr) {
+      console.error('Supabase lookup error for contractorId', contractorId, ':', dbErr.message);
+      res.status(500).json({ error: 'Database error: ' + dbErr.message }); return;
+    }
+    if (!contractor) { res.status(404).json({ error: 'Contractor not found for id: ' + contractorId }); return; }
 
     let customerId = contractor.stripe_customer_id;
     if (!customerId) {
