@@ -258,6 +258,42 @@ nav { flex: 1; padding: 8px 0; }
 .toggle.on .tthumb { transform: translateX(16px); }
 .snippet { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; font-family: 'Courier New', monospace; font-size: 11px; color: var(--text); line-height: 1.6; position: relative; word-break: break-all; }
 .snippet .cc { position: absolute; top: 7px; right: 7px; font-size: 10px; background: var(--bg2); border: 1px solid var(--border2); padding: 2px 8px; border-radius: 5px; cursor: pointer; color: var(--text3); font-family: inherit; }
+
+/* PHONE CALLS */
+.p-answered { background: #eaf3de; color: #27500a; }
+.p-missed { background: #fde8e8; color: #a32d2d; }
+.p-lead { background: var(--blue-lite); color: var(--blue); }
+.calls-table-row { cursor: pointer; }
+.calls-table-row:hover td { background: #f7faf8; }
+
+#vapi-banner { background: #eaf6ef; border: 1px solid #a8d5b5; border-radius: var(--radius); padding: 12px 16px; margin-bottom: 18px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+#vapi-banner svg { width: 16px; height: 16px; fill: #2d7a4e; flex-shrink: 0; }
+#vapi-banner .vb-text { font-size: 13px; color: #1a4d2e; flex: 1; min-width: 200px; }
+#vapi-banner .vb-text strong { font-weight: 600; }
+#vapi-banner input { flex: 1; min-width: 160px; padding: 7px 11px; font-size: 12px; border: 1px solid #a8d5b5; border-radius: 6px; background: #fff; color: var(--text); font-family: inherit; outline: none; }
+#vapi-banner input:focus { border-color: var(--green-mid); }
+#vapi-banner .vb-btn { padding: 7px 16px; background: var(--green); color: #e8f5ec; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; white-space: nowrap; }
+#vapi-banner .vb-btn:hover { background: var(--green-mid); }
+
+/* CALL DETAIL PANEL */
+#call-detail-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 240; }
+#call-detail-overlay.open { display: block; }
+#call-detail-panel { position: fixed; top: 0; right: -440px; width: 440px; height: 100vh; background: var(--bg2); border-left: 1px solid var(--border); z-index: 250; transition: right .28s cubic-bezier(.4,0,.2,1); display: flex; flex-direction: column; box-shadow: -6px 0 24px rgba(0,0,0,0.1); overflow-y: auto; }
+#call-detail-panel.open { right: 0; }
+.cdp-header { padding: 16px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; background: var(--bg2); position: sticky; top: 0; z-index: 1; }
+.cdp-header h2 { font-size: 15px; font-weight: 600; }
+.cdp-close { background: none; border: none; cursor: pointer; font-size: 18px; color: var(--text3); line-height: 1; padding: 2px 6px; border-radius: 4px; }
+.cdp-close:hover { background: var(--bg3); }
+.cdp-meta { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; gap: 20px; flex-wrap: wrap; flex-shrink: 0; background: var(--bg3); }
+.cdp-meta-item { display: flex; flex-direction: column; gap: 3px; }
+.cdp-meta-item .cdp-ml { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: .04em; font-weight: 500; }
+.cdp-meta-item .cdp-mv { font-size: 13px; font-weight: 500; }
+.cdp-section { padding: 16px 18px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.cdp-section-title { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 10px; }
+.cdp-lead-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; }
+.cdp-lead-grid label { font-size: 10px; color: var(--text3); display: block; margin-bottom: 2px; }
+.cdp-lead-grid span { font-size: 13px; font-weight: 500; }
+.transcript-box { background: var(--bg3); border-radius: var(--radius); padding: 12px 14px; font-size: 12px; line-height: 1.75; color: var(--text); max-height: 320px; overflow-y: auto; white-space: pre-wrap; }
 </style>
 </head>
 <body>
@@ -304,6 +340,7 @@ nav { flex: 1; padding: 8px 0; }
     <div class="nav-item active" onclick="showScreen('dashboard',this)"><svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>Dashboard</div>
     <div class="nav-item" onclick="showScreen('chatbot',this)"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>Live chatbot<span class="nav-badge" id="new-badge" style="display:none">!</span></div>
     <div class="nav-item" onclick="showScreen('leads',this)"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>Leads<span class="nav-badge" id="leads-badge">3</span></div>
+    <div class="nav-item" onclick="showScreen('calls',this)"><svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02L6.6 10.8z"/></svg>Phone calls</div>
     <div class="nav-item" onclick="showScreen('calendar',this)"><svg viewBox="0 0 24 24"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>Calendar</div>
     <div class="nav-item" onclick="showScreen('settings',this)"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96a7.01 7.01 0 00-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.47.47 0 00-.59.22L2.74 8.87a.47.47 0 00.12.61l2.03 1.58c-.05.3-.07.63-.07.94s.02.64.07.94l-2.03 1.58a.47.47 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.37 1.04.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.57 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.47.47 0 00-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>Settings</div>
   </nav>
@@ -368,7 +405,7 @@ nav { flex: 1; padding: 8px 0; }
     </div>
     <div class="right-col">
       <div class="card">
-        <div class="panel-header"><span class="panel-title">Upcoming appointments</span><button class="panel-action" onclick="showScreen('calendar',document.querySelectorAll('.nav-item')[3])">Calendar →</button></div>
+        <div class="panel-header"><span class="panel-title">Upcoming appointments</span><button class="panel-action" onclick="showScreen('calendar',document.querySelectorAll('.nav-item')[4])">Calendar →</button></div>
         <div id="dash-appts"></div>
       </div>
       <div class="card">
@@ -416,6 +453,49 @@ nav { flex: 1; padding: 8px 0; }
   </div>
   <div class="card">
     <table class="tbl"><thead><tr><th>Customer</th><th>Service</th><th>Phone</th><th>Requested</th><th>Status</th><th></th></tr></thead><tbody id="leads-body"></tbody></table>
+  </div>
+</div>
+
+<!-- ── PHONE CALLS ── -->
+<div id="s-calls" class="screen">
+  <div class="topbar"><div><h1>Phone calls</h1><div class="sub">AI voice calls answered by your Vapi assistant</div></div></div>
+
+  <!-- Vapi connect banner (hidden once configured) -->
+  <div id="vapi-banner" style="display:none">
+    <svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02L6.6 10.8z"/></svg>
+    <div class="vb-text"><strong>Connect your Vapi phone number</strong> to start capturing leads from AI-powered phone calls automatically.</div>
+    <input type="text" id="vapi-phone-input" placeholder="Phone number: +15405550192">
+    <input type="text" id="vapi-assistant-input" placeholder="Vapi assistant ID">
+    <button class="vb-btn" onclick="saveVapiConfig()">Connect</button>
+  </div>
+
+  <!-- Stats row -->
+  <div class="metrics">
+    <div class="metric metric-green">
+      <div class="metric-top"><div class="ml">Total calls this month</div><div class="metric-icon" style="background:#eaf6ef"><svg viewBox="0 0 24 24" width="15" height="15" fill="#2d7a4e"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02L6.6 10.8z"/></svg></div></div>
+      <div class="mv" id="calls-total">5</div><span class="ms up">this month</span>
+    </div>
+    <div class="metric metric-blue">
+      <div class="metric-top"><div class="ml">Calls answered</div><div class="metric-icon" style="background:#e6f1fb"><svg viewBox="0 0 24 24" width="15" height="15" fill="#185fa5"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg></div></div>
+      <div class="mv" id="calls-answered">4</div><span class="ms" style="background:#e6f1fb;color:#185fa5">80% answer rate</span>
+    </div>
+    <div class="metric metric-amber">
+      <div class="metric-top"><div class="ml">Avg call duration</div><div class="metric-icon" style="background:#faeeda"><svg viewBox="0 0 24 24" width="15" height="15" fill="#854f0b"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L11 14.5V7h1.5v6.74l4.43 2.62-.69 1.14z"/></svg></div></div>
+      <div class="mv" id="calls-avg-dur">2:34</div><span class="ms warn">per call</span>
+    </div>
+    <div class="metric metric-teal">
+      <div class="metric-top"><div class="ml">Leads captured</div><div class="metric-icon" style="background:#e0f5f8"><svg viewBox="0 0 24 24" width="15" height="15" fill="#0891b2"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg></div></div>
+      <div class="mv" id="calls-leads">3</div><span class="ms" style="background:#e0f5f8;color:#0891b2">from calls</span>
+    </div>
+  </div>
+
+  <!-- Calls table -->
+  <div class="card">
+    <div class="panel-header"><span class="panel-title">Recent calls</span><span style="font-size:11px;color:var(--text3)">Click a row to view transcript</span></div>
+    <table class="tbl">
+      <thead><tr><th>Caller</th><th>Date &amp; Time</th><th>Duration</th><th>Status</th><th></th></tr></thead>
+      <tbody id="calls-body"></tbody>
+    </table>
   </div>
 </div>
 
@@ -518,6 +598,27 @@ nav { flex: 1; padding: 8px 0; }
   </div>
 </div>
 
+<!-- CALL DETAIL PANEL -->
+<div id="call-detail-overlay" onclick="closeCallDetail()"></div>
+<div id="call-detail-panel">
+  <div class="cdp-header">
+    <h2>Call details</h2>
+    <button class="cdp-close" onclick="closeCallDetail()">&#x2715;</button>
+  </div>
+  <div class="cdp-meta" id="cdp-meta"></div>
+  <div class="cdp-section" id="cdp-lead-section" style="display:none">
+    <div class="cdp-section-title">Lead captured</div>
+    <div class="cdp-lead-grid" id="cdp-lead-grid"></div>
+    <div style="margin-top:14px">
+      <button class="btn-sm primary" onclick="bookFromCall()">Book appointment</button>
+    </div>
+  </div>
+  <div class="cdp-section">
+    <div class="cdp-section-title">Call transcript</div>
+    <div class="transcript-box" id="cdp-transcript">No transcript available.</div>
+  </div>
+</div>
+
 <!-- SMS TOAST -->
 <div id="sms-toast">
   <div class="st-label">SMS alert sent to (540) 555-0192</div>
@@ -567,6 +668,7 @@ function showScreen(id, el) {
   if (el) el.classList.add('active');
   if (id==='dashboard') { renderDashLeads(); renderDashAppts(); renderFeed(); updateMetrics(); setTimeout(renderCharts, 50); }
   if (id==='leads') renderLeadsTable();
+  if (id==='calls') { renderCallsTable(); checkVapiBanner(); }
   if (id==='calendar') renderCalendar();
   if (id==='chatbot' && !chatStarted) startChat();
 }
@@ -1180,6 +1282,7 @@ async function signOut() {
 async function afterLogin() {
   await loadContractorProfile();
   await loadData();
+  await loadCallsFromSupabase();
   hideAuthScreen();
   renderSidebarUser();
   renderWidgetCode();
@@ -1265,6 +1368,162 @@ function runAppWithDemoData() {
   document.getElementById('widget-id-span').textContent = 'lp_demo1234';
   document.getElementById('widget-id-display').textContent = 'lp_demo1234';
   renderDashLeads(); renderDashAppts(); renderFeed(); updateMetrics(); setTimeout(renderCharts, 50);
+}
+
+// ── PHONE CALLS ──
+const DEMO_CALLS = [
+  {
+    id: 'demo-1', caller_phone: '(540) 555-0183', started_at: new Date(Date.now() - 2*3600000).toISOString(),
+    duration_seconds: 187, status: 'lead_captured',
+    lead_data: { name: 'Terri Walsh', service: 'Pest control', address: '417 Boxwood Ln, Lynchburg', datetime: 'Thursday morning' },
+    transcript: `Assistant: Hi, thanks for calling GreenPro! How can I help you today?\n\nCaller: Hi, yeah I've been having a bad ant problem in my kitchen and I need someone to come out.\n\nAssistant: Oh, I'm sorry to hear that! We'd be happy to help with that. Can I get your name?\n\nCaller: Sure, it's Terri Walsh.\n\nAssistant: Great, Terri! And what's your address so we can get you scheduled?\n\nCaller: 417 Boxwood Lane in Lynchburg.\n\nAssistant: Perfect. And a good phone number to reach you?\n\nCaller: (540) 555-0183.\n\nAssistant: Do you have a preferred day or time for the visit?\n\nCaller: Thursday morning would work best.\n\nAssistant: Wonderful! I've got you down for a pest control visit Thursday morning. Our team will call to confirm the exact time. Is there anything else?\n\nCaller: No, that's it. Thank you!\n\nAssistant: Great, have a wonderful day Terri!`
+  },
+  {
+    id: 'demo-2', caller_phone: '(434) 555-0271', started_at: new Date(Date.now() - 5*3600000).toISOString(),
+    duration_seconds: 142, status: 'answered',
+    lead_data: null,
+    transcript: `Assistant: Hi, thanks for calling GreenPro! How can I help you today?\n\nCaller: Yeah I just wanted to check on pricing for lawn care.\n\nAssistant: Of course! Our lawn care packages start at $45 for standard mowing and edging. We also offer bi-weekly plans at a discount. Would you like me to have someone call you back with a custom quote for your yard size?\n\nCaller: Nah, I'll think about it and maybe call back.\n\nAssistant: Sounds great! Feel free to call us any time. Have a great day!\n\nCaller: Thanks, bye.`
+  },
+  {
+    id: 'demo-3', caller_phone: '(540) 555-0104', started_at: new Date(Date.now() - 24*3600000).toISOString(),
+    duration_seconds: 0, status: 'missed',
+    lead_data: null, transcript: ''
+  },
+  {
+    id: 'demo-4', caller_phone: '(540) 555-0346', started_at: new Date(Date.now() - 26*3600000).toISOString(),
+    duration_seconds: 214, status: 'lead_captured',
+    lead_data: { name: 'Mike Travers', service: 'Landscaping design', address: '55 Sunridge Ct, Bedford VA', datetime: 'Next Monday 9am' },
+    transcript: `Assistant: GreenPro, how can I help?\n\nCaller: I'm looking to get a full landscaping design done for my backyard. New house.\n\nAssistant: Congratulations on the new home! We'd love to help with that. Can I get your name?\n\nCaller: Mike Travers.\n\nAssistant: Mike, what's the address we'd be coming out to?\n\nCaller: 55 Sunridge Court in Bedford.\n\nAssistant: And your best contact number?\n\nCaller: (540) 555-0346.\n\nAssistant: Any specific day or time that works for an initial consult?\n\nCaller: Next Monday at 9am if possible.\n\nAssistant: Perfect! I'll book that as a landscaping design consultation for Monday at 9am. Someone will confirm with you shortly.\n\nCaller: Great, thanks a lot!\n\nAssistant: You're welcome, Mike. Talk soon!`
+  },
+  {
+    id: 'demo-5', caller_phone: '(434) 555-0088', started_at: new Date(Date.now() - 2*24*3600000).toISOString(),
+    duration_seconds: 98, status: 'lead_captured',
+    lead_data: { name: 'Pam Delgado', service: 'Lawn care', address: '1108 Heritage Blvd, Amherst', datetime: 'Any weekday afternoon' },
+    transcript: `Assistant: Hi, GreenPro speaking!\n\nCaller: Hi there. I need to set up regular lawn care for my home.\n\nAssistant: Absolutely, we'd love to help! May I have your name and address?\n\nCaller: Pam Delgado, 1108 Heritage Boulevard in Amherst.\n\nAssistant: Great! Phone number?\n\nCaller: (434) 555-0088.\n\nAssistant: And when works best for visits?\n\nCaller: Any weekday afternoon is fine.\n\nAssistant: Perfect, Pam! I've noted you for recurring lawn care any weekday afternoon. Our scheduling team will reach out to confirm your first visit.\n\nCaller: Sounds good, thanks!\n\nAssistant: Have a lovely day!`
+  }
+];
+
+let callsData = [...DEMO_CALLS];
+let selectedCallIdx = null;
+
+function checkVapiBanner() {
+  const configured = contractorProfile?.vapi_phone;
+  document.getElementById('vapi-banner').style.display = configured ? 'none' : 'flex';
+  if (configured) {
+    document.getElementById('vapi-phone-input').value = contractorProfile.vapi_phone;
+    document.getElementById('vapi-assistant-input').value = contractorProfile.vapi_assistant_id || '';
+  }
+}
+
+function fmtDuration(secs) {
+  if (!secs) return '—';
+  const m = Math.floor(secs / 60), s = secs % 60;
+  return `${m}:${String(s).padStart(2,'0')}`;
+}
+function fmtCallTime(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' · ' + d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
+}
+
+function renderCallsTable() {
+  const statusLabel = { answered:'Answered', missed:'Missed', lead_captured:'Lead captured' };
+  const statusClass = { answered:'p-answered', missed:'p-missed', lead_captured:'p-lead' };
+  document.getElementById('calls-body').innerHTML = callsData.map((c, i) => `
+    <tr class="calls-table-row" onclick="openCallDetail(${i})">
+      <td style="font-weight:500">${c.caller_phone}</td>
+      <td style="font-size:12px;color:var(--text3)">${fmtCallTime(c.started_at)}</td>
+      <td style="font-size:12px">${fmtDuration(c.duration_seconds)}</td>
+      <td><span class="pill ${statusClass[c.status]||'p-done'}">${statusLabel[c.status]||c.status}</span></td>
+      <td>${c.transcript ? `<button class="btn-sm" onclick="event.stopPropagation();openCallDetail(${i})">View transcript</button>` : '<span style="font-size:11px;color:var(--text3)">—</span>'}</td>
+    </tr>`).join('');
+  updateCallStats();
+}
+
+function updateCallStats() {
+  const total = callsData.length;
+  const answered = callsData.filter(c => c.status !== 'missed').length;
+  const withDur = callsData.filter(c => c.duration_seconds > 0);
+  const avgDur = withDur.length ? Math.round(withDur.reduce((s,c) => s + c.duration_seconds, 0) / withDur.length) : 0;
+  const leadsFromCalls = callsData.filter(c => c.status === 'lead_captured').length;
+  document.getElementById('calls-total').textContent = total;
+  document.getElementById('calls-answered').textContent = answered;
+  const pct = total ? Math.round(answered/total*100) : 0;
+  document.getElementById('calls-answered').nextElementSibling.textContent = pct + '% answer rate';
+  document.getElementById('calls-avg-dur').textContent = fmtDuration(avgDur);
+  document.getElementById('calls-leads').textContent = leadsFromCalls;
+}
+
+function openCallDetail(idx) {
+  selectedCallIdx = idx;
+  const c = callsData[idx];
+  const statusLabel = { answered:'Answered', missed:'Missed', lead_captured:'Lead captured' };
+  const statusClass = { answered:'p-answered', missed:'p-missed', lead_captured:'p-lead' };
+
+  document.getElementById('cdp-meta').innerHTML = `
+    <div class="cdp-meta-item"><div class="cdp-ml">Caller</div><div class="cdp-mv">${c.caller_phone}</div></div>
+    <div class="cdp-meta-item"><div class="cdp-ml">Date &amp; time</div><div class="cdp-mv">${fmtCallTime(c.started_at)}</div></div>
+    <div class="cdp-meta-item"><div class="cdp-ml">Duration</div><div class="cdp-mv">${fmtDuration(c.duration_seconds)}</div></div>
+    <div class="cdp-meta-item"><div class="cdp-ml">Status</div><div class="cdp-mv"><span class="pill ${statusClass[c.status]||'p-done'}">${statusLabel[c.status]||c.status}</span></div></div>`;
+
+  const leadSection = document.getElementById('cdp-lead-section');
+  if (c.lead_data) {
+    leadSection.style.display = '';
+    const ld = c.lead_data;
+    document.getElementById('cdp-lead-grid').innerHTML = `
+      <div><label>Name</label><span>${ld.name||'—'}</span></div>
+      <div><label>Service</label><span>${ld.service||'—'}</span></div>
+      <div><label>Address</label><span>${ld.address||'—'}</span></div>
+      <div><label>Requested time</label><span>${ld.datetime||'—'}</span></div>`;
+  } else {
+    leadSection.style.display = 'none';
+  }
+
+  document.getElementById('cdp-transcript').textContent = c.transcript || 'No transcript available.';
+  document.getElementById('call-detail-overlay').classList.add('open');
+  document.getElementById('call-detail-panel').classList.add('open');
+}
+
+function closeCallDetail() {
+  document.getElementById('call-detail-overlay').classList.remove('open');
+  document.getElementById('call-detail-panel').classList.remove('open');
+  selectedCallIdx = null;
+}
+
+function bookFromCall() {
+  if (selectedCallIdx === null) return;
+  const c = callsData[selectedCallIdx];
+  const ld = c.lead_data;
+  if (!ld) return;
+  document.getElementById('bk-name').value = ld.name || '';
+  document.getElementById('bk-phone').value = c.caller_phone || '';
+  document.getElementById('bk-addr').value = ld.address || '';
+  if (ld.service) {
+    const sel = document.getElementById('bk-service');
+    for (let o of sel.options) { if (o.value.toLowerCase().includes(ld.service.toLowerCase())) { sel.value = o.value; break; } }
+  }
+  document.getElementById('bk-date').value = todayStr();
+  closeCallDetail();
+  openBookModal('Booking from call: ' + ld.name);
+}
+
+async function saveVapiConfig() {
+  const phone = document.getElementById('vapi-phone-input').value.trim();
+  const aid = document.getElementById('vapi-assistant-input').value.trim();
+  if (!phone) { alert('Please enter your Vapi phone number'); return; }
+  if (sb && currentUser) {
+    await sb.from('contractors').update({ vapi_phone: phone, vapi_assistant_id: aid }).eq('id', currentUser.id);
+    if (contractorProfile) { contractorProfile.vapi_phone = phone; contractorProfile.vapi_assistant_id = aid; }
+  }
+  document.getElementById('vapi-banner').style.display = 'none';
+}
+
+async function loadCallsFromSupabase() {
+  if (!sb || !currentUser) return;
+  const { data } = await sb.from('calls').select('*').eq('contractor_id', currentUser.id).order('started_at', { ascending: false });
+  if (data && data.length > 0) {
+    callsData = data;
+    renderCallsTable();
+  }
 }
 
 // ── INIT ──

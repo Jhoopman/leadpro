@@ -68,11 +68,32 @@ CREATE POLICY "appointments_all_own" ON appointments
   FOR ALL USING (contractor_id = auth.uid());
 
 
+-- 4. CALLS (AI voice calls via Vapi)
+CREATE TABLE IF NOT EXISTS calls (
+  id               uuid         DEFAULT gen_random_uuid() PRIMARY KEY,
+  contractor_id    uuid         REFERENCES contractors(id) ON DELETE CASCADE NOT NULL,
+  caller_phone     text                  DEFAULT '',
+  started_at       timestamptz           DEFAULT now(),
+  duration_seconds integer               DEFAULT 0,
+  status           text                  DEFAULT 'answered'
+                               CHECK (status IN ('answered','missed','lead_captured')),
+  transcript       text                  DEFAULT '',
+  lead_data        jsonb                 DEFAULT NULL
+);
+
+ALTER TABLE calls ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "calls_all_own" ON calls
+  FOR ALL USING (contractor_id = auth.uid());
+
+
 -- ─────────────────────────────────────────────────────────
 -- Run these if upgrading an existing database (safe to re-run):
-ALTER TABLE contractors ADD COLUMN IF NOT EXISTS website_url  text             DEFAULT '';
-ALTER TABLE contractors ADD COLUMN IF NOT EXISTS profile      jsonb            DEFAULT '{}'::jsonb;
-ALTER TABLE contractors ADD COLUMN IF NOT EXISTS scraped_at   timestamptz;
+ALTER TABLE contractors ADD COLUMN IF NOT EXISTS website_url        text             DEFAULT '';
+ALTER TABLE contractors ADD COLUMN IF NOT EXISTS profile            jsonb            DEFAULT '{}'::jsonb;
+ALTER TABLE contractors ADD COLUMN IF NOT EXISTS scraped_at         timestamptz;
+ALTER TABLE contractors ADD COLUMN IF NOT EXISTS vapi_phone         text             DEFAULT '';
+ALTER TABLE contractors ADD COLUMN IF NOT EXISTS vapi_assistant_id  text             DEFAULT '';
 
 -- ─────────────────────────────────────────────────────────
 -- After running this SQL, copy the following values from
