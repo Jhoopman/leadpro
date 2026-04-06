@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LeadPro — AI Scheduling for Contractors</title>
-  <meta name="description" content="LeadPro answers every call, books every job, and never sleeps. The AI scheduling agent built for contractors." />
+  <title>LeadPro — AI Scheduling for Virginia Contractors</title>
+  <meta name="description" content="LeadPro answers every call, books every job, and never sleeps. The AI scheduling agent built for contractors in Virginia and across the US. Stop losing leads to voicemail." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap" rel="stylesheet" />
@@ -732,6 +732,85 @@
       max-width: 600px;
     }
 
+    /* ── CONTACT ── */
+    .contact { background: white; }
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: 72px;
+      align-items: start;
+    }
+    .contact-info { padding-top: 8px; }
+    .contact-info h3 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+    .contact-info p { font-size: 0.9rem; color: var(--muted); line-height: 1.65; margin-bottom: 28px; }
+    .contact-detail {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.88rem;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+    .contact-detail svg { width: 16px; height: 16px; color: var(--green); flex-shrink: 0; }
+    .contact-detail a { color: var(--green); text-decoration: none; }
+    .contact-detail a:hover { text-decoration: underline; }
+    .contact-form {
+      background: var(--cream);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    .form-group label { font-size: 0.82rem; font-weight: 600; color: var(--text); }
+    .form-group input,
+    .form-group textarea {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.92rem;
+      color: var(--text);
+      background: white;
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      padding: 11px 14px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+      width: 100%;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(26,77,46,0.08);
+    }
+    .form-group textarea { resize: vertical; min-height: 110px; }
+    .btn-submit {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--green);
+      color: white;
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      padding: 13px 28px;
+      border-radius: 10px;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.2s, transform 0.15s;
+      margin-top: 4px;
+    }
+    .btn-submit:hover { background: var(--green-mid); transform: translateY(-1px); }
+    @media (max-width: 860px) {
+      .contact-grid { grid-template-columns: 1fr; gap: 40px; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+
     /* ── FINAL CTA ── */
     .final-cta {
       background: linear-gradient(135deg, var(--green) 0%, var(--green-mid) 100%);
@@ -898,6 +977,7 @@
       <li><a href="#features">Features</a></li>
       <li><a href="#pricing">Pricing</a></li>
       <li><a href="#faq">FAQ</a></li>
+      <li><a href="#contact">Contact</a></li>
     </ul>
     <div class="nav-cta">
       <a class="btn-ghost" href="https://leadpro-1d5l.onrender.com/app">Log in</a>
@@ -919,6 +999,7 @@
   <a href="#features" onclick="document.getElementById('mobileMenu').classList.remove('open')">Features</a>
   <a href="#pricing" onclick="document.getElementById('mobileMenu').classList.remove('open')">Pricing</a>
   <a href="#faq" onclick="document.getElementById('mobileMenu').classList.remove('open')">FAQ</a>
+  <a href="#contact" onclick="document.getElementById('mobileMenu').classList.remove('open')">Contact</a>
   <a href="https://leadpro-1d5l.onrender.com/app" style="color: var(--green); margin-top: 12px;">Start free trial →</a>
 </div>
 
@@ -1055,12 +1136,12 @@
 <!-- LOGOS BAR -->
 <div class="logos-bar">
   <div class="logos-inner">
-    <span class="logos-label">Trusted by contractors across the US</span>
-    <span class="logo-item">Apex Roofing</span>
-    <span class="logo-item">ProPlumb Co.</span>
-    <span class="logo-item">Summit HVAC</span>
-    <span class="logo-item">Crestline Electric</span>
-    <span class="logo-item">Redwood Build</span>
+    <span class="logos-label">Trusted by contractors across Virginia</span>
+    <span class="logo-item">Blue Ridge Roofing</span>
+    <span class="logo-item">Old Dominion Plumbing</span>
+    <span class="logo-item">Commonwealth Heating & Cooling</span>
+    <span class="logo-item">Shenandoah Electric</span>
+    <span class="logo-item">Capitol Build Group</span>
   </div>
 </div>
 
@@ -1282,10 +1363,10 @@
         </div>
         <p class="testi-quote">"I was missing 4-5 calls a day while on the roof. LeadPro books them before I even know they called. Booked an extra $6k in jobs my first month."</p>
         <div class="testi-author">
-          <div class="testi-avatar" style="background: #1a4d2e;">TM</div>
+          <div class="testi-avatar" style="background: #1a4d2e;">BH</div>
           <div>
-            <div class="testi-name">Travis M.</div>
-            <div class="testi-role">Owner, Apex Roofing · Phoenix, AZ</div>
+            <div class="testi-name">Brandon H.</div>
+            <div class="testi-role">Owner, Blue Ridge Roofing · Roanoke, VA</div>
           </div>
         </div>
       </div>
@@ -1299,10 +1380,10 @@
         </div>
         <p class="testi-quote">"Set it up Saturday morning, had three booked jobs by Monday. It's like having a receptionist but without the payroll. This thing pays for itself every week."</p>
         <div class="testi-author">
-          <div class="testi-avatar" style="background: #2d7a4f;">CR</div>
+          <div class="testi-avatar" style="background: #2d7a4f;">TW</div>
           <div>
-            <div class="testi-name">Carla R.</div>
-            <div class="testi-role">Owner, Summit HVAC · Denver, CO</div>
+            <div class="testi-name">Tamara W.</div>
+            <div class="testi-role">Owner, Commonwealth Heating & Cooling · Richmond, VA</div>
           </div>
         </div>
       </div>
@@ -1316,10 +1397,10 @@
         </div>
         <p class="testi-quote">"I was skeptical about the AI voice thing — worried it would sound robotic. Customers have no idea it's AI. It's professional, asks good questions, and my calendar just fills up."</p>
         <div class="testi-author">
-          <div class="testi-avatar" style="background: #15803d;">DW</div>
+          <div class="testi-avatar" style="background: #15803d;">MF</div>
           <div>
-            <div class="testi-name">Derek W.</div>
-            <div class="testi-role">Owner, Crestline Electric · Austin, TX</div>
+            <div class="testi-name">Marcus F.</div>
+            <div class="testi-role">Owner, Shenandoah Electric · Winchester, VA</div>
           </div>
         </div>
       </div>
@@ -1333,7 +1414,7 @@
     <div class="section-header center">
       <div class="section-tag"><span class="dot"></span> FAQ</div>
       <h2 class="section-title">Common questions.</h2>
-      <p class="section-sub">Everything contractors ask before they sign up. Still have questions? Email us at hello@leadpro.io</p>
+      <p class="section-sub">Everything contractors ask before they sign up. Still have questions? Email us at <a href="mailto:hstratigies@gmail.com" style="color: var(--green); text-decoration: underline;">hstratigies@gmail.com</a></p>
     </div>
     <div class="faq-list">
       <details class="faq-item">
@@ -1375,6 +1456,90 @@
   </div>
 </section>
 
+<!-- CONTACT -->
+<section class="contact" id="contact">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-tag"><span class="dot"></span> Contact</div>
+      <h2 class="section-title">Get in touch.</h2>
+      <p class="section-sub">Questions about LeadPro? We'd love to hear from you. We typically respond within a few hours.</p>
+    </div>
+    <div class="contact-grid">
+      <div class="contact-info">
+        <h3>Let's talk about your business.</h3>
+        <p>Whether you're a solo contractor wondering if LeadPro is right for you, or a growing crew ready to automate your scheduling — reach out. No sales pressure, just a real conversation.</p>
+        <div class="contact-detail">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <a href="mailto:hstratigies@gmail.com">hstratigies@gmail.com</a>
+        </div>
+        <div class="contact-detail">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Virginia, USA
+        </div>
+        <div class="contact-detail">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Typically responds within a few hours
+        </div>
+      </div>
+      <div class="contact-form">
+        <form id="contactForm" onsubmit="handleContactSubmit(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="contactName">Your name</label>
+              <input type="text" id="contactName" name="name" placeholder="John Smith" required />
+            </div>
+            <div class="form-group">
+              <label for="contactBusiness">Business name</label>
+              <input type="text" id="contactBusiness" name="business" placeholder="Smith Roofing LLC" required />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="contactPhone">Phone number</label>
+              <input type="tel" id="contactPhone" name="phone" placeholder="(540) 555-0123" />
+            </div>
+            <div class="form-group">
+              <label for="contactEmail">Email address</label>
+              <input type="email" id="contactEmail" name="email" placeholder="john@smithroofing.com" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="contactMessage">Message</label>
+            <textarea id="contactMessage" name="message" placeholder="Tell us about your business and what you're looking for…" required></textarea>
+          </div>
+          <button type="submit" class="btn-submit">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Send message
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+function handleContactSubmit(e) {
+  e.preventDefault();
+  const f = e.target;
+  const name     = f.name.value.trim();
+  const business = f.business.value.trim();
+  const phone    = f.phone.value.trim();
+  const email    = f.email.value.trim();
+  const message  = f.message.value.trim();
+
+  const subject = encodeURIComponent('LeadPro Inquiry from ' + name + ' — ' + business);
+  const body = encodeURIComponent(
+    'Name: ' + name + '\n' +
+    'Business: ' + business + '\n' +
+    'Phone: ' + (phone || 'Not provided') + '\n' +
+    'Email: ' + email + '\n\n' +
+    'Message:\n' + message
+  );
+
+  window.location.href = 'mailto:hstratigies@gmail.com?subject=' + subject + '&body=' + body;
+}
+</script>
+
 <!-- FINAL CTA -->
 <section class="final-cta">
   <div>
@@ -1401,7 +1566,8 @@
           </div>
           LeadPro
         </a>
-        <p>AI scheduling that answers every call, books every job, and never sleeps. Built for contractors who are done leaving money on the table.</p>
+        <p>AI scheduling that answers every call, books every job, and never sleeps. Built by a college athlete who spent 2 years in the trades — LeadPro was built for contractors by someone who knows the business.</p>
+        <p style="margin-top: 10px;"><a href="mailto:hstratigies@gmail.com" style="color: rgba(255,255,255,0.45); font-size: 0.82rem; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">hstratigies@gmail.com</a></p>
       </div>
       <div class="footer-col">
         <h4>Product</h4>
@@ -1418,7 +1584,7 @@
           <li><a href="#">About</a></li>
           <li><a href="#">Blog</a></li>
           <li><a href="#">Careers</a></li>
-          <li><a href="#">Contact</a></li>
+          <li><a href="#contact">Contact</a></li>
         </ul>
       </div>
       <div class="footer-col">
