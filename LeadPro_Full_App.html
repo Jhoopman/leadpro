@@ -1371,37 +1371,7 @@ function runAppWithDemoData() {
 }
 
 // ── PHONE CALLS ──
-const DEMO_CALLS = [
-  {
-    id: 'demo-1', caller_phone: '(540) 555-0183', started_at: new Date(Date.now() - 2*3600000).toISOString(),
-    duration_seconds: 187, status: 'lead_captured',
-    lead_data: { name: 'Terri Walsh', service: 'Pest control', address: '417 Boxwood Ln, Lynchburg', datetime: 'Thursday morning' },
-    transcript: `Assistant: Hi, thanks for calling GreenPro! How can I help you today?\n\nCaller: Hi, yeah I've been having a bad ant problem in my kitchen and I need someone to come out.\n\nAssistant: Oh, I'm sorry to hear that! We'd be happy to help with that. Can I get your name?\n\nCaller: Sure, it's Terri Walsh.\n\nAssistant: Great, Terri! And what's your address so we can get you scheduled?\n\nCaller: 417 Boxwood Lane in Lynchburg.\n\nAssistant: Perfect. And a good phone number to reach you?\n\nCaller: (540) 555-0183.\n\nAssistant: Do you have a preferred day or time for the visit?\n\nCaller: Thursday morning would work best.\n\nAssistant: Wonderful! I've got you down for a pest control visit Thursday morning. Our team will call to confirm the exact time. Is there anything else?\n\nCaller: No, that's it. Thank you!\n\nAssistant: Great, have a wonderful day Terri!`
-  },
-  {
-    id: 'demo-2', caller_phone: '(434) 555-0271', started_at: new Date(Date.now() - 5*3600000).toISOString(),
-    duration_seconds: 142, status: 'answered',
-    lead_data: null,
-    transcript: `Assistant: Hi, thanks for calling GreenPro! How can I help you today?\n\nCaller: Yeah I just wanted to check on pricing for lawn care.\n\nAssistant: Of course! Our lawn care packages start at $45 for standard mowing and edging. We also offer bi-weekly plans at a discount. Would you like me to have someone call you back with a custom quote for your yard size?\n\nCaller: Nah, I'll think about it and maybe call back.\n\nAssistant: Sounds great! Feel free to call us any time. Have a great day!\n\nCaller: Thanks, bye.`
-  },
-  {
-    id: 'demo-3', caller_phone: '(540) 555-0104', started_at: new Date(Date.now() - 24*3600000).toISOString(),
-    duration_seconds: 0, status: 'missed',
-    lead_data: null, transcript: ''
-  },
-  {
-    id: 'demo-4', caller_phone: '(540) 555-0346', started_at: new Date(Date.now() - 26*3600000).toISOString(),
-    duration_seconds: 214, status: 'lead_captured',
-    lead_data: { name: 'Mike Travers', service: 'Landscaping design', address: '55 Sunridge Ct, Bedford VA', datetime: 'Next Monday 9am' },
-    transcript: `Assistant: GreenPro, how can I help?\n\nCaller: I'm looking to get a full landscaping design done for my backyard. New house.\n\nAssistant: Congratulations on the new home! We'd love to help with that. Can I get your name?\n\nCaller: Mike Travers.\n\nAssistant: Mike, what's the address we'd be coming out to?\n\nCaller: 55 Sunridge Court in Bedford.\n\nAssistant: And your best contact number?\n\nCaller: (540) 555-0346.\n\nAssistant: Any specific day or time that works for an initial consult?\n\nCaller: Next Monday at 9am if possible.\n\nAssistant: Perfect! I'll book that as a landscaping design consultation for Monday at 9am. Someone will confirm with you shortly.\n\nCaller: Great, thanks a lot!\n\nAssistant: You're welcome, Mike. Talk soon!`
-  },
-  {
-    id: 'demo-5', caller_phone: '(434) 555-0088', started_at: new Date(Date.now() - 2*24*3600000).toISOString(),
-    duration_seconds: 98, status: 'lead_captured',
-    lead_data: { name: 'Pam Delgado', service: 'Lawn care', address: '1108 Heritage Blvd, Amherst', datetime: 'Any weekday afternoon' },
-    transcript: `Assistant: Hi, GreenPro speaking!\n\nCaller: Hi there. I need to set up regular lawn care for my home.\n\nAssistant: Absolutely, we'd love to help! May I have your name and address?\n\nCaller: Pam Delgado, 1108 Heritage Boulevard in Amherst.\n\nAssistant: Great! Phone number?\n\nCaller: (434) 555-0088.\n\nAssistant: And when works best for visits?\n\nCaller: Any weekday afternoon is fine.\n\nAssistant: Perfect, Pam! I've noted you for recurring lawn care any weekday afternoon. Our scheduling team will reach out to confirm your first visit.\n\nCaller: Sounds good, thanks!\n\nAssistant: Have a lovely day!`
-  }
-];
+const DEMO_CALLS = [];
 
 let callsData = [...DEMO_CALLS];
 let selectedCallIdx = null;
@@ -1428,14 +1398,18 @@ function fmtCallTime(iso) {
 function renderCallsTable() {
   const statusLabel = { answered:'Answered', missed:'Missed', lead_captured:'Lead captured' };
   const statusClass = { answered:'p-answered', missed:'p-missed', lead_captured:'p-lead' };
-  document.getElementById('calls-body').innerHTML = callsData.map((c, i) => `
-    <tr class="calls-table-row" onclick="openCallDetail(${i})">
-      <td style="font-weight:500">${c.caller_phone}</td>
-      <td style="font-size:12px;color:var(--text3)">${fmtCallTime(c.started_at)}</td>
-      <td style="font-size:12px">${fmtDuration(c.duration_seconds)}</td>
-      <td><span class="pill ${statusClass[c.status]||'p-done'}">${statusLabel[c.status]||c.status}</span></td>
-      <td>${c.transcript ? `<button class="btn-sm" onclick="event.stopPropagation();openCallDetail(${i})">View transcript</button>` : '<span style="font-size:11px;color:var(--text3)">—</span>'}</td>
-    </tr>`).join('');
+  if (callsData.length === 0) {
+    document.getElementById('calls-body').innerHTML = `<tr><td colspan="5" style="text-align:center;padding:32px 14px;color:var(--text3);font-size:13px">No calls yet — once your Vapi phone number is connected, calls will appear here automatically.</td></tr>`;
+  } else {
+    document.getElementById('calls-body').innerHTML = callsData.map((c, i) => `
+      <tr class="calls-table-row" onclick="openCallDetail(${i})">
+        <td style="font-weight:500">${c.caller_phone}</td>
+        <td style="font-size:12px;color:var(--text3)">${fmtCallTime(c.started_at)}</td>
+        <td style="font-size:12px">${fmtDuration(c.duration_seconds)}</td>
+        <td><span class="pill ${statusClass[c.status]||'p-done'}">${statusLabel[c.status]||c.status}</span></td>
+        <td>${c.transcript ? `<button class="btn-sm" onclick="event.stopPropagation();openCallDetail(${i})">View transcript</button>` : '<span style="font-size:11px;color:var(--text3)">—</span>'}</td>
+      </tr>`).join('');
+  }
   updateCallStats();
 }
 
