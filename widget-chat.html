@@ -3,140 +3,308 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chat</title>
+<title>Chat — LeadPro</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--green:#1a4d2e;--green-mid:#2d7a4e;--accent:#4cca74;--bg:#f5f5f3;--bg3:#ebebea;--text:#2c2c2a;--text3:#888780;--border:rgba(0,0,0,0.1);}
-html,body{height:100%;width:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;}
+:root{
+  --green:#1a4d2e;
+  --green-mid:#2d7a4e;
+  --green-light:#3da368;
+  --accent:#4cca74;
+  --bg:#f5f5f3;
+  --bg2:#ebebea;
+  --text:#1c1c1a;
+  --muted:#88887f;
+  --border:rgba(0,0,0,0.09);
+  --red:#e85d3a;
+}
+html,body{height:100%;width:100%;overflow:hidden;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;}
 #wrap{display:flex;flex-direction:column;height:100%;background:#fff;}
 
-/* Header */
-#hdr{background:var(--green);padding:13px 15px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
-.av{width:36px;height:36px;border-radius:50%;background:#2d7a4e;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.av svg{width:18px;height:18px;fill:#a8d5b5;}
-.hn{font-size:13px;font-weight:500;color:#e8f5ec;}
-.hs{font-size:11px;color:#7db896;display:flex;align-items:center;gap:4px;margin-top:2px;}
-.dot{width:6px;height:6px;border-radius:50%;background:var(--accent);}
-#powered{margin-left:auto;font-size:10px;color:#5a8a6a;text-decoration:none;}
+/* ── Header ── */
+#hdr{
+  background:var(--green);
+  padding:12px 14px;
+  display:flex;align-items:center;gap:10px;
+  flex-shrink:0;
+  box-shadow:0 1px 0 rgba(0,0,0,0.12);
+}
+.lc-av{
+  width:36px;height:36px;border-radius:50%;
+  background:rgba(255,255,255,0.12);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.lc-av svg{width:18px;height:18px;fill:rgba(255,255,255,0.9);}
+.lc-info{flex:1;min-width:0;}
+.lc-name{
+  font-size:13px;font-weight:600;color:#e8f5ec;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  letter-spacing:0.01em;
+}
+.lc-status{
+  font-size:11px;color:rgba(255,255,255,0.55);
+  display:flex;align-items:center;gap:4px;margin-top:2px;
+}
+.lc-dot{
+  width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0;
+  animation:lc-pulse 2s ease-in-out infinite;
+}
+@keyframes lc-pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+#lc-powered{
+  font-size:10px;font-weight:500;color:rgba(255,255,255,0.35);
+  text-decoration:none;flex-shrink:0;
+  transition:color 0.15s;
+}
+#lc-powered:hover{color:rgba(255,255,255,0.7);}
 
-/* Messages */
-#msgs{flex:1;overflow-y:auto;padding:13px;display:flex;flex-direction:column;gap:8px;}
-.msg{max-width:83%;display:flex;flex-direction:column;gap:2px;}
-.msg.bot{align-self:flex-start;}.msg.user{align-self:flex-end;}
-.bubble{padding:9px 12px;border-radius:14px;font-size:13px;line-height:1.5;}
-.bot .bubble{background:var(--bg3);color:var(--text);border-bottom-left-radius:3px;}
-.user .bubble{background:var(--green);color:#e8f5ec;border-bottom-right-radius:3px;}
-.ts{font-size:10px;color:var(--text3);padding:0 3px;}.user .ts{text-align:right;}
+/* ── Messages ── */
+#msgs{
+  flex:1;overflow-y:auto;
+  padding:14px 12px;
+  display:flex;flex-direction:column;gap:8px;
+  scroll-behavior:smooth;
+}
+#msgs::-webkit-scrollbar{width:4px;}
+#msgs::-webkit-scrollbar-track{background:transparent;}
+#msgs::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
 
-/* Typing */
-#typing{align-self:flex-start;padding:9px 13px;background:var(--bg3);border-radius:14px;border-bottom-left-radius:3px;display:none;gap:4px;align-items:center;}
-#typing span{width:6px;height:6px;border-radius:50%;background:var(--text3);animation:blink 1.2s infinite;display:block;}
-#typing span:nth-child(2){animation-delay:.2s}#typing span:nth-child(3){animation-delay:.4s}
-@keyframes blink{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-4px)}}
+.lc-msg{max-width:84%;display:flex;flex-direction:column;gap:3px;}
+.lc-msg.bot{align-self:flex-start;}
+.lc-msg.user{align-self:flex-end;}
 
-/* Lead confirm card */
-#lead-confirm{display:none;margin:0 13px 8px;background:#eaf6ef;border:1px solid #b2dcc4;border-radius:10px;padding:11px 13px;}
-#lead-confirm .lct{font-size:10px;color:#2d7a4e;text-transform:uppercase;letter-spacing:.05em;font-weight:600;margin-bottom:7px;}
-.lf{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;}
-.lf label{font-size:10px;color:var(--text3);display:block;}
-.lf span{font-size:12px;font-weight:500;color:var(--text);}
+.lc-bubble{
+  padding:9px 12px;border-radius:14px;
+  font-size:13px;line-height:1.55;word-break:break-word;
+}
+.bot .lc-bubble{
+  background:var(--bg2);color:var(--text);
+  border-bottom-left-radius:3px;
+}
+.user .lc-bubble{
+  background:var(--green);color:rgba(255,255,255,0.93);
+  border-bottom-right-radius:3px;
+}
+.lc-ts{
+  font-size:10px;color:var(--muted);padding:0 3px;
+  line-height:1;
+}
+.user .lc-ts{text-align:right;}
 
-/* Input */
-#bar{display:flex;align-items:center;gap:8px;padding:10px 12px;border-top:1px solid var(--border);flex-shrink:0;}
-#inp{flex:1;border:1px solid rgba(0,0,0,0.18);border-radius:18px;padding:8px 14px;font-size:13px;font-family:inherit;background:var(--bg3);color:var(--text);outline:none;}
-#inp:focus{border-color:var(--green-mid);}
-#inp:disabled{opacity:.5;}
-#sbtn{width:36px;height:36px;border-radius:50%;background:var(--green);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-#sbtn:hover{background:var(--green-mid);}
-#sbtn svg{width:15px;height:15px;fill:#e8f5ec;}
-#sbtn:disabled{opacity:.5;cursor:default;}
+/* ── Typing indicator ── */
+#lc-typing{
+  align-self:flex-start;
+  padding:10px 13px;
+  background:var(--bg2);border-radius:14px;border-bottom-left-radius:3px;
+  display:none;gap:4px;align-items:center;
+}
+#lc-typing span{
+  width:6px;height:6px;border-radius:50%;background:var(--muted);
+  animation:lc-blink 1.3s infinite;display:block;
+}
+#lc-typing span:nth-child(2){animation-delay:0.18s}
+#lc-typing span:nth-child(3){animation-delay:0.36s}
+@keyframes lc-blink{
+  0%,60%,100%{transform:translateY(0);opacity:0.6}
+  30%{transform:translateY(-5px);opacity:1}
+}
 
-/* Error */
-#err{padding:10px 14px;font-size:12px;color:#a32d2d;background:#fdecea;text-align:center;display:none;}
+/* ── Lead success card ── */
+#lc-success{
+  display:none;
+  flex-direction:column;align-items:center;
+  margin:4px 12px 8px;
+  background:linear-gradient(135deg,#eaf6ef,#f0faf3);
+  border:1px solid #b2dcc4;border-radius:12px;
+  padding:16px 14px;gap:10px;
+  animation:lc-card-in 0.4s cubic-bezier(0.34,1.2,0.64,1) both;
+}
+@keyframes lc-card-in{
+  0%{opacity:0;transform:translateY(10px) scale(0.96)}
+  100%{opacity:1;transform:translateY(0) scale(1)}
+}
+#lc-success .lc-check{
+  width:40px;height:40px;border-radius:50%;
+  background:#1a4d2e;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+#lc-success .lc-check svg{width:20px;height:20px;}
+#lc-success .lc-sc-title{
+  font-size:13px;font-weight:700;color:#1a4d2e;
+  text-align:center;letter-spacing:0.01em;
+}
+#lc-success .lc-sc-sub{
+  font-size:11.5px;color:#4a7a5e;text-align:center;line-height:1.5;
+}
+.lc-fields{
+  width:100%;display:grid;grid-template-columns:1fr 1fr;gap:5px 10px;
+}
+.lc-field label{
+  font-size:10px;color:#5a8a6a;text-transform:uppercase;
+  letter-spacing:0.04em;font-weight:600;display:block;margin-bottom:1px;
+}
+.lc-field span{font-size:12px;font-weight:500;color:var(--text);}
+
+/* ── Error banner ── */
+#lc-err{
+  padding:8px 14px;font-size:12px;color:#a32d2d;
+  background:#fdecea;text-align:center;display:none;
+  border-bottom:1px solid rgba(163,45,45,0.12);
+  flex-shrink:0;
+}
+
+/* ── Input bar ── */
+#bar{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 11px;
+  border-top:1px solid var(--border);
+  background:#fff;flex-shrink:0;
+}
+#lc-inp{
+  flex:1;border:1.5px solid var(--border);border-radius:18px;
+  padding:8px 14px;font-size:13px;font-family:inherit;
+  background:var(--bg2);color:var(--text);outline:none;
+  transition:border-color 0.18s,box-shadow 0.18s;
+  min-width:0;
+}
+#lc-inp:focus{
+  border-color:var(--green-mid);
+  box-shadow:0 0 0 3px rgba(26,77,46,0.08);
+  background:#fff;
+}
+#lc-inp::placeholder{color:var(--muted);}
+#lc-inp:disabled{opacity:0.5;cursor:default;}
+#lc-sbtn{
+  width:36px;height:36px;border-radius:50%;
+  background:var(--green);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  transition:background 0.18s,transform 0.15s;
+}
+#lc-sbtn:hover{background:var(--green-mid);transform:scale(1.06);}
+#lc-sbtn:active{transform:scale(0.95);}
+#lc-sbtn svg{width:15px;height:15px;fill:rgba(255,255,255,0.93);}
+#lc-sbtn:disabled{opacity:0.45;cursor:default;transform:none;}
 </style>
 </head>
 <body>
 <div id="wrap">
+
+  <!-- Header -->
   <div id="hdr">
-    <div class="av"><svg viewBox="0 0 24 24"><path d="M17 8C8 10 5.9 16.17 3.82 19.83 3.36 20.63 2 20.28 2 19.37V4.5A2.5 2.5 0 014.5 2h15A2.5 2.5 0 0122 4.5v10a2.5 2.5 0 01-2.5 2.5H17V8z"/></svg></div>
-    <div>
-      <div class="hn" id="biz-name">Scheduling Assistant</div>
-      <div class="hs"><div class="dot"></div>Online — replies instantly</div>
+    <div class="lc-av">
+      <svg viewBox="0 0 24 24"><path d="M20 2H4C2.9 2 2 2.9 2 4v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
     </div>
-    <a id="powered" href="https://leadpro-1d5l.onrender.com" target="_blank">by LeadPro</a>
+    <div class="lc-info">
+      <div class="lc-name" id="lc-biz-name">Scheduling Assistant</div>
+      <div class="lc-status"><div class="lc-dot"></div>Online — replies instantly</div>
+    </div>
+    <a id="lc-powered" href="https://leadpro-1d5l.onrender.com" target="_blank" rel="noopener">by LeadPro</a>
   </div>
-  <div id="err"></div>
-  <div id="msgs">
-    <div id="typing"><span></span><span></span><span></span></div>
+
+  <!-- Error banner -->
+  <div id="lc-err" role="alert"></div>
+
+  <!-- Messages -->
+  <div id="msgs" role="log" aria-label="Chat messages" aria-live="polite">
+    <div id="lc-typing" aria-hidden="true">
+      <span></span><span></span><span></span>
+    </div>
   </div>
-  <div id="lead-confirm">
-    <div class="lct">Got your info — someone will follow up shortly!</div>
-    <div class="lf" id="lead-fields"></div>
+
+  <!-- Lead capture success card (shown after lead is collected) -->
+  <div id="lc-success" role="status" aria-label="Booking submitted">
+    <div class="lc-check">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+    </div>
+    <div class="lc-sc-title">Request submitted!</div>
+    <div class="lc-sc-sub">Someone will follow up within a few hours.</div>
+    <div class="lc-fields" id="lc-fields"></div>
   </div>
+
+  <!-- Input -->
   <div id="bar">
-    <input type="text" id="inp" placeholder="Type a message..." autocomplete="off">
-    <button id="sbtn"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
+    <input type="text" id="lc-inp" placeholder="Type a message…" autocomplete="off"
+           aria-label="Chat message" maxlength="500">
+    <button type="button" id="lc-sbtn" aria-label="Send message">
+      <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    </button>
   </div>
+
 </div>
 
 <script>
-var BASE = window.location.origin;
-var params = new URLSearchParams(window.location.search);
-var widgetId = params.get('id') || '';
+'use strict';
 
-var contractor = null;
-var chatHistory = [];
+var BASE       = window.location.origin;
+var params     = new URLSearchParams(window.location.search);
+var WIDGET_ID  = params.get('id') || '';
+
+var contractor  = null;
+var history     = [];
 var capturedLead = null;
-var busy = false;
+var busy        = false;
 
-function now() {
+/* ── Helpers ── */
+function ts() {
   return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
+function el(id) { return document.getElementById(id); }
+
 function addMsg(role, text) {
-  var msgs = document.getElementById('msgs');
+  var msgs = el('msgs');
   var d = document.createElement('div');
-  d.className = 'msg ' + (role === 'user' ? 'user' : 'bot');
-  d.innerHTML = '<div class="bubble">' + text.replace(/\n/g, '<br>') + '</div><div class="ts">' + now() + '</div>';
+  d.className = 'lc-msg ' + (role === 'user' ? 'user' : 'bot');
+  var safe = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+                  .replace(/\n/g, '<br>');
+  d.innerHTML =
+    '<div class="lc-bubble">' + safe + '</div>' +
+    '<div class="lc-ts">' + ts() + '</div>';
   msgs.appendChild(d);
   msgs.scrollTop = msgs.scrollHeight;
 }
 
 function showTyping(v) {
-  var t = document.getElementById('typing');
-  var msgs = document.getElementById('msgs');
+  var t = el('lc-typing');
   t.style.display = v ? 'flex' : 'none';
-  if (v) msgs.scrollTop = msgs.scrollHeight;
+  if (v) el('msgs').scrollTop = el('msgs').scrollHeight;
 }
 
 function setDisabled(v) {
-  document.getElementById('inp').disabled = v;
-  document.getElementById('sbtn').disabled = v;
+  el('lc-inp').disabled  = v;
+  el('lc-sbtn').disabled = v;
 }
 
 function showErr(msg) {
-  var el = document.getElementById('err');
-  el.textContent = msg;
-  el.style.display = msg ? 'block' : 'none';
+  var e = el('lc-err');
+  e.textContent  = msg;
+  e.style.display = msg ? 'block' : 'none';
 }
 
-async function callAPI(messages) {
-  var body = {
-    contractorId: contractor ? contractor.id : null,
-    messages: messages,
-    bizName: contractor ? contractor.business_name : '',
-    services: contractor ? contractor.services : ''
-  };
-  var res = await fetch(BASE + '/widget-api', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
+/* ── API call ── */
+function callAPI(messages) {
+  var body = JSON.stringify({
+    contractorId : contractor ? contractor.id   : null,
+    messages     : messages,
+    bizName      : contractor ? contractor.business_name : '',
+    services     : contractor ? contractor.services      : ''
   });
-  if (!res.ok) throw new Error('Server error ' + res.status);
-  return res.json();
+  return fetch(BASE + '/widget-api', {
+    method  : 'POST',
+    headers : { 'Content-Type': 'application/json' },
+    body    : body
+  }).then(function(r) {
+    if (!r.ok) throw new Error('Server error ' + r.status);
+    return r.json();
+  });
 }
 
-function extractLeadJson(raw) {
+/* ── Lead JSON extractor ── */
+function extractLead(raw) {
   var idx = raw.indexOf('LEAD_DATA:');
   if (idx === -1) return null;
   var start = raw.indexOf('{', idx);
@@ -144,111 +312,144 @@ function extractLeadJson(raw) {
   var depth = 0;
   for (var i = start; i < raw.length; i++) {
     if (raw[i] === '{') depth++;
-    else if (raw[i] === '}') { depth--; if (depth === 0) { try { return JSON.parse(raw.slice(start, i + 1)); } catch(e) { return null; } } }
+    else if (raw[i] === '}') {
+      depth--;
+      if (depth === 0) {
+        try { return JSON.parse(raw.slice(start, i + 1)); } catch(_) { return null; }
+      }
+    }
   }
   return null;
 }
 
-async function handleResponse(data) {
-  var raw = (data.content || []).map(function(c) { return c.text || ''; }).join('');
-  var capturedJson = extractLeadJson(raw);
-  if (capturedJson && !capturedLead) {
-    try {
-      capturedLead = capturedJson;
-      showLeadCard(capturedLead);
-      // Save lead + send confirmation email
-      fetch(BASE + '/send-confirmation', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: capturedLead.name || '',
-          phone: capturedLead.phone || '',
-          address: capturedLead.address || '',
-          service: capturedLead.service || '',
-          datetime: capturedLead.datetime || '',
-          contractorId: contractor ? contractor.id : null,
-          bizName: contractor ? contractor.business_name : ''
-        })
-      }).catch(function(e) { console.warn('Confirmation failed:', e.message); });
-      // Notify parent frame for badge
-      try { window.parent.postMessage('lp:new_lead', '*'); } catch(e) {}
-    } catch(e) {}
-  }
+/* ── Show success card after lead capture ── */
+function showSuccessCard(lead) {
+  var labels = { name:'Name', phone:'Phone', address:'Address', service:'Service', datetime:'Preferred time' };
+  var html   = Object.keys(lead).map(function(k) {
+    return '<div class="lc-field"><label>' + (labels[k] || k) + '</label>' +
+           '<span>' + (lead[k] || '—') + '</span></div>';
+  }).join('');
+  el('lc-fields').innerHTML = html;
+  var card = el('lc-success');
+  card.style.display = 'flex';
+  el('msgs').scrollTop = el('msgs').scrollHeight;
+  setDisabled(true);
+  el('lc-inp').placeholder = 'Your request has been submitted!';
+}
+
+/* ── Handle API response ── */
+function handleResponse(data) {
+  var raw  = (data.content || []).map(function(c){ return c.text || ''; }).join('');
+  var lead = extractLead(raw);
   var clean = raw.replace(/LEAD_DATA:\{[\s\S]*?\}(?=\s*$)/, '').trim();
-  showTyping(false);
-  addMsg('bot', clean || 'Sorry, I had trouble with that. Please try again.');
-  chatHistory.push({ role: 'assistant', content: raw });
-}
 
-async function startChat() {
-  chatHistory = [{ role: 'user', content: 'hello' }];
-  showTyping(true);
-  try {
-    var data = await callAPI(chatHistory);
-    await handleResponse(data);
-  } catch(e) {
-    showTyping(false);
-    showErr('Could not connect. Please try again.');
+  showTyping(false);
+  addMsg('bot', clean || "Sorry, I didn't catch that. Could you try again?");
+  history.push({ role: 'assistant', content: raw });
+
+  if (lead && !capturedLead) {
+    capturedLead = lead;
+    showSuccessCard(lead);
+
+    // Post confirmation to server
+    fetch(BASE + '/send-confirmation', {
+      method  : 'POST',
+      headers : { 'Content-Type': 'application/json' },
+      body    : JSON.stringify({
+        name         : lead.name     || '',
+        phone        : lead.phone    || '',
+        address      : lead.address  || '',
+        service      : lead.service  || '',
+        datetime     : lead.datetime || '',
+        contractorId : contractor ? contractor.id           : null,
+        bizName      : contractor ? contractor.business_name : ''
+      })
+    }).catch(function(e){ console.warn('[LeadPro] Confirmation post failed:', e.message); });
+
+    // Notify parent widget — two events:
+    // lp:new_lead  → show the unread badge
+    // lp:lead_captured → auto-open the panel to show success
+    safePostToParent('lp:new_lead');
+    safePostToParent('lp:lead_captured');
   }
 }
 
-async function sendMsg() {
+function safePostToParent(msg) {
+  try { window.parent.postMessage(msg, '*'); } catch(_){}
+}
+
+/* ── Start / send ── */
+function startChat() {
+  history = [{ role: 'user', content: 'hello' }];
+  showTyping(true);
+  return callAPI(history)
+    .then(handleResponse)
+    .catch(function(e) {
+      showTyping(false);
+      showErr('Could not connect. Please try again shortly.');
+      console.warn('[LeadPro] startChat error:', e.message);
+    });
+}
+
+function sendMsg() {
   if (busy || capturedLead) return;
-  var inp = document.getElementById('inp');
+  var inp  = el('lc-inp');
   var text = inp.value.trim();
   if (!text) return;
   inp.value = '';
+  showErr('');
   addMsg('user', text);
-  chatHistory.push({ role: 'user', content: text });
+  history.push({ role: 'user', content: text });
   busy = true;
   setDisabled(true);
   showTyping(true);
-  try {
-    var data = await callAPI(chatHistory);
-    await handleResponse(data);
-  } catch(e) {
-    showTyping(false);
-    addMsg('bot', 'Connection error. Please try again.');
-  }
-  busy = false;
-  setDisabled(capturedLead != null);
+  callAPI(history)
+    .then(handleResponse)
+    .catch(function(e) {
+      showTyping(false);
+      addMsg('bot', 'Connection error — please try again.');
+      console.warn('[LeadPro] sendMsg error:', e.message);
+    })
+    .then(function() {
+      busy = false;
+      setDisabled(capturedLead != null);
+    });
 }
 
-function showLeadCard(lead) {
-  var card = document.getElementById('lead-confirm');
-  var labels = { name:'Name', phone:'Phone', address:'Address', service:'Service', datetime:'Preferred time' };
-  document.getElementById('lead-fields').innerHTML = Object.entries(lead).map(function(e) {
-    return '<div><label>' + (labels[e[0]] || e[0]) + '</label><span>' + (e[1] || '—') + '</span></div>';
-  }).join('');
-  card.style.display = 'block';
-  document.getElementById('msgs').scrollTop = document.getElementById('msgs').scrollHeight;
-  // Disable input — conversation is complete
-  setDisabled(true);
-  document.getElementById('inp').placeholder = 'Booking request submitted!';
-}
-
-document.getElementById('inp').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') sendMsg();
+/* ── Input listeners ── */
+el('lc-inp').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
 });
-document.getElementById('sbtn').addEventListener('click', sendMsg);
+el('lc-sbtn').addEventListener('click', sendMsg);
 
-// ── INIT ──
-async function init() {
-  if (widgetId) {
-    try {
-      var r = await fetch(BASE + '/contractor/' + encodeURIComponent(widgetId));
-      if (r.ok) {
-        contractor = await r.json();
-        if (contractor && contractor.business_name) {
-          document.getElementById('biz-name').textContent = contractor.business_name + ' — Scheduling';
-        }
-      }
-    } catch(e) { /* proceed without contractor data */ }
+/* ── Listen for messages from parent widget ── */
+window.addEventListener('message', function(e) {
+  if (e.data === 'lp:opened') {
+    // Parent widget opened — nothing special needed (could focus input)
+    if (!capturedLead) {
+      try { el('lc-inp').focus(); } catch(_){}
+    }
   }
-  await startChat();
-}
+});
 
-init();
+/* ── Signal parent that iframe is ready ── */
+safePostToParent('lp:ready');
+
+/* ── Init: fetch contractor info then start chat ── */
+(function init() {
+  if (!WIDGET_ID) { return startChat(); }
+
+  fetch(BASE + '/contractor/' + encodeURIComponent(WIDGET_ID))
+    .then(function(r) { return r.ok ? r.json() : null; })
+    .then(function(data) {
+      if (data && data.business_name) {
+        contractor = data;
+        el('lc-biz-name').textContent = data.business_name + ' — Scheduling';
+      }
+    })
+    .catch(function(){})
+    .then(startChat);
+})();
 </script>
 </body>
 </html>
