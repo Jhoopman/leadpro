@@ -366,6 +366,36 @@ app.post('/vapi-webhook', async (req, res) => {
 
 // ── STRIPE BILLING ──
 
+// POST /ensure-contractor — create contractor row via service key if it doesn't exist
+// Called from frontend after signup (RLS blocks anon insert when email confirmation is pending)
+// and from afterLogin as a safety net for users whose row was never created.
+app.post('/ensure-contractor', async (req, res) => {
+  const { userId, businessName } = req.body;
+  if (!userId) { res.status(400).json({ error: 'Missing userId' }); return; }
+  try {
+    const { data: existing } = await supabase
+      .from('contractors').select('id').eq('id', userId).limit(1);
+    if (existing?.[0]) { res.json({ created: false }); return; }
+
+    const widgetId = 'lp_' + Math.random().toString(36).substr(2, 8);
+    const trialEnds = new Date();
+    trialEnds.setDate(trialEnds.getDate() + 14);
+    const { error } = await supabase.from('contractors').insert({
+      id: userId,
+      business_name: businessName || '',
+      widget_id: widgetId,
+      plan: 'free',
+      plan_status: 'trial',
+      trial_ends_at: trialEnds.toISOString()
+    });
+    if (error) throw new Error(error.message);
+    res.json({ created: true });
+  } catch(e) {
+    console.error('ensure-contractor error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // POST /create-checkout-session — start Stripe Checkout for a plan
 app.post('/create-checkout-session', async (req, res) => {
   if (!STRIPE_SECRET_KEY) { res.status(503).json({ error: 'Billing not configured' }); return; }

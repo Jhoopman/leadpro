@@ -1343,16 +1343,12 @@ async function signUp() {
   btn.textContent = 'Create account'; btn.disabled = false;
   if (error) { errEl.textContent = error.message; return; }
   if (data.user) {
-    const widgetId = 'lp_' + Math.random().toString(36).substr(2, 8);
-    const trialEnds = new Date();
-    trialEnds.setDate(trialEnds.getDate() + 14);
-    await sb.from('contractors').insert({
-      id: data.user.id,
-      business_name: biz,
-      widget_id: widgetId,
-      plan: 'free',
-      plan_status: 'trial',
-      trial_ends_at: trialEnds.toISOString()
+    // Use server endpoint (service key) so the insert succeeds even when
+    // email confirmation is pending and auth.uid() is null (RLS would block the anon key).
+    await fetch('/ensure-contractor', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: data.user.id, businessName: biz })
     });
   }
   successEl.style.display = 'block';
@@ -1363,6 +1359,12 @@ async function signOut() {
 }
 
 async function afterLogin() {
+  // Ensure the contractor row exists (may be missing if signup RLS blocked the insert).
+  await fetch('/ensure-contractor', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId: currentUser.id, businessName: currentUser.email?.split('@')[0] || '' })
+  });
   await loadContractorProfile();
   await loadData();
   await loadCallsFromSupabase();
