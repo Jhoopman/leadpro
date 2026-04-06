@@ -239,14 +239,14 @@ html,body{height:100%;width:100%;overflow:hidden;
 <script>
 'use strict';
 
-var BASE       = window.location.origin;
+var BASE       = 'https://leadpro-1d5l.onrender.com';
 var params     = new URLSearchParams(window.location.search);
 var WIDGET_ID  = params.get('id') || '';
 
-var contractor  = null;
-var history     = [];
+var contractor   = null;
+var chatHistory  = [];
 var capturedLead = null;
-var busy        = false;
+var busy         = false;
 
 /* ── Helpers ── */
 function ts() {
@@ -345,7 +345,7 @@ function handleResponse(data) {
 
   showTyping(false);
   addMsg('bot', clean || "Sorry, I didn't catch that. Could you try again?");
-  history.push({ role: 'assistant', content: raw });
+  chatHistory.push({ role: 'assistant', content: raw });
 
   if (lead && !capturedLead) {
     capturedLead = lead;
@@ -380,9 +380,9 @@ function safePostToParent(msg) {
 
 /* ── Start / send ── */
 function startChat() {
-  history = [{ role: 'user', content: 'hello' }];
+  chatHistory = [{ role: 'user', content: 'hello' }];
   showTyping(true);
-  return callAPI(history)
+  return callAPI(chatHistory)
     .then(handleResponse)
     .catch(function(e) {
       showTyping(false);
@@ -399,11 +399,11 @@ function sendMsg() {
   inp.value = '';
   showErr('');
   addMsg('user', text);
-  history.push({ role: 'user', content: text });
+  chatHistory.push({ role: 'user', content: text });
   busy = true;
   setDisabled(true);
   showTyping(true);
-  callAPI(history)
+  callAPI(chatHistory)
     .then(handleResponse)
     .catch(function(e) {
       showTyping(false);
