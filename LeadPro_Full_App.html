@@ -44,16 +44,6 @@ nav { flex: 1; padding: 8px 0; }
 .topbar h1 { font-size: 18px; font-weight: 600; }
 .topbar .sub { font-size: 12px; color: var(--text3); margin-top: 2px; }
 
-/* API KEY BANNER */
-#api-banner { background: #fff8e6; border: 1px solid #f0c040; border-radius: var(--radius); padding: 12px 16px; margin-bottom: 18px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-#api-banner svg { width: 16px; height: 16px; fill: #c49000; flex-shrink: 0; }
-#api-banner .ab-text { font-size: 13px; color: #7a5c00; flex: 1; min-width: 200px; }
-#api-banner .ab-text strong { font-weight: 600; }
-#api-key-input { flex: 1; min-width: 220px; padding: 7px 11px; font-size: 12px; border: 1px solid #f0c040; border-radius: 6px; background: #fffdf0; color: var(--text); font-family: 'Courier New', monospace; outline: none; }
-#api-key-input:focus { border-color: #c49000; }
-#api-save-btn { padding: 7px 16px; background: var(--green); color: #e8f5ec; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; white-space: nowrap; }
-#api-save-btn:hover { background: var(--green-mid); }
-#api-status { font-size: 11px; margin-top: 4px; width: 100%; }
 #api-status.ok { color: #2d7a4e; } #api-status.err { color: #a32d2d; }
 
 /* CARDS */
@@ -413,13 +403,6 @@ nav { flex: 1; padding: 8px 0; }
 <!-- ── DASHBOARD ── -->
 <div id="s-dashboard" class="screen active">
   <div class="topbar"><div><h1>Dashboard</h1><div class="sub" id="dash-date">Loading...</div></div><button class="btn-sm primary" onclick="openBookModal()">+ Book appointment</button></div>
-  <div id="api-banner">
-    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-    <div class="ab-text"><strong>Add your Anthropic API key</strong> to activate the AI chatbot. Get one free at console.anthropic.com</div>
-    <input type="password" id="api-key-input" placeholder="Paste your key: sk-ant-...">
-    <button id="api-save-btn" onclick="saveApiKey()">Save key</button>
-    <div id="api-status"></div>
-  </div>
   <div class="metrics">
     <div class="metric metric-blue">
       <div class="metric-top"><div class="ml">New leads this week</div><div class="metric-icon" style="background:#e6f1fb"><svg viewBox="0 0 24 24" width="15" height="15" fill="#185fa5"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg></div></div>
@@ -574,13 +557,6 @@ nav { flex: 1; padding: 8px 0; }
 <div id="s-settings" class="screen">
   <div class="topbar"><div><h1>Settings</h1></div></div>
   <div class="settings-section">
-    <h3>API key</h3>
-    <p style="font-size:13px;color:var(--text2);margin-bottom:10px">Your Anthropic API key powers the AI chatbot. Get one at <a href="https://console.anthropic.com" style="color:var(--green-mid)">console.anthropic.com</a></p>
-    <div class="field"><label>API key</label><input type="password" id="settings-api-key" placeholder="sk-ant-..." oninput="document.getElementById('api-key-input').value=this.value"></div>
-    <button class="btn-sm primary" onclick="saveApiKey()">Save &amp; test key</button>
-    <div id="settings-api-status" style="font-size:12px;margin-top:6px"></div>
-  </div>
-  <div class="settings-section">
     <h3>Business info</h3>
     <div class="field"><label>Business name (shown in chatbot)</label><input type="text" id="biz-name" value="GreenPro Landscaping &amp; Pest Control"></div>
     <div class="field"><label>Your phone number (SMS alerts go here)</label><input type="tel" id="biz-phone" value="(540) 555-0192"></div>
@@ -701,7 +677,6 @@ nav { flex: 1; padding: 8px 0; }
 
 <script>
 // ── STATE ──
-let apiKey = localStorage.getItem('lp_api_key') || '';
 let bizName = 'GreenPro Landscaping & Pest Control';
 let chatHistory = [], chatStarted = false, capturedLead = null;
 const _now = new Date();
@@ -745,25 +720,6 @@ function showScreen(id, el) {
   if (id==='calls') { renderCallsTable(); checkVapiBanner(); }
   if (id==='calendar') renderCalendar();
   if (id==='chatbot' && !chatStarted) startChat();
-}
-
-// ── API KEY ──
-function saveApiKey() {
-  const k = document.getElementById('api-key-input').value.trim() || document.getElementById('settings-api-key').value.trim();
-  if (!k.startsWith('sk-ant-')) {
-    setApiStatus('Key should start with sk-ant-', false); return;
-  }
-  apiKey = k; localStorage.setItem('lp_api_key', k);
-  document.getElementById('api-key-input').value = k;
-  document.getElementById('settings-api-key').value = k;
-  setApiStatus('Key saved — chatbot is active!', true);
-  setTimeout(() => { document.getElementById('api-banner').style.display = 'none'; }, 2000);
-}
-function setApiStatus(msg, ok) {
-  ['api-status','settings-api-status'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) { el.textContent = msg; el.className = ok ? 'ok' : 'err'; }
-  });
 }
 
 // ── METRICS ──
@@ -989,7 +945,7 @@ async function callClaude() {
     const payload = { model:'claude-sonnet-4-6', max_tokens:500, system: getSystemPrompt(), messages: chatHistory };
     const res = await fetch('https://leadpro-1d5l.onrender.com/api', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
     if (!res.ok) {
@@ -1027,7 +983,7 @@ async function callClaude() {
     const clean = raw.replace(/LEAD_DATA:\{[\s\S]*?\}(?=\s*$)/,'').trim();
     showTyping(false); addMsg('bot', clean);
     chatHistory.push({ role:'assistant', content: raw });
-  } catch(e) { showTyping(false); addMsg('bot','Connection error. Check your API key in Settings.'); }
+  } catch(e) { showTyping(false); addMsg('bot','Connection error. Please try again.'); }
 }
 async function sendMsg() {
   const input = document.getElementById('user-input'), text = input.value.trim();
@@ -1673,7 +1629,7 @@ async function openBillingPortal() {
 
 // ── INIT ──
 document.getElementById('dash-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
-if (apiKey) { document.getElementById('api-key-input').value = apiKey; document.getElementById('settings-api-key').value = apiKey; document.getElementById('api-banner').style.display='none'; }
+localStorage.removeItem('lp_api_key');
 document.getElementById('book-overlay').addEventListener('click', e=>{ if(e.target===document.getElementById('book-overlay')) closeBookModal(); });
 document.getElementById('event-overlay').addEventListener('click', e=>{ if(e.target===document.getElementById('event-overlay')) closeEventModal(); });
 // Clear Stripe redirect params after returning from checkout

@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const https = require('https');
 const http = require('http');
@@ -272,7 +273,7 @@ app.use(express.json({
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-api-key, anthropic-version');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') { res.sendStatus(204); return; }
   next();
 });
@@ -587,11 +588,14 @@ app.post('/api/prospector', async (req, res) => {
   const { location, industry } = req.body;
   if (!location || !industry) { res.status(400).json({ error: 'Missing location or industry' }); return; }
 
+  console.log('[prospector] API key prefix:', GOOGLE_PLACES_API_KEY.slice(0, 20));
+
   try {
     const query = encodeURIComponent(`${industry} contractors in ${location}`);
     const searchRes = await googlePlacesRequest(
       `textsearch/json?query=${query}&type=establishment&key=${GOOGLE_PLACES_API_KEY}`
     );
+    console.log('[prospector] Google Places textsearch response:', JSON.stringify(searchRes, null, 2));
     if (searchRes.status !== 'OK' && searchRes.status !== 'ZERO_RESULTS') {
       res.status(500).json({ error: 'Places API: ' + searchRes.status, details: searchRes.error_message }); return;
     }
