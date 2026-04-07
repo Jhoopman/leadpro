@@ -15,6 +15,7 @@ const STRIPE_SECRET_KEY      = process.env.STRIPE_SECRET_KEY      || '';
 const STRIPE_WEBHOOK_SECRET  = process.env.STRIPE_WEBHOOK_SECRET  || '';
 const STRIPE_STARTER_PRICE_ID = process.env.STRIPE_STARTER_PRICE_ID || '';
 const STRIPE_PRO_PRICE_ID    = process.env.STRIPE_PRO_PRICE_ID    || '';
+const GOOGLE_PLACES_API_KEY  = process.env.GOOGLE_PLACES_API_KEY  || '';
 
 /*
   Supabase migration — run once in the SQL editor:
@@ -38,6 +39,8 @@ console.log('✅ Resend email configured');
 console.log('✅ Supabase admin client initialized');
 if (STRIPE_SECRET_KEY) console.log('✅ Stripe billing configured');
 else console.log('⚠️  No STRIPE_SECRET_KEY — billing endpoints disabled');
+if (GOOGLE_PLACES_API_KEY) console.log('✅ Google Places API configured');
+else console.log('⚠️  No GOOGLE_PLACES_API_KEY — prospector endpoint disabled');
 console.log('✅ LeadPro server running on port', PORT, '\n');
 
 // ── HELPERS ──
@@ -193,6 +196,71 @@ function verifyStripeSignature(rawBody, sigHeader) {
     .update(ts + '.' + rawBody).digest('hex');
   if (!crypto.timingSafeEqual(Buffer.from(sig, 'hex'), Buffer.from(expected, 'hex')))
     throw new Error('Stripe signature mismatch');
+}
+
+// ── PROSPECTOR HELPERS ──
+function fetchPageHTML(url, redirectCount) {
+  redirectCount = redirectCount || 0;
+  return new Promise((resolve, reject) => {
+    if (redirectCount > 5) { reject(new Error('Too many redirects')); return; }
+    const mod = url.startsWith('https') ? https : http;
+    const req = mod.get(url, { headers: { 'User-Agent': 'Mozilla/5.0 (compatible; LeadProBot/1.0)' } }, res => {
+      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+        let loc = res.headers.location;
+        if (loc.startsWith('/')) { const u = new URL(url); loc = u.origin + loc; }
+        fetchPageHTML(loc, redirectCount + 1).then(resolve).catch(reject); return;
+      }
+      let data = '', size = 0;
+      res.on('data', c => { if (size < 150000) { data += c; size += c.length; } });
+      res.on('end', () => resolve({ html: data, finalUrl: url }));
+    });
+    req.on('error', reject);
+    req.setTimeout(8000, () => { req.destroy(); reject(new Error('Timeout')); });
+  });
+}
+
+function googlePlacesRequest(apiPath) {
+  return new Promise((resolve, reject) => {
+    https.get('https://maps.googleapis.com/maps/api/place/' + apiPath, res => {
+      let d = ''; res.on('data', c => d += c);
+      res.on('end', () => { try { resolve(JSON.parse(d)); } catch(e) { reject(e); } });
+    }).on('error', reject);
+  });
+}
+
+function checkChatWidget(html) {
+  const lower = html.toLowerCase();
+  const knownWidgets = [
+    'intercom', 'drift.com', 'driftt.com', 'tidio', 'tawk.to', 'livechatinc',
+    'livechat', 'zopim', 'zendesk', 'crisp.chat', 'freshchat', 'olark',
+    'smartsupp', 'userlike', 'hubspot', 'hs-scripts.com', 'chaport', 'jivochat',
+    'purechat', 'snapengage', 'liveagent', 'kayako', 'helpcrunch'
+  ];
+  if (knownWidgets.some(p => lower.includes(p))) return true;
+  // Generic: any script src containing "chat" or "widget"
+  const genericChat = /<script[^>]+src=["'][^"']*(?:chat|widget|messenger)[^"']*\.js[^"']*["']/i;
+  return genericChat.test(html);
+}
+
+function checkPhoneNumber(html) {
+  // US phone number pattern in visible text or href="tel:..."
+  return /(?:tel:|href=["']tel:|\b)(\+1[-.\s]?)?\(?\d{3}\)?[-.\s]\d{3}[-.\s]\d{4}\b/.test(html);
+}
+
+function checkWebsiteQuality(html, finalUrl) {
+  const hasSSL = finalUrl.startsWith('https://');
+  const hasMobileViewport = /<meta[^>]+name=["']viewport["'][^>]*>/i.test(html);
+  return { hasSSL, hasMobileViewport, score: (hasSSL ? 1 : 0) + (hasMobileViewport ? 1 : 0) };
+}
+
+function scoreContractor(analysis) {
+  let score = 0;
+  const missing = [];
+  if (!analysis.hasWebsite)    { score += 40; missing.push('No website'); }
+  if (!analysis.hasChatWidget) { score += 25; missing.push('No chat widget'); }
+  if (analysis.hasWebsite && analysis.websiteQualityScore < 2) { score += 15; missing.push('Poor website quality'); }
+  if (!analysis.hasPhone)      { score += 20; missing.push('No phone listed'); }
+  return { score: Math.min(score, 100), missing };
 }
 
 // ── APP ──
@@ -504,6 +572,85 @@ app.get('/billing-portal', async (req, res) => {
     res.json({ url: portal.url });
   } catch(e) {
     console.error('Billing portal error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Serve prospector tool
+app.get('/prospector', (req, res) => res.sendFile(path.join(__dirname, 'prospector.html')));
+
+// POST /api/prospector — find and score contractors via Google Places
+app.post('/api/prospector', async (req, res) => {
+  if (!GOOGLE_PLACES_API_KEY) {
+    res.status(503).json({ error: 'GOOGLE_PLACES_API_KEY not configured on server' }); return;
+  }
+  const { location, industry } = req.body;
+  if (!location || !industry) { res.status(400).json({ error: 'Missing location or industry' }); return; }
+
+  try {
+    const query = encodeURIComponent(`${industry} contractors in ${location}`);
+    const searchRes = await googlePlacesRequest(
+      `textsearch/json?query=${query}&type=establishment&key=${GOOGLE_PLACES_API_KEY}`
+    );
+    if (searchRes.status !== 'OK' && searchRes.status !== 'ZERO_RESULTS') {
+      res.status(500).json({ error: 'Places API: ' + searchRes.status, details: searchRes.error_message }); return;
+    }
+
+    const places = (searchRes.results || []).slice(0, 10);
+    const results = [];
+
+    for (const place of places) {
+      let name = place.name;
+      let phone = null;
+      let website = null;
+      let address = place.formatted_address || '';
+
+      try {
+        const detailRes = await googlePlacesRequest(
+          `details/json?place_id=${place.place_id}&fields=name,formatted_phone_number,website,formatted_address&key=${GOOGLE_PLACES_API_KEY}`
+        );
+        const d = detailRes.result || {};
+        name    = d.name    || name;
+        phone   = d.formatted_phone_number || null;
+        website = d.website || null;
+        address = d.formatted_address || address;
+      } catch(e) {
+        console.log('Places detail error for', place.place_id, ':', e.message);
+      }
+
+      const analysis = { hasWebsite: !!website, hasChatWidget: false, hasPhone: !!phone, websiteQualityScore: 0, hasSSL: false, hasMobileViewport: false };
+
+      if (website) {
+        try {
+          const { html, finalUrl } = await fetchPageHTML(website.startsWith('http') ? website : 'https://' + website);
+          analysis.hasChatWidget = checkChatWidget(html);
+          if (!analysis.hasPhone) analysis.hasPhone = checkPhoneNumber(html);
+          const quality = checkWebsiteQuality(html, finalUrl);
+          analysis.websiteQualityScore = quality.score;
+          analysis.hasSSL = quality.hasSSL;
+          analysis.hasMobileViewport = quality.hasMobileViewport;
+        } catch(e) {
+          console.log('Website fetch error for', website, ':', e.message);
+        }
+      }
+
+      const { score, missing } = scoreContractor(analysis);
+
+      results.push({
+        name, phone, website, address, score, missing,
+        hasChatWidget:    analysis.hasChatWidget,
+        hasWebsite:       analysis.hasWebsite,
+        hasPhone:         analysis.hasPhone,
+        hasSSL:           analysis.hasSSL,
+        hasMobileViewport: analysis.hasMobileViewport
+      });
+    }
+
+    results.sort((a, b) => b.score - a.score);
+    console.log(`Prospector: found ${results.length} results for "${industry}" in "${location}"`);
+    res.json({ results });
+  } catch(e) {
+    console.error('Prospector error:', e.message);
     res.status(500).json({ error: e.message });
   }
 });

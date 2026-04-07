@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contractor Prospector — LeadPro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green:       #1a4d2e;
+      --green-mid:   #2d7a4f;
+      --green-light: #3da368;
+      --green-pale:  #e8f5ee;
+      --text:        #111827;
+      --muted:       #6b7280;
+      --border:      #e5e7eb;
+      --bg:          #f9fafb;
+      --white:       #ffffff;
+      --radius:      10px;
+      --shadow:      0 2px 12px rgba(0,0,0,0.07);
+      --red:         #dc2626;
+      --red-pale:    #fef2f2;
+      --yellow:      #d97706;
+      --yellow-pale: #fffbeb;
+      --blue:        #2563eb;
+      --blue-pale:   #eff6ff;
+    }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--green);
+      padding: 0 24px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo { color: #fff; font-weight: 700; font-size: 18px; letter-spacing: -0.3px; }
+    .logo span { color: var(--green-light); }
+    header a {
+      color: rgba(255,255,255,0.75);
+      font-size: 13px;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    header a:hover { color: #fff; }
+
+    /* ── MAIN LAYOUT ── */
+    main { max-width: 1140px; margin: 0 auto; padding: 32px 24px 64px; }
+
+    h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 4px; }
+    .subtitle { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
+
+    /* ── SEARCH CARD ── */
+    .search-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+      margin-bottom: 28px;
+      box-shadow: var(--shadow);
+      flex-wrap: wrap;
+    }
+    .field { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 180px; }
+    .field label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .field input, .field select {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--text);
+      background: var(--white);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .field input:focus, .field select:focus { border-color: var(--green-mid); }
+    .btn {
+      padding: 10px 22px;
+      border-radius: 8px;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: opacity 0.15s, background 0.15s;
+      white-space: nowrap;
+    }
+    .btn:active { opacity: 0.85; }
+    .btn-primary { background: var(--green-mid); color: #fff; }
+    .btn-primary:hover { background: var(--green); }
+    .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; }
+    .btn-outline { background: var(--white); color: var(--text); border: 1px solid var(--border); }
+    .btn-outline:hover { border-color: #aaa; }
+
+    /* ── STATUS / LEGEND ── */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .legend { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-red    { background: var(--red); }
+    .dot-yellow { background: var(--yellow); }
+    .dot-blue   { background: var(--blue); }
+    .count-badge { font-size: 13px; color: var(--muted); }
+
+    /* ── RESULTS TABLE ── */
+    .table-wrap {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      background: var(--bg);
+      text-align: left;
+      padding: 11px 14px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    td { padding: 13px 14px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr.called { opacity: 0.42; }
+    tr.called td:first-child::before { content: '✓ '; color: var(--green-mid); font-weight: 700; }
+
+    /* Score badge */
+    .score-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      font-weight: 700;
+      font-size: 14px;
+      color: #fff;
+    }
+    .score-hot    { background: var(--red); }
+    .score-warm   { background: var(--yellow); }
+    .score-cool   { background: var(--blue); }
+
+    /* Row accent */
+    tr.row-hot    td:first-child { border-left: 3px solid var(--red); }
+    tr.row-warm   td:first-child { border-left: 3px solid var(--yellow); }
+    tr.row-cool   td:first-child { border-left: 3px solid var(--blue); }
+
+    /* Heat row background */
+    tr.row-hot  { background: var(--red-pale); }
+    tr.row-warm { background: var(--yellow-pale); }
+
+    .biz-name { font-weight: 600; }
+    .biz-website a { color: var(--green-mid); text-decoration: none; font-size: 12px; }
+    .biz-website a:hover { text-decoration: underline; }
+    .no-website { color: var(--muted); font-size: 12px; font-style: italic; }
+
+    /* Missing tags */
+    .tags { display: flex; flex-wrap: wrap; gap: 4px; }
+    .tag {
+      background: #f3f4f6;
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-size: 11px;
+      color: #555;
+      white-space: nowrap;
+    }
+    .tag-hot { background: #fee2e2; color: #991b1b; }
+
+    /* Actions */
+    .actions { display: flex; gap: 6px; }
+    .btn-sm {
+      padding: 6px 11px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      font-size: 12px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      background: var(--white);
+      color: var(--text);
+      transition: background 0.12s, border-color 0.12s;
+      white-space: nowrap;
+    }
+    .btn-sm:hover { background: var(--bg); border-color: #bbb; }
+    .btn-sm.called-btn.active { background: var(--green-pale); color: var(--green); border-color: var(--green-light); }
+    .btn-sm.pitch-btn { background: var(--green-pale); color: var(--green); border-color: var(--green-light); }
+    .btn-sm.pitch-btn:hover { background: #d1eadc; }
+
+    /* ── EMPTY / LOADING STATES ── */
+    .state-box {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 56px 24px;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+    .state-box .icon { font-size: 40px; margin-bottom: 12px; }
+    .state-box h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+    .state-box p  { color: var(--muted); font-size: 14px; }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid var(--border);
+      border-top-color: var(--green-mid);
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+      margin: 0 auto 14px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── PITCH MODAL ── */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--white);
+      border-radius: 14px;
+      max-width: 560px;
+      width: 100%;
+      padding: 28px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+      position: relative;
+    }
+    .modal h2 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+    .modal .modal-sub { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
+    .modal textarea {
+      width: 100%;
+      min-height: 260px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      font-size: 13px;
+      font-family: inherit;
+      line-height: 1.65;
+      color: var(--text);
+      resize: vertical;
+      outline: none;
+    }
+    .modal textarea:focus { border-color: var(--green-mid); }
+    .modal-actions { display: flex; gap: 8px; margin-top: 14px; justify-content: flex-end; }
+    .close-btn {
+      position: absolute;
+      top: 14px; right: 16px;
+      background: none; border: none;
+      font-size: 22px; color: var(--muted);
+      cursor: pointer; line-height: 1;
+    }
+    .close-btn:hover { color: var(--text); }
+
+    /* ── ERROR BANNER ── */
+    .error-banner {
+      background: #fef2f2;
+      border: 1px solid #fca5a5;
+      color: #991b1b;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    @media (max-width: 700px) {
+      table, thead, tbody, th, td, tr { display: block; }
+      thead { display: none; }
+      td { padding: 6px 14px; }
+      td::before { content: attr(data-label) ': '; font-weight: 600; color: var(--muted); font-size: 11px; }
+      tr { border-bottom: 2px solid var(--border); padding: 10px 0; }
+      tr:last-child { border-bottom: none; }
+      .actions { padding: 8px 14px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Lead<span>Pro</span> <span style="font-weight:400;opacity:0.6;font-size:14px">/ Prospector</span></div>
+  <a href="/app">← Dashboard</a>
+</header>
+
+<main>
+  <h1>Contractor Prospector</h1>
+  <p class="subtitle">Find local contractors, score their digital gaps, and build a targeted call list.</p>
+
+  <div class="search-card">
+    <div class="field">
+      <label>Location</label>
+      <input type="text" id="locationInput" placeholder="Lynchburg, VA" />
+    </div>
+    <div class="field">
+      <label>Industry</label>
+      <select id="industrySelect">
+        <option value="landscaping">Landscaping</option>
+        <option value="pest control">Pest Control</option>
+        <option value="HVAC">HVAC</option>
+        <option value="plumbing">Plumbing</option>
+        <option value="roofing">Roofing</option>
+      </select>
+    </div>
+    <button class="btn btn-primary" id="searchBtn" onclick="runSearch()">Search</button>
+  </div>
+
+  <div class="error-banner" id="errorBanner"></div>
+
+  <div id="resultsArea">
+    <div class="state-box">
+      <div class="icon">🔍</div>
+      <h3>Ready to prospect</h3>
+      <p>Enter a location and industry above to find contractors<br>and score their digital presence.</p>
+    </div>
+  </div>
+</main>
+
+<!-- Pitch Modal -->
+<div class="modal-overlay" id="pitchModal">
+  <div class="modal">
+    <button class="close-btn" onclick="closePitchModal()">×</button>
+    <h2 id="pitchTitle">Cold Call Script</h2>
+    <p class="modal-sub" id="pitchSub">Personalized based on what this contractor is missing</p>
+    <textarea id="pitchText" readonly></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closePitchModal()">Close</button>
+      <button class="btn btn-primary" onclick="copyPitch()">Copy Script</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentResults = [];
+  let currentIndustry = '';
+
+  async function runSearch() {
+    const location = document.getElementById('locationInput').value.trim();
+    const industry = document.getElementById('industrySelect').value;
+    if (!location) { document.getElementById('locationInput').focus(); return; }
+
+    currentIndustry = industry;
+    const btn = document.getElementById('searchBtn');
+    btn.disabled = true;
+    btn.textContent = 'Searching…';
+    document.getElementById('errorBanner').style.display = 'none';
+    showLoading(location, industry);
+
+    try {
+      const res = await fetch('/api/prospector', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ location, industry })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Server error');
+      currentResults = data.results || [];
+      renderResults(currentResults, location, industry);
+    } catch(e) {
+      showError(e.message);
+      document.getElementById('resultsArea').innerHTML = '';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Search';
+    }
+  }
+
+  document.getElementById('locationInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') runSearch();
+  });
+
+  function showLoading(location, industry) {
+    document.getElementById('resultsArea').innerHTML = `
+      <div class="state-box">
+        <div class="spinner"></div>
+        <h3>Scanning ${industry} contractors in ${location}…</h3>
+        <p>Checking websites for chat widgets, phone numbers, and website quality.<br>This may take 20–40 seconds.</p>
+      </div>`;
+  }
+
+  function showError(msg) {
+    const banner = document.getElementById('errorBanner');
+    banner.textContent = '⚠️ ' + msg;
+    banner.style.display = 'block';
+  }
+
+  function heatClass(score) {
+    if (score >= 60) return 'hot';
+    if (score >= 30) return 'warm';
+    return 'cool';
+  }
+
+  function renderResults(results, location, industry) {
+    if (!results.length) {
+      document.getElementById('resultsArea').innerHTML = `
+        <div class="state-box">
+          <div class="icon">😕</div>
+          <h3>No results found</h3>
+          <p>Try a different location or industry.</p>
+        </div>`;
+      return;
+    }
+
+    const hot  = results.filter(r => r.score >= 60).length;
+    const warm = results.filter(r => r.score >= 30 && r.score < 60).length;
+    const cool = results.filter(r => r.score < 30).length;
+
+    let html = `
+      <div class="toolbar">
+        <div class="legend">
+          <span class="legend-item"><span class="dot dot-red"></span>Hot (60+) — ${hot}</span>
+          <span class="legend-item"><span class="dot dot-yellow"></span>Warm (30–59) — ${warm}</span>
+          <span class="legend-item"><span class="dot dot-blue"></span>Cool (&lt;30) — ${cool}</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span class="count-badge">${results.length} contractors found in ${location}</span>
+          <button class="btn btn-outline" onclick="exportCSV()" style="font-size:13px;padding:7px 14px">Export CSV</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Business</th>
+              <th>Phone</th>
+              <th>Website</th>
+              <th>Missing</th>
+              <th>Score</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>`;
+
+    results.forEach((r, i) => {
+      const heat = heatClass(r.score);
+      const scoreClass = heat === 'hot' ? 'score-hot' : heat === 'warm' ? 'score-warm' : 'score-cool';
+      const rowClass   = `row-${heat}`;
+
+      const missingTags = r.missing.map(m => {
+        const isHot = heat === 'hot';
+        return `<span class="tag${isHot ? ' tag-hot' : ''}">${m}</span>`;
+      }).join('');
+
+      const websiteCell = r.website
+        ? `<div class="biz-website"><a href="${escHtml(r.website)}" target="_blank" rel="noopener">${escHtml(shortenUrl(r.website))}</a></div>
+           <div style="font-size:11px;color:var(--muted);margin-top:2px">${r.hasSSL ? '🔒 SSL' : '⚠️ No SSL'}${r.hasMobileViewport ? ' · 📱 Mobile' : ' · 📵 No viewport'}</div>`
+        : `<span class="no-website">No website found</span>`;
+
+      html += `
+            <tr class="${rowClass}" id="row-${i}">
+              <td data-label="Business" class="biz-name">${escHtml(r.name)}</td>
+              <td data-label="Phone">${r.phone ? escHtml(r.phone) : '<span style="color:var(--muted)">—</span>'}</td>
+              <td data-label="Website">${websiteCell}</td>
+              <td data-label="Missing"><div class="tags">${missingTags || '<span style="color:var(--muted);font-size:12px">Nothing major</span>'}</div></td>
+              <td data-label="Score"><span class="score-badge ${scoreClass}">${r.score}</span></td>
+              <td data-label="Actions">
+                <div class="actions">
+                  <button class="btn-sm called-btn" onclick="toggleCalled(${i}, this)">Mark Called</button>
+                  <button class="btn-sm pitch-btn" onclick="openPitch(${i})">Copy Pitch</button>
+                </div>
+              </td>
+            </tr>`;
+    });
+
+    html += `</tbody></table></div>`;
+    document.getElementById('resultsArea').innerHTML = html;
+  }
+
+  function toggleCalled(i, btn) {
+    const row = document.getElementById('row-' + i);
+    const isCalled = row.classList.toggle('called');
+    btn.classList.toggle('active', isCalled);
+    btn.textContent = isCalled ? 'Called ✓' : 'Mark Called';
+  }
+
+  function openPitch(i) {
+    const r = currentResults[i];
+    const script = generatePitchScript(r, currentIndustry);
+    document.getElementById('pitchTitle').textContent = `Cold Call Script — ${r.name}`;
+    document.getElementById('pitchSub').textContent = `Missing: ${r.missing.join(', ') || 'general outreach'}`;
+    document.getElementById('pitchText').value = script;
+    document.getElementById('pitchModal').classList.add('open');
+  }
+
+  function closePitchModal() {
+    document.getElementById('pitchModal').classList.remove('open');
+  }
+
+  async function copyPitch() {
+    const text = document.getElementById('pitchText').value;
+    try {
+      await navigator.clipboard.writeText(text);
+      const btn = document.querySelector('.modal-actions .btn-primary');
+      btn.textContent = 'Copied!';
+      setTimeout(() => { btn.textContent = 'Copy Script'; }, 1800);
+    } catch(e) {
+      document.getElementById('pitchText').select();
+      document.execCommand('copy');
+    }
+  }
+
+  document.getElementById('pitchModal').addEventListener('click', function(e) {
+    if (e.target === this) closePitchModal();
+  });
+
+  function generatePitchScript(r, industry) {
+    const name = r.name;
+    const missing = r.missing;
+    const painPoints = [];
+
+    if (missing.includes('No website')) {
+      painPoints.push("you don't have a website yet — which means customers who Google you late at night just move on to a competitor");
+    }
+    if (missing.includes('No chat widget')) {
+      painPoints.push("your site doesn't have live chat, so visitors who aren't ready to call just leave without leaving a lead");
+    }
+    if (missing.includes('Poor website quality')) {
+      painPoints.push("your site isn't fully set up for mobile, which is where most customers are browsing from these days");
+    }
+    if (missing.includes('No phone listed')) {
+      painPoints.push("it's hard for customers to find a phone number, so you're probably losing people who want to call right now");
+    }
+
+    const problemLine = painPoints.length === 0
+      ? "a lot of contractors in your area are missing out on leads because they don't have 24/7 coverage online"
+      : painPoints.length === 1
+        ? `I noticed ${painPoints[0]}`
+        : `I noticed ${painPoints.slice(0, -1).join(', ')} — and also that ${painPoints[painPoints.length - 1]}`;
+
+    return `Hi, is this ${name}?
+
+[WAIT FOR RESPONSE]
+
+Hey, my name is [YOUR NAME] — I'm calling from LeadPro. We help ${industry} contractors in your area stop losing jobs to voicemail and slow response times.
+
+The reason I'm actually reaching out is ${problemLine}.
+
+What we do is put an AI scheduling assistant on your website that answers customer questions 24/7, books estimates, and texts leads back instantly — even while you're on a job site.
+
+Most of our ${industry} clients pick up 5 to 10 more booked jobs per month just by catching the leads they were already getting but losing.
+
+I'm not trying to sell you anything today — I just want to show you how it works for a business like yours. Would you have 10 minutes sometime this week for a quick screen share?
+
+[IF YES] — Great! I can do [DAY] at [TIME] or [DAY] at [TIME]. Which works better for you?
+
+[IF NOT SURE] — Totally understand. Can I send you a quick 2-minute demo video to your email so you can see it on your own time?
+
+Thanks for your time, ${name.split(' ')[0] || name}!`;
+  }
+
+  function exportCSV() {
+    if (!currentResults.length) return;
+    const headers = ['Business Name', 'Phone', 'Website', 'Address', 'Score', 'Heat', 'Missing', 'Has Chat Widget', 'Has SSL', 'Mobile Viewport'];
+    const rows = currentResults.map(r => [
+      r.name,
+      r.phone || '',
+      r.website || '',
+      r.address || '',
+      r.score,
+      r.score >= 60 ? 'Hot' : r.score >= 30 ? 'Warm' : 'Cool',
+      r.missing.join('; '),
+      r.hasChatWidget ? 'Yes' : 'No',
+      r.hasSSL ? 'Yes' : 'No',
+      r.hasMobileViewport ? 'Yes' : 'No'
+    ]);
+
+    const csv = [headers, ...rows].map(row =>
+      row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')
+    ).join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const loc = document.getElementById('locationInput').value.trim().replace(/[^a-z0-9]/gi, '-');
+    const ind = document.getElementById('industrySelect').value;
+    a.download = `prospector-${ind}-${loc}-${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function shortenUrl(url) {
+    try {
+      const u = new URL(url);
+      return u.hostname.replace(/^www\./, '');
+    } catch(e) { return url; }
+  }
+</script>
+</body>
+</html>
