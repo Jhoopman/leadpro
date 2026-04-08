@@ -1127,6 +1127,36 @@
       .footer-top { grid-template-columns: 1fr; }
       .hero { padding: 72px 20px 0; }
       .db-stats { grid-template-columns: 1fr 1fr 1fr; }
+
+      /* Hero headline cap */
+      .hero h1 { font-size: 1.75rem !important; line-height: 1.15 !important; }
+
+      /* Hide desktop nav CTA — hamburger menu handles mobile nav */
+      .nav-cta { display: none; }
+
+      /* Full-width CTA buttons */
+      .btn-hero,
+      .btn-cta-white {
+        width: 100%;
+        justify-content: center;
+      }
+      .hero-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .final-cta-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      /* Reduce final-cta padding */
+      .final-cta { padding: 72px 20px; }
+
+      /* Contact form padding */
+      .contact-form { padding: 28px 20px; }
+
+      /* Section header spacing */
+      .section-header { margin-bottom: 40px; }
     }
   </style>
 </head>
@@ -1137,7 +1167,7 @@
   <div class="nav-inner">
     <a class="logo" href="#">
       <div class="logo-mark">
-        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        <svg viewBox="0 0 100 100"><rect x="18" y="68" width="13" height="18" rx="2" fill="white" opacity="0.5"/><rect x="36" y="53" width="13" height="33" rx="2" fill="white" opacity="0.75"/><rect x="54" y="36" width="13" height="50" rx="2" fill="white"/><rect x="72" y="24" width="13" height="62" rx="2" fill="white"/><polyline points="18,70 36,55 54,40 78,20" fill="none" stroke="#74C69D" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="78" cy="20" r="5" fill="#74C69D"/></svg>
       </div>
       LeadPro
     </a>
@@ -1149,8 +1179,8 @@
       <li><a href="#contact">Contact</a></li>
     </ul>
     <div class="nav-cta">
-      <a class="btn-ghost" href="https://leadpro-1d5l.onrender.com/app">Log in</a>
-      <a class="btn-primary" href="https://leadpro-1d5l.onrender.com/app">
+      <a class="btn-ghost" href="https://app.useleadpro.net">Log in</a>
+      <a class="btn-primary" href="https://app.useleadpro.net">
         Start free trial
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
       </a>
@@ -1169,7 +1199,7 @@
   <a href="#pricing" onclick="document.getElementById('mobileMenu').classList.remove('open')">Pricing</a>
   <a href="#faq" onclick="document.getElementById('mobileMenu').classList.remove('open')">FAQ</a>
   <a href="#contact" onclick="document.getElementById('mobileMenu').classList.remove('open')">Contact</a>
-  <a href="https://leadpro-1d5l.onrender.com/app" style="color: var(--green); margin-top: 12px;">Start free trial →</a>
+  <a href="https://app.useleadpro.net" style="color: var(--green); margin-top: 12px;">Start free trial →</a>
 </div>
 
 <!-- HERO -->
@@ -1193,7 +1223,7 @@
     <h1 class="reveal reveal-d1">Stop losing jobs<br/>to <em>voicemail.</em></h1>
     <p class="hero-sub reveal reveal-d2">LeadPro answers every call, books every appointment, and qualifies every lead — 24/7 — so you can focus on the work, not the phone.</p>
     <div class="hero-actions reveal reveal-d3">
-      <a class="btn-hero" href="https://leadpro-1d5l.onrender.com/app">
+      <a class="btn-hero" href="https://app.useleadpro.net">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         Start free — 14 days free
       </a>
@@ -1365,15 +1395,15 @@
       </div>
       <div class="pain-stats">
         <div class="pain-stat reveal reveal-d1">
-          <div class="pain-stat-num"><span data-target="62" data-suffix="%">62</span>%</div>
+          <div class="pain-stat-num"><span data-target="62" data-suffix="%">62%</span></div>
           <div class="pain-stat-label">of callers hang up after voicemail without leaving a message</div>
         </div>
         <div class="pain-stat reveal reveal-d2">
-          <div class="pain-stat-num"><span data-target="5" data-suffix="×">5</span>×</div>
+          <div class="pain-stat-num"><span data-target="5" data-suffix="×">5×</span></div>
           <div class="pain-stat-label">higher conversion when a lead is contacted within 5 minutes</div>
         </div>
         <div class="pain-stat reveal reveal-d3">
-          <div class="pain-stat-num"><span data-target="40" data-suffix="%">40</span>%</div>
+          <div class="pain-stat-num"><span data-target="40" data-suffix="%">40%</span></div>
           <div class="pain-stat-label">of service requests arrive outside of business hours</div>
         </div>
         <div class="pain-stat reveal reveal-d4">
@@ -1494,7 +1524,7 @@
           <span class="period">&nbsp;/ month</span>
         </div>
         <p class="pricing-desc">Perfect for solo contractors and small crews looking to capture more leads without hiring staff.</p>
-        <a class="pricing-cta" href="https://leadpro-1d5l.onrender.com/app">Start free trial</a>
+        <a class="pricing-cta" href="https://app.useleadpro.net">Start free trial</a>
         <ul class="pricing-features">
           <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> AI phone agent (250 min/mo)</li>
           <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> Chat widget (1 website)</li>
@@ -1513,7 +1543,7 @@
           <span class="period">&nbsp;/ month</span>
         </div>
         <p class="pricing-desc">For growing contractors who need unlimited capacity, calendar sync, and priority support.</p>
-        <a class="pricing-cta" href="https://leadpro-1d5l.onrender.com/app">Start free trial</a>
+        <a class="pricing-cta" href="https://app.useleadpro.net">Start free trial</a>
         <ul class="pricing-features">
           <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> AI phone agent (unlimited)</li>
           <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> Chat widget (unlimited sites)</li>
@@ -1678,7 +1708,7 @@ document.getElementById('contactForm').addEventListener('submit', async function
     <h2>Your next job is calling.<br/>Make sure you answer.</h2>
     <p>Start free for 14 days. No credit card. Cancel anytime. One booked job pays for months of LeadPro.</p>
     <div class="final-cta-actions">
-      <a class="btn-cta-white" href="https://leadpro-1d5l.onrender.com/app">
+      <a class="btn-cta-white" href="https://app.useleadpro.net">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.09 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
         Start free trial
       </a>
@@ -1700,7 +1730,7 @@ document.getElementById('contactForm').addEventListener('submit', async function
       <div class="footer-brand">
         <a class="logo" href="#">
           <div class="logo-mark">
-            <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            <svg viewBox="0 0 100 100"><rect x="18" y="68" width="13" height="18" rx="2" fill="white" opacity="0.5"/><rect x="36" y="53" width="13" height="33" rx="2" fill="white" opacity="0.75"/><rect x="54" y="36" width="13" height="50" rx="2" fill="white"/><rect x="72" y="24" width="13" height="62" rx="2" fill="white"/><polyline points="18,70 36,55 54,40 78,20" fill="none" stroke="#74C69D" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="78" cy="20" r="5" fill="#74C69D"/></svg>
           </div>
           LeadPro
         </a>
@@ -1713,7 +1743,7 @@ document.getElementById('contactForm').addEventListener('submit', async function
           <li><a href="#features">Features</a></li>
           <li><a href="#pricing">Pricing</a></li>
           <li><a href="#how">How it works</a></li>
-          <li><a href="https://leadpro-1d5l.onrender.com/app">Dashboard</a></li>
+          <li><a href="https://app.useleadpro.net">Dashboard</a></li>
         </ul>
       </div>
       <div class="footer-col">
