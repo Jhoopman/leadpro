@@ -102,6 +102,12 @@ ALTER TABLE contractors ADD COLUMN IF NOT EXISTS plan                   text DEF
 ALTER TABLE contractors ADD COLUMN IF NOT EXISTS plan_status            text DEFAULT 'trial';
 ALTER TABLE contractors ADD COLUMN IF NOT EXISTS trial_ends_at          timestamptz;
 
+-- Google Calendar integration:
+ALTER TABLE contractors ADD COLUMN IF NOT EXISTS google_access_token  text;
+ALTER TABLE contractors ADD COLUMN IF NOT EXISTS google_refresh_token text;
+ALTER TABLE contractors ADD COLUMN IF NOT EXISTS google_calendar_id   text;
+ALTER TABLE contractors ADD COLUMN IF NOT EXISTS google_connected      boolean DEFAULT false;
+
 -- ─────────────────────────────────────────────────────────
 -- After running this SQL, copy the following values from
 -- Supabase Dashboard → Settings → API and add them to your

@@ -735,6 +735,25 @@ nav { flex: 1; padding: 8px 0; }
     <div class="snippet" id="widget-embed-code">&lt;script src="https://leadpro-1d5l.onrender.com/widget.js" data-id="<span id="widget-id-span" style="color:var(--green-mid)">loading...</span>"&gt;&lt;/script&gt;<button class="cc" onclick="copyEmbedCode(this)">Copy</button></div>
     <p style="font-size:11px;color:var(--text3);margin-top:8px">Your widget ID: <strong id="widget-id-display" style="color:var(--text)">—</strong></p>
   </div>
+  <div class="settings-section" id="gcal-section">
+    <h3>Google Calendar</h3>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:14px">Connect your Google Calendar so the AI chatbot can check your availability and book appointments directly — no double bookings.</p>
+    <div id="gcal-connected-row" style="display:none">
+      <div class="srow">
+        <div class="srow-info">
+          <div class="sl" style="display:flex;align-items:center;gap:6px">
+            <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#22c55e"></span>
+            Connected
+          </div>
+          <div class="ss" id="gcal-email">—</div>
+        </div>
+        <button class="btn-sm" onclick="disconnectGoogleCalendar()" style="color:#e85d3a;border-color:#3a1a1a">Disconnect</button>
+      </div>
+    </div>
+    <div id="gcal-disconnected-row">
+      <a id="gcal-connect-btn" class="btn-sm primary" style="display:inline-block;text-decoration:none;cursor:pointer" onclick="connectGoogleCalendar()">Connect Google Calendar</a>
+    </div>
+  </div>
   <div class="settings-section" id="billing-section">
     <h3>Plan &amp; billing</h3>
     <div class="srow">
@@ -1513,6 +1532,35 @@ async function loadContractorProfile() {
   }
   checkPaywall();
   renderBillingSection();
+  renderGoogleCalendarSection();
+}
+
+function renderGoogleCalendarSection() {
+  if (!contractorProfile) return;
+  const connected = contractorProfile.google_connected;
+  const email     = contractorProfile.google_calendar_id || '';
+  document.getElementById('gcal-connected-row').style.display    = connected ? '' : 'none';
+  document.getElementById('gcal-disconnected-row').style.display = connected ? 'none' : '';
+  if (connected) document.getElementById('gcal-email').textContent = email;
+}
+
+function connectGoogleCalendar() {
+  if (!currentUser) return;
+  window.location.href = 'https://leadpro-1d5l.onrender.com/auth/google?contractor_id=' + currentUser.id;
+}
+
+async function disconnectGoogleCalendar() {
+  if (!currentUser || !confirm('Disconnect Google Calendar? The AI chatbot will stop booking appointments automatically.')) return;
+  const res = await fetch('https://leadpro-1d5l.onrender.com/auth/google/disconnect', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ contractor_id: currentUser.id })
+  });
+  if (res.ok) {
+    contractorProfile.google_connected = false;
+    contractorProfile.google_calendar_id = null;
+    renderGoogleCalendarSection();
+  }
 }
 
 async function loadData() {
@@ -1805,11 +1853,27 @@ document.getElementById('dash-date').textContent = new Date().toLocaleDateString
 localStorage.removeItem('lp_api_key');
 document.getElementById('book-overlay').addEventListener('click', e=>{ if(e.target===document.getElementById('book-overlay')) closeBookModal(); });
 document.getElementById('event-overlay').addEventListener('click', e=>{ if(e.target===document.getElementById('event-overlay')) closeEventModal(); });
-// Clear Stripe redirect params after returning from checkout
+// Clear redirect params and handle OAuth callbacks
 (function() {
   const p = new URLSearchParams(window.location.search);
   if (p.get('billing') === 'success') {
     window.history.replaceState({}, '', '/app');
+  }
+  if (p.get('google_connected') === 'true') {
+    window.history.replaceState({}, '', '/app');
+    // Reload contractor profile once auth initialises to show Connected status
+    const wait = setInterval(function() {
+      if (typeof loadContractorProfile === 'function' && typeof currentUser !== 'undefined' && currentUser) {
+        clearInterval(wait);
+        loadContractorProfile().then(function() {
+          showScreen('settings', document.querySelector('[onclick*="settings"]'));
+        });
+      }
+    }, 300);
+  }
+  if (p.get('google_error') === 'true') {
+    window.history.replaceState({}, '', '/app');
+    alert('Google Calendar connection failed. Please try again.');
   }
 })();
 initSupabase();

@@ -243,10 +243,11 @@ var BASE       = 'https://leadpro-1d5l.onrender.com';
 var params     = new URLSearchParams(window.location.search);
 var WIDGET_ID  = params.get('id') || '';
 
-var contractor   = null;
-var chatHistory  = [];
-var capturedLead = null;
-var busy         = false;
+var contractor     = null;
+var chatHistory    = [];
+var capturedLead   = null;
+var busy           = false;
+var availableSlots = null; // populated if contractor has Google Calendar connected
 
 /* ── Helpers ── */
 function ts() {
@@ -285,14 +286,41 @@ function showErr(msg) {
   e.style.display = msg ? 'block' : 'none';
 }
 
+/* ── Load available slots from Google Calendar (if connected) ── */
+function getNextWeekdays(n) {
+  var days = [];
+  var d = new Date();
+  d.setHours(0, 0, 0, 0);
+  while (days.length < n) {
+    d.setDate(d.getDate() + 1);
+    if (d.getDay() !== 0 && d.getDay() !== 6) {
+      days.push(d.toISOString().split('T')[0]);
+    }
+  }
+  return days;
+}
+
+function loadAvailability() {
+  if (!contractor || !contractor.google_connected) return Promise.resolve();
+  var dates = getNextWeekdays(3);
+  return Promise.all(dates.map(function(date) {
+    return fetch(BASE + '/api/availability?contractor_id=' + contractor.id + '&date=' + date)
+      .then(function(r) { return r.json(); })
+      .catch(function() { return { date: date, slots: [] }; });
+  })).then(function(results) {
+    availableSlots = results.filter(function(d) { return d.slots && d.slots.length > 0; });
+  }).catch(function() {});
+}
+
 /* ── API call ── */
 function callAPI(messages) {
   var body = JSON.stringify({
-    contractorId : contractor ? contractor.id   : null,
-    widgetId     : WIDGET_ID,
-    messages     : messages,
-    bizName      : contractor ? contractor.business_name : '',
-    services     : contractor ? contractor.services      : ''
+    contractorId   : contractor ? contractor.id           : null,
+    widgetId       : WIDGET_ID,
+    messages       : messages,
+    bizName        : contractor ? contractor.business_name : '',
+    services       : contractor ? contractor.services      : '',
+    availableSlots : availableSlots || undefined
   });
   return fetch(BASE + '/widget-api', {
     method  : 'POST',
@@ -367,6 +395,24 @@ function handleResponse(data) {
       })
     }).catch(function(e){ console.warn('[LeadPro] Confirmation post failed:', e.message); });
 
+    // Book the Google Calendar event if the AI confirmed a real slot
+    if (lead.slot_start && lead.slot_end && contractor && contractor.id) {
+      fetch(BASE + '/api/book-appointment', {
+        method  : 'POST',
+        headers : { 'Content-Type': 'application/json' },
+        body    : JSON.stringify({
+          contractor_id : contractor.id,
+          lead_name     : lead.name     || '',
+          lead_email    : lead.email    || '',
+          lead_phone    : lead.phone    || '',
+          service       : lead.service  || '',
+          start         : lead.slot_start,
+          end           : lead.slot_end,
+          notes         : ''
+        })
+      }).catch(function(e){ console.warn('[LeadPro] Calendar booking failed:', e.message); });
+    }
+
     // Notify parent widget — two events:
     // lp:new_lead  → show the unread badge
     // lp:lead_captured → auto-open the panel to show success
@@ -436,7 +482,7 @@ window.addEventListener('message', function(e) {
 /* ── Signal parent that iframe is ready ── */
 safePostToParent('lp:ready');
 
-/* ── Init: fetch contractor info then start chat ── */
+/* ── Init: fetch contractor info, then availability, then start chat ── */
 (function init() {
   if (!WIDGET_ID) { return startChat(); }
 
@@ -449,6 +495,7 @@ safePostToParent('lp:ready');
       }
     })
     .catch(function(){})
+    .then(loadAvailability)
     .then(startChat);
 })();
 </script>

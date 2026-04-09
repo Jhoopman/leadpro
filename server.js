@@ -6,6 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { createClient } = require('@supabase/supabase-js');
+const { google } = require('googleapis');
 
 const PORT = process.env.PORT || 3000;
 const API_KEY = process.env.ANTHROPIC_API_KEY || '';
@@ -17,6 +18,9 @@ const STRIPE_WEBHOOK_SECRET  = process.env.STRIPE_WEBHOOK_SECRET  || '';
 const STRIPE_STARTER_PRICE_ID = process.env.STRIPE_STARTER_PRICE_ID || '';
 const STRIPE_PRO_PRICE_ID    = process.env.STRIPE_PRO_PRICE_ID    || '';
 const GOOGLE_PLACES_API_KEY  = process.env.GOOGLE_PLACES_API_KEY  || '';
+const GOOGLE_CLIENT_ID       = process.env.GOOGLE_CLIENT_ID       || '';
+const GOOGLE_CLIENT_SECRET   = process.env.GOOGLE_CLIENT_SECRET   || '';
+const GOOGLE_REDIRECT_URI    = process.env.GOOGLE_REDIRECT_URI    || 'https://leadpro-1d5l.onrender.com/auth/google/callback';
 
 /*
   Supabase migration — run once in the SQL editor:
@@ -25,7 +29,11 @@ const GOOGLE_PLACES_API_KEY  = process.env.GOOGLE_PLACES_API_KEY  || '';
     ADD COLUMN IF NOT EXISTS stripe_subscription_id text,
     ADD COLUMN IF NOT EXISTS plan                   text DEFAULT 'free',
     ADD COLUMN IF NOT EXISTS plan_status            text DEFAULT 'trial',
-    ADD COLUMN IF NOT EXISTS trial_ends_at          timestamptz;
+    ADD COLUMN IF NOT EXISTS trial_ends_at          timestamptz,
+    ADD COLUMN IF NOT EXISTS google_access_token    text,
+    ADD COLUMN IF NOT EXISTS google_refresh_token   text,
+    ADD COLUMN IF NOT EXISTS google_calendar_id     text,
+    ADD COLUMN IF NOT EXISTS google_connected       boolean DEFAULT false;
 */
 
 if (!API_KEY) { console.log('\n❌ No API key.\n'); process.exit(1); }
@@ -42,7 +50,40 @@ if (STRIPE_SECRET_KEY) console.log('✅ Stripe billing configured');
 else console.log('⚠️  No STRIPE_SECRET_KEY — billing endpoints disabled');
 if (GOOGLE_PLACES_API_KEY) console.log('✅ Google Places API configured');
 else console.log('⚠️  No GOOGLE_PLACES_API_KEY — prospector endpoint disabled');
+if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET) console.log('✅ Google Calendar OAuth configured');
+else console.log('⚠️  No GOOGLE_CLIENT_ID/SECRET — calendar integration disabled');
 console.log('✅ LeadPro server running on port', PORT, '\n');
+
+// ── GOOGLE OAUTH ──
+const oauth2Client = new google.auth.OAuth2(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI);
+
+// Returns an authenticated OAuth2 client for a contractor, auto-refreshes token
+async function getCalendarClient(contractorId) {
+  const { data } = await supabase
+    .from('contractors')
+    .select('google_access_token, google_refresh_token')
+    .eq('id', contractorId)
+    .single();
+  if (!data?.google_access_token) return null;
+  const client = new google.auth.OAuth2(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI);
+  client.setCredentials({ access_token: data.google_access_token, refresh_token: data.google_refresh_token });
+  client.on('tokens', async tokens => {
+    if (tokens.access_token) {
+      await supabase.from('contractors').update({ google_access_token: tokens.access_token }).eq('id', contractorId);
+    }
+  });
+  return client;
+}
+
+// Formats availableSlots array into a human-readable string for system prompts
+function formatSlotsForPrompt(availableSlots) {
+  if (!availableSlots || !availableSlots.length) return null;
+  return availableSlots.map(day => {
+    const d = new Date(day.date + 'T12:00:00Z');
+    const dayLabel = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' });
+    return `${dayLabel}: ${day.slots.map(s => s.label).join(', ')}`;
+  }).join('\n');
+}
 
 // ── HELPERS ──
 function sendEmail(to, subject, html) {
@@ -311,7 +352,7 @@ app.get('/contractor/:id', async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('contractors')
-      .select('id, business_name, services')
+      .select('id, business_name, services, google_connected')
       .eq('widget_id', req.params.id)
       .single();
     if (error || !data) { res.status(404).json({ error: 'Not found' }); return; }
@@ -348,9 +389,37 @@ app.post('/widget-api', (req, res) => {
 
   // Contractor scheduling prompt
   console.log('[widget-api] Using contractor scheduling prompt for', widgetId);
+  const { availableSlots } = req.body;
   const biz = bizName || 'our company';
   const svcList = services || 'general services';
-  const systemPrompt = `You are a friendly scheduling assistant for ${biz}. Your job is to have a warm, natural conversation to gather info and book an appointment or estimate.
+  const slotText = formatSlotsForPrompt(availableSlots);
+
+  let systemPrompt;
+  if (slotText) {
+    // Calendar-connected: offer real slots, collect email, skip address
+    systemPrompt = `You are a friendly scheduling assistant for ${biz}. Your job is to book a confirmed appointment.
+
+Services offered: ${svcList}
+
+Available appointment slots (offer ONLY these — do not suggest other times):
+${slotText}
+
+Goals:
+1. Greet the customer and ask how you can help
+2. Collect one at a time: name, phone number, email address, service needed
+3. Share the available times above and let them pick one
+4. Confirm all details back to them
+5. Tell them a calendar invite will be sent to their email
+
+Rules:
+- Sound human and conversational — no robotic tone
+- Ask one question at a time
+- Keep responses SHORT — 1-3 sentences max
+- Once you have all fields and a confirmed slot, output this ONCE at the END:
+LEAD_DATA:{"name":"...","phone":"...","email":"...","address":"","service":"...","datetime":"human readable slot","slot_start":"ISO8601","slot_end":"ISO8601"}`;
+  } else {
+    // No calendar: collect address and preferred time as free text
+    systemPrompt = `You are a friendly scheduling assistant for ${biz}. Your job is to have a warm, natural conversation to gather info and book an appointment or estimate.
 
 Services offered: ${svcList}
 
@@ -365,7 +434,8 @@ Rules:
 - Ask one question at a time
 - Keep responses SHORT — 1-3 sentences max
 - Once you have all 5 fields, output this ONCE at the END of your message:
-LEAD_DATA:{"name":"...","phone":"...","address":"...","service":"...","datetime":"..."}`;
+LEAD_DATA:{"name":"...","phone":"...","email":"","address":"...","service":"...","datetime":"..."}`;
+  }
   const pd = JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 500, system: systemPrompt, messages });
   const proxyReq = https.request({
     hostname: 'api.anthropic.com', port: 443, path: '/v1/messages', method: 'POST',
@@ -684,6 +754,157 @@ app.post('/api/prospector', async (req, res) => {
     res.json({ results });
   } catch(e) {
     console.error('Prospector error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ── GOOGLE CALENDAR OAUTH ──
+
+// Step 1: redirect contractor to Google consent screen
+app.get('/auth/google', (req, res) => {
+  const { contractor_id } = req.query;
+  if (!contractor_id) return res.status(400).send('Missing contractor_id');
+  const url = oauth2Client.generateAuthUrl({
+    access_type: 'offline',
+    prompt: 'consent',
+    scope: ['https://www.googleapis.com/auth/calendar'],
+    state: contractor_id
+  });
+  res.redirect(url);
+});
+
+// Step 2: Google redirects back here with ?code=...&state=contractor_id
+app.get('/auth/google/callback', async (req, res) => {
+  const { code, state: contractorId } = req.query;
+  if (!code || !contractorId) return res.status(400).send('Missing code or state');
+  try {
+    const { tokens } = await oauth2Client.getToken(code);
+    oauth2Client.setCredentials(tokens);
+
+    // Get the primary calendar ID (= account email)
+    const cal = google.calendar({ version: 'v3', auth: oauth2Client });
+    const calInfo = await cal.calendars.get({ calendarId: 'primary' });
+    const calendarId = calInfo.data.id;
+
+    await supabase.from('contractors').update({
+      google_access_token:  tokens.access_token,
+      google_refresh_token: tokens.refresh_token || undefined,
+      google_calendar_id:   calendarId,
+      google_connected:     true
+    }).eq('id', contractorId);
+
+    console.log(`[Google] Calendar connected for contractor ${contractorId}: ${calendarId}`);
+    res.redirect('/?google_connected=true');
+  } catch (e) {
+    console.error('[Google] OAuth callback error:', e.message);
+    res.redirect('/?google_error=true');
+  }
+});
+
+// GET /auth/google/status?contractor_id=X
+app.get('/auth/google/status', async (req, res) => {
+  const { contractor_id } = req.query;
+  if (!contractor_id) return res.status(400).json({ error: 'Missing contractor_id' });
+  const { data } = await supabase
+    .from('contractors')
+    .select('google_connected, google_calendar_id')
+    .eq('id', contractor_id)
+    .single();
+  res.json({ connected: data?.google_connected || false, calendarId: data?.google_calendar_id || null });
+});
+
+// GET /auth/google/disconnect?contractor_id=X
+app.post('/auth/google/disconnect', async (req, res) => {
+  const { contractor_id } = req.body;
+  if (!contractor_id) return res.status(400).json({ error: 'Missing contractor_id' });
+  await supabase.from('contractors').update({
+    google_access_token:  null,
+    google_refresh_token: null,
+    google_calendar_id:   null,
+    google_connected:     false
+  }).eq('id', contractor_id);
+  res.json({ success: true });
+});
+
+// GET /api/availability?contractor_id=X&date=YYYY-MM-DD
+// Returns free 1-hour slots between 8am–6pm on the given date
+app.get('/api/availability', async (req, res) => {
+  const { contractor_id, date } = req.query;
+  if (!contractor_id || !date) return res.status(400).json({ error: 'contractor_id and date required' });
+
+  const auth = await getCalendarClient(contractor_id);
+  if (!auth) return res.json({ date, slots: [], error: 'Calendar not connected' });
+
+  try {
+    const cal = google.calendar({ version: 'v3', auth });
+    const timeMin = new Date(date + 'T08:00:00Z');
+    const timeMax = new Date(date + 'T18:00:00Z');
+
+    const { data } = await cal.freebusy.query({
+      requestBody: { timeMin: timeMin.toISOString(), timeMax: timeMax.toISOString(), items: [{ id: 'primary' }] }
+    });
+
+    const busy = data.calendars?.primary?.busy || [];
+    const slots = [];
+
+    for (let h = 8; h < 18; h++) {
+      const slotStart = new Date(date + `T${h.toString().padStart(2,'0')}:00:00Z`);
+      const slotEnd   = new Date(date + `T${(h+1).toString().padStart(2,'0')}:00:00Z`);
+      const isBusy = busy.some(b => slotStart < new Date(b.end) && slotEnd > new Date(b.start));
+      if (!isBusy) {
+        const hour = h > 12 ? h - 12 : (h === 0 ? 12 : h);
+        slots.push({ label: `${hour}:00 ${h >= 12 ? 'PM' : 'AM'}`, start: slotStart.toISOString(), end: slotEnd.toISOString() });
+      }
+    }
+    res.json({ date, slots });
+  } catch (e) {
+    console.error('[Google] Availability error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /api/book-appointment
+// Creates a Google Calendar event and sends invite to the lead
+app.post('/api/book-appointment', async (req, res) => {
+  const { contractor_id, lead_name, lead_email, lead_phone, service, start, end, notes } = req.body;
+  if (!contractor_id || !start || !end) return res.status(400).json({ error: 'contractor_id, start, and end are required' });
+
+  const auth = await getCalendarClient(contractor_id);
+  if (!auth) return res.status(400).json({ error: 'Google Calendar not connected for this contractor' });
+
+  try {
+    const cal = google.calendar({ version: 'v3', auth });
+    const attendees = lead_email ? [{ email: lead_email }] : [];
+
+    const event = {
+      summary: `${service || 'Appointment'} — ${lead_name || 'New Lead'}`,
+      description: [
+        `Service: ${service || '—'}`,
+        `Lead phone: ${lead_phone || '—'}`,
+        notes ? `Notes: ${notes}` : ''
+      ].filter(Boolean).join('\n'),
+      start: { dateTime: start },
+      end:   { dateTime: end },
+      attendees,
+      reminders: {
+        useDefault: false,
+        overrides: [
+          { method: 'email',  minutes: 24 * 60 },
+          { method: 'popup',  minutes: 30 }
+        ]
+      }
+    };
+
+    const created = await cal.events.insert({
+      calendarId: 'primary',
+      sendUpdates: attendees.length ? 'all' : 'none',
+      requestBody: event
+    });
+
+    console.log(`[Google] Event created for contractor ${contractor_id}: ${created.data.id}`);
+    res.json({ success: true, eventId: created.data.id, eventLink: created.data.htmlLink });
+  } catch (e) {
+    console.error('[Google] Book appointment error:', e.message);
     res.status(500).json({ error: e.message });
   }
 });
