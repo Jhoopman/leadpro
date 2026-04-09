@@ -322,9 +322,32 @@ app.get('/contractor/:id', async (req, res) => {
 });
 
 // Widget chat API — builds personalized system prompt from contractor data
+const MARKETING_WIDGET_ID = 'lp_rdzvuqld';
+const MARKETING_SYSTEM_PROMPT = `You are a sales assistant for LeadPro, AI lead generation software for contractors. Never ask for addresses, zip codes, or schedule appointments. You sell software. Answer pricing questions: Starter $49/month, Pro $149/month, 14 day free trial no credit card. Collect name, email, phone number only. Direct them to app.useleadpro.net to start their free trial.`;
+
 app.post('/widget-api', (req, res) => {
-  const { messages, bizName, services } = req.body;
+  const { messages, widgetId, bizName, services } = req.body;
+  console.log('[widget-api] widgetId received:', JSON.stringify(widgetId));
   if (!messages) { res.status(400).json({ error: 'No messages' }); return; }
+
+  // Marketing site widget — also catches undefined/empty widgetId as a safe default
+  if (!widgetId || widgetId === MARKETING_WIDGET_ID) {
+    console.log('[widget-api] Using LeadPro marketing prompt for', widgetId);
+    const pd = JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 500, system: MARKETING_SYSTEM_PROMPT, messages });
+    const proxyReq = https.request({
+      hostname: 'api.anthropic.com', port: 443, path: '/v1/messages', method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(pd), 'x-api-key': API_KEY, 'anthropic-version': '2023-06-01' }
+    }, proxyRes => {
+      let d = ''; proxyRes.on('data', c => d += c);
+      proxyRes.on('end', () => { res.status(proxyRes.statusCode).json(JSON.parse(d)); });
+    });
+    proxyReq.on('error', e => res.status(500).json({ error: e.message }));
+    proxyReq.write(pd); proxyReq.end();
+    return;
+  }
+
+  // Contractor scheduling prompt
+  console.log('[widget-api] Using contractor scheduling prompt for', widgetId);
   const biz = bizName || 'our company';
   const svcList = services || 'general services';
   const systemPrompt = `You are a friendly scheduling assistant for ${biz}. Your job is to have a warm, natural conversation to gather info and book an appointment or estimate.
