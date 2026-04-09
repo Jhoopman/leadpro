@@ -281,6 +281,12 @@ app.use((req, res, next) => {
 // Static files
 app.get('/widget.js', (req, res) => res.sendFile(path.join(__dirname, 'widget.js')));
 app.get('/widget-chat.html', (req, res) => res.sendFile(path.join(__dirname, 'widget-chat.html')));
+app.get('/manifest.json', (req, res) => res.sendFile(path.join(__dirname, 'manifest.json')));
+app.get('/service-worker.js', (req, res) => {
+  res.setHeader('Content-Type', 'application/javascript');
+  res.setHeader('Service-Worker-Allowed', '/');
+  res.sendFile(path.join(__dirname, 'service-worker.js'));
+});
 
 // Supabase config for client-side
 app.get('/config', (req, res) => {

@@ -2,8 +2,22 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
 <title>LeadPro — AI Scheduling for Contractors</title>
+
+<!-- PWA -->
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#2D6A4F">
+<meta name="mobile-web-app-capable" content="yes">
+
+<!-- iOS -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LeadPro">
+
+<!-- SEO / Open Graph -->
+<meta name="description" content="AI-powered lead generation for contractors">
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
@@ -348,26 +362,103 @@ nav { flex: 1; padding: 8px 0; }
 .empty-state { text-align: center; padding: 40px 20px; color: #444444; font-size: 13px; }
 .empty-state svg { width: 32px; height: 32px; fill: #333333; margin: 0 auto 12px; display: block; }
 
+/* INSTALL BANNER */
+#pwa-banner { display: none; align-items: center; gap: 10px; background: #111111; border-bottom: 0.5px solid #1f1f1f; padding: 10px 16px; font-size: 13px; color: #aaaaaa; position: sticky; top: 0; z-index: 100; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+#pwa-banner.show { display: flex; }
+#pwa-banner .pb-icon { width: 34px; height: 34px; background: rgba(45,106,79,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+#pwa-banner .pb-icon svg { width: 16px; height: 16px; fill: #74C69D; }
+#pwa-banner .pb-text { flex: 1; font-size: 12px; line-height: 1.4; }
+#pwa-banner .pb-text strong { color: #ffffff; }
+#pwa-install-btn { background: #2D6A4F; color: #fff; border: none; border-radius: 8px; padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; flex-shrink: 0; min-height: 34px; }
+#pwa-install-btn:active { opacity: 0.8; }
+#pwa-dismiss-btn { background: none; border: none; color: #444444; font-size: 18px; cursor: pointer; padding: 4px 6px; line-height: 1; flex-shrink: 0; min-width: 32px; min-height: 32px; display: flex; align-items: center; justify-content: center; }
+
+/* BOTTOM NAV (mobile only) */
+#bottom-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: #111111; border-top: 0.5px solid #1f1f1f; z-index: 500; padding-bottom: env(safe-area-inset-bottom); }
+#bottom-nav .bnav-inner { display: flex; align-items: stretch; }
+.bnav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 10px 4px 8px; cursor: pointer; color: #555555; font-size: 10px; font-weight: 500; border: none; background: none; font-family: inherit; min-height: 56px; -webkit-tap-highlight-color: transparent; transition: color .15s; }
+.bnav-item svg { width: 20px; height: 20px; fill: currentColor; }
+.bnav-item.active { color: #74C69D; }
+.bnav-badge { position: absolute; top: 7px; right: calc(50% - 14px); background: #74C69D; color: #0A0A0A; font-size: 9px; font-weight: 700; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.bnav-item-wrap { position: relative; flex: 1; display: flex; }
+
 /* MOBILE RESPONSIVE */
 @media (max-width: 768px) {
   #app { flex-direction: column; }
-  #sidebar { width: 100%; height: auto; flex-direction: row; align-items: center; padding: 0 16px; min-height: 52px; }
-  #sidebar-logo { padding: 12px 0; border-bottom: none; border-right: 0.5px solid #1f1f1f; margin-right: 8px; }
-  nav { flex: 1; display: flex; flex-direction: row; overflow-x: auto; padding: 0; }
-  .nav-item { padding: 14px 12px; border-left: none; border-bottom: 2px solid transparent; font-size: 12px; white-space: nowrap; }
-  .nav-item.active { border-left: none; border-bottom-color: #2D6A4F; background: transparent; }
-  #sidebar-footer { display: none; }
+  #sidebar { display: none; }
+  #bottom-nav { display: block; }
+  #main { padding-bottom: calc(56px + env(safe-area-inset-bottom)); }
   .metrics { grid-template-columns: 1fr 1fr; }
   .dash-mid-row { grid-template-columns: 1fr; }
   .two-col { grid-template-columns: 1fr; }
-  .screen { padding: 16px; }
+  .screen { padding: 14px 14px; }
+  /* Touch-friendly tap targets */
+  .btn-sm { min-height: 36px; padding: 8px 12px; }
+  .btn-sm.primary { min-height: 36px; }
+  .field input, .field select, .field textarea { font-size: 16px; } /* Prevent iOS zoom on focus */
+  .auth-field input { font-size: 16px; }
+  #user-input { font-size: 16px; }
+  /* Smooth scroll */
+  #main { -webkit-overflow-scrolling: touch; }
+  .feed-scroll { -webkit-overflow-scrolling: touch; }
+  /* Topbar adjustments */
+  .topbar { flex-wrap: wrap; gap: 10px; }
+  /* Table scroll on mobile */
+  .card { overflow-x: auto; }
 }
 @media (max-width: 480px) {
-  .metrics { grid-template-columns: 1fr; }
+  .metrics { grid-template-columns: 1fr 1fr; }
+  .metric .mv { font-size: 28px; }
 }
 </style>
 </head>
 <body>
+
+<!-- PWA INSTALL BANNER -->
+<div id="pwa-banner">
+  <div class="pb-icon"><svg viewBox="0 0 24 24"><path d="M17 8C8 10 5.9 16.17 3.82 19.83 3.36 20.63 2 20.28 2 19.37V4.5A2.5 2.5 0 014.5 2h15A2.5 2.5 0 0122 4.5v10a2.5 2.5 0 01-2.5 2.5H17V8z"/></svg></div>
+  <div class="pb-text"><strong>Add LeadPro to your home screen</strong> for the best experience</div>
+  <button id="pwa-install-btn" onclick="pwaTriggerInstall()">Install</button>
+  <button id="pwa-dismiss-btn" onclick="pwaDismiss()" aria-label="Dismiss">×</button>
+</div>
+
+<!-- BOTTOM NAV (mobile) -->
+<div id="bottom-nav">
+  <div class="bnav-inner">
+    <div class="bnav-item-wrap">
+      <button class="bnav-item active" id="bnav-dashboard" onclick="showScreen('dashboard',this);syncBottomNav('dashboard')">
+        <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+        Dashboard
+      </button>
+    </div>
+    <div class="bnav-item-wrap">
+      <button class="bnav-item" id="bnav-leads" onclick="showScreen('leads',this);syncBottomNav('leads')">
+        <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+        Leads
+        <span class="bnav-badge" id="bnav-leads-badge" style="display:none">3</span>
+      </button>
+    </div>
+    <div class="bnav-item-wrap">
+      <button class="bnav-item" id="bnav-calls" onclick="showScreen('calls',this);syncBottomNav('calls')">
+        <svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02L6.6 10.8z"/></svg>
+        Calls
+      </button>
+    </div>
+    <div class="bnav-item-wrap">
+      <button class="bnav-item" id="bnav-calendar" onclick="showScreen('calendar',this);syncBottomNav('calendar')">
+        <svg viewBox="0 0 24 24"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+        Calendar
+      </button>
+    </div>
+    <div class="bnav-item-wrap">
+      <button class="bnav-item" id="bnav-settings" onclick="showScreen('settings',this);syncBottomNav('settings')">
+        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96a7.01 7.01 0 00-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.47.47 0 00-.59.22L2.74 8.87a.47.47 0 00.12.61l2.03 1.58c-.05.3-.07.63-.07.94s.02.64.07.94l-2.03 1.58a.47.47 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.37 1.04.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.57 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.47.47 0 00-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+        Settings
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- AUTH OVERLAY -->
 <div id="auth-overlay">
   <div id="auth-box">
@@ -1722,6 +1813,81 @@ document.getElementById('event-overlay').addEventListener('click', e=>{ if(e.tar
   }
 })();
 initSupabase();
+
+// ── PWA: SERVICE WORKER ──
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .catch(() => {}); // fail silently
+  });
+}
+
+// ── PWA: INSTALL PROMPT ──
+let _deferredInstall = null;
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  _deferredInstall = e;
+  // Show banner only if not dismissed before
+  if (!localStorage.getItem('lp_pwa_dismissed')) {
+    document.getElementById('pwa-banner').classList.add('show');
+  }
+});
+
+// iOS: show banner on mobile Safari if not already installed and not dismissed
+(function() {
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  const dismissed = localStorage.getItem('lp_pwa_dismissed');
+  if (isIOS && !isStandalone && !dismissed) {
+    document.getElementById('pwa-banner').classList.add('show');
+    // Change install button to instructions for iOS
+    const btn = document.getElementById('pwa-install-btn');
+    btn.textContent = 'How?';
+    btn.onclick = function() {
+      alert('To install: tap the Share button \uD83D\uDCE4 in Safari, then tap "Add to Home Screen"');
+    };
+  }
+})();
+
+function pwaTriggerInstall() {
+  if (_deferredInstall) {
+    _deferredInstall.prompt();
+    _deferredInstall.userChoice.then(() => { _deferredInstall = null; });
+  }
+  pwaDismiss();
+}
+
+function pwaDismiss() {
+  localStorage.setItem('lp_pwa_dismissed', '1');
+  document.getElementById('pwa-banner').classList.remove('show');
+}
+
+// Hide install banner if already running as PWA
+if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+  document.getElementById('pwa-banner').style.display = 'none';
+}
+
+// ── PWA: BOTTOM NAV SYNC ──
+function syncBottomNav(screenName) {
+  document.querySelectorAll('.bnav-item').forEach(b => b.classList.remove('active'));
+  const target = document.getElementById('bnav-' + screenName);
+  if (target) target.classList.add('active');
+}
+
+// Keep badge in sync on bottom nav
+function updateBnavBadge() {
+  const count = leads.filter(l => l.status === 'new').length;
+  const badge = document.getElementById('bnav-leads-badge');
+  if (badge) {
+    badge.style.display = count > 0 ? 'flex' : 'none';
+    badge.textContent = count;
+  }
+}
+
+// Patch updateMetrics to also update bottom nav badge
+const _origUpdateMetrics = updateMetrics;
+updateMetrics = function() { _origUpdateMetrics(); updateBnavBadge(); };
 </script>
 </body>
 </html>
