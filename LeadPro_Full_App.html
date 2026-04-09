@@ -23,14 +23,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 
 /* SIDEBAR */
 #sidebar { width: 210px; background: #111111; display: flex; flex-direction: column; flex-shrink: 0; border-right: 0.5px solid #1f1f1f; }
-#sidebar-logo { padding: 18px 16px 14px; border-bottom: 0.5px solid #1f1f1f; }
+#sidebar-logo { padding: 14px 12px 12px; border-bottom: 0.5px solid #1f1f1f; }
+.brand-pill { display: inline-flex; align-items: center; gap: 8px; background: rgba(45,106,79,0.2); border-radius: 10px; padding: 6px 10px; }
 .brand { font-size: 16px; font-weight: 600; color: #ffffff; display: flex; align-items: center; gap: 8px; }
 .brand svg { width: 20px; height: 20px; fill: var(--accent); }
 .brand-sub { font-size: 11px; color: #666666; margin-top: 2px; }
 nav { flex: 1; padding: 8px 0; }
 .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 16px; cursor: pointer; color: #666666; font-size: 13px; border-left: 2px solid transparent; transition: all .15s; user-select: none; }
 .nav-item:hover { background: #161616; color: #aaaaaa; }
-.nav-item.active { color: #ffffff; background: #1a1a1a; border-left-color: #2D6A4F; }
+.nav-item.active { color: #ffffff; background: #1a1a1a; border-left-color: #74C69D; }
 .nav-item svg { width: 15px; height: 15px; fill: currentColor; flex-shrink: 0; }
 .nav-badge { margin-left: auto; background: #2D6A4F; color: #fff; font-size: 10px; padding: 1px 6px; border-radius: 10px; font-weight: 600; }
 #sidebar-footer { padding: 12px 16px; border-top: 0.5px solid #1f1f1f; }
@@ -53,26 +54,60 @@ nav { flex: 1; padding: 8px 0; }
 .panel-action { font-size: 12px; color: #74C69D; background: none; border: none; cursor: pointer; font-family: inherit; }
 
 /* METRICS */
-.metrics { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 16px; }
-.metric { background: #141414; border: 0.5px solid #1f1f1f; border-radius: 12px; padding: 15px 16px; transition: border-color .15s; }
-.metric:hover { border-color: #2a2a2a; }
+.metrics { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 20px; }
+.metric {
+  background: #141414;
+  border: 0.5px solid #1f1f1f;
+  border-radius: 14px;
+  padding: 22px 22px 18px;
+  transition: border-color .2s, transform .2s;
+  position: relative;
+  overflow: hidden;
+}
+.metric:hover { border-color: #2a2a2a; transform: translateY(-1px); }
+/* Star metric: tinted background on leads card */
+.metric-featured { background: linear-gradient(135deg, #141414 0%, rgba(45,106,79,0.08) 100%); border-color: rgba(45,106,79,0.25); }
 .metric-blue  { }
 .metric-green { }
 .metric-amber { }
 .metric-teal  { }
-.metric-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
-.metric-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: rgba(45,106,79,0.15); }
-.metric .ml { font-size: 11px; color: #444444; font-weight: 500; text-transform: uppercase; letter-spacing: .05em; }
-.metric .mv { font-size: 28px; font-weight: 500; line-height: 1; margin-bottom: 6px; color: #ffffff; }
-.metric .ms { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 10px; margin-top: 2px; font-weight: 500; }
-.up { background: rgba(45,106,79,0.15); color: #74C69D; } .warn { background: rgba(45,106,79,0.12); color: #74C69D; }
+.metric-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px; }
+.metric-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: rgba(45,106,79,0.15); }
+.metric .ml { font-size: 11px; color: #444444; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; }
+.metric .mv { font-size: 36px; font-weight: 600; line-height: 1; margin-bottom: 10px; color: #ffffff; letter-spacing: -0.02em; }
+.metric-featured .mv { color: #74C69D; }
+.metric .ms { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; padding: 3px 8px; border-radius: 6px; font-weight: 500; }
+.up { background: rgba(45,106,79,0.15); color: #74C69D; }
+.up::before { content: '↑ '; }
+.down { background: rgba(248,113,113,0.12); color: #f87171; }
+.down::before { content: '↓ '; }
+.warn { background: rgba(251,191,36,0.1); color: #fbbf24; }
+.neutral { background: rgba(116,198,157,0.1); color: #74C69D; }
 
 /* CHARTS ROW */
-.charts-row { display: grid; grid-template-columns: 1fr 280px; gap: 14px; margin-bottom: 16px; }
-.chart-card { background: #141414; border: 0.5px solid #1f1f1f; border-radius: 12px; padding: 14px 16px; }
-.chart-card-title { font-size: 13px; font-weight: 600; margin-bottom: 14px; color: #ffffff; }
-.chart-wrap { position: relative; height: 180px; }
-.chart-wrap-sm { position: relative; height: 180px; }
+.dash-mid-row { display: grid; grid-template-columns: 3fr 2fr; gap: 16px; margin-bottom: 20px; }
+.chart-card { background: #141414; border: 0.5px solid #1f1f1f; border-radius: 14px; padding: 20px 22px; }
+.chart-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.chart-card-title { font-size: 13px; font-weight: 600; color: #ffffff; }
+.chart-card-sub { font-size: 11px; color: #444444; margin-bottom: 16px; }
+.chart-wrap { position: relative; height: 220px; }
+.chart-wrap-sm { position: relative; height: 220px; }
+
+/* ACTIVITY FEED */
+.feed-card { background: #141414; border: 0.5px solid #1f1f1f; border-radius: 14px; padding: 20px 0 0; overflow: hidden; display: flex; flex-direction: column; }
+.feed-card .panel-header { padding: 0 20px 14px; border-bottom: 0.5px solid #1f1f1f; margin-bottom: 0; }
+.feed-scroll { flex: 1; overflow-y: auto; max-height: 280px; }
+.act { padding: 11px 20px; border-bottom: 0.5px solid #0f0f0f; display: flex; gap: 12px; align-items: flex-start; transition: background .1s; }
+.act:hover { background: rgba(255,255,255,0.02); }
+.act:last-child { border-bottom: none; }
+.act-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; position: relative; }
+.a-green { background: #74C69D; }
+.a-green::after { content:''; position:absolute; inset:-3px; border-radius:50%; background: rgba(116,198,157,0.25); animation: dot-pulse 2s ease-in-out infinite; }
+@keyframes dot-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0;transform:scale(2)} }
+.a-amber { background: #fbbf24; }
+.a-blue { background: #60a5fa; }
+.act-text { font-size: 12px; line-height: 1.5; color: #aaaaaa; }
+.act-time { font-size: 10px; color: #444444; margin-top: 2px; }
 
 /* TABLE */
 .tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
@@ -81,11 +116,11 @@ nav { flex: 1; padding: 8px 0; }
 .tbl tr:last-child td { border-bottom: none; }
 .tbl tr:hover td { background: #161616; }
 .pill { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 500; }
-.p-new { background: rgba(45,106,79,0.15); color: #74C69D; }
-.p-sched { background: rgba(45,106,79,0.2); color: #74C69D; }
-.p-follow { background: rgba(116,198,157,0.1); color: #74C69D; }
-.p-done { background: #1a1a1a; color: #666666; }
-.lname { font-weight: 500; color: #ffffff; } .laddr { font-size: 11px; color: var(--text3); }
+.p-new { background: rgba(74,222,128,0.12); color: #4ade80; }
+.p-sched { background: rgba(96,165,250,0.12); color: #60a5fa; }
+.p-follow { background: rgba(251,191,36,0.12); color: #fbbf24; }
+.p-done { background: #1a1a1a; color: #555555; }
+.lname { font-weight: 600; color: #ffffff; font-size: 14px; } .laddr { font-size: 11px; color: var(--text3); }
 .btn-sm { font-size: 11px; padding: 4px 9px; border-radius: 6px; border: 0.5px solid #2a2a2a; background: none; cursor: pointer; color: #aaaaaa; margin-right: 3px; font-family: inherit; }
 .btn-sm:hover { background: #1a1a1a; }
 .btn-sm.primary { background: #2D6A4F; color: #ffffff; border-color: #2D6A4F; border-radius: 8px; }
@@ -111,13 +146,7 @@ nav { flex: 1; padding: 8px 0; }
 .appt-info .ad { font-size: 11px; color: var(--text3); margin-top: 2px; }
 .appt-info .at { font-size: 11px; color: #74C69D; margin-top: 2px; font-weight: 500; }
 
-/* ACTIVITY */
-.act { padding: 9px 14px; border-bottom: 0.5px solid #161616; display: flex; gap: 9px; align-items: flex-start; }
-.act:last-child { border-bottom: none; }
-.act-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
-.a-green { background: #74C69D; } .a-amber { background: #74C69D; } .a-blue { background: #74C69D; }
-.act-text { font-size: 12px; line-height: 1.5; color: #aaaaaa; }
-.act-time { font-size: 10px; color: var(--text3); margin-top: 2px; }
+/* ACTIVITY — see feed styles above */
 
 /* CHAT */
 #chat-wrap { max-width: 420px; margin: 0 auto; border: 0.5px solid #1f1f1f; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; height: 570px; background: #141414; }
@@ -329,7 +358,7 @@ nav { flex: 1; padding: 8px 0; }
   .nav-item.active { border-left: none; border-bottom-color: #2D6A4F; background: transparent; }
   #sidebar-footer { display: none; }
   .metrics { grid-template-columns: 1fr 1fr; }
-  .charts-row { grid-template-columns: 1fr; }
+  .dash-mid-row { grid-template-columns: 1fr; }
   .two-col { grid-template-columns: 1fr; }
   .screen { padding: 16px; }
 }
@@ -397,8 +426,11 @@ nav { flex: 1; padding: 8px 0; }
 <!-- SIDEBAR -->
 <div id="sidebar">
   <div id="sidebar-logo">
-    <div class="brand"><svg viewBox="0 0 100 100" style="border-radius:6px;flex-shrink:0"><rect x="0" y="0" width="100" height="100" rx="18" fill="#2D6A4F"/><rect x="18" y="68" width="13" height="18" rx="2" fill="white" opacity="0.5"/><rect x="36" y="53" width="13" height="33" rx="2" fill="white" opacity="0.75"/><rect x="54" y="36" width="13" height="50" rx="2" fill="white"/><rect x="72" y="24" width="13" height="62" rx="2" fill="white"/><polyline points="18,70 36,55 54,40 78,20" fill="none" stroke="#74C69D" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="78" cy="20" r="5" fill="#74C69D"/></svg>LeadPro</div>
-    <div class="brand-sub">Lead generation</div>
+    <div class="brand-pill">
+      <svg viewBox="0 0 100 100" style="border-radius:5px;flex-shrink:0;width:20px;height:20px"><rect x="0" y="0" width="100" height="100" rx="18" fill="#2D6A4F"/><rect x="18" y="68" width="13" height="18" rx="2" fill="white" opacity="0.5"/><rect x="36" y="53" width="13" height="33" rx="2" fill="white" opacity="0.75"/><rect x="54" y="36" width="13" height="50" rx="2" fill="white"/><rect x="72" y="24" width="13" height="62" rx="2" fill="white"/><polyline points="18,70 36,55 54,40 78,20" fill="none" stroke="#74C69D" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="78" cy="20" r="5" fill="#74C69D"/></svg>
+      <span style="font-size:15px;font-weight:600;color:#ffffff;">LeadPro</span>
+    </div>
+    <div class="brand-sub" style="margin-top:6px;padding-left:2px">Lead generation</div>
   </div>
   <nav>
     <div class="nav-item active" onclick="showScreen('dashboard',this)"><svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>Dashboard</div>
@@ -425,51 +457,54 @@ nav { flex: 1; padding: 8px 0; }
 
 <!-- ── DASHBOARD ── -->
 <div id="s-dashboard" class="screen active">
-  <div class="topbar"><div><h1>Dashboard</h1><div class="sub" id="dash-date">Loading...</div></div><button class="btn-sm primary" onclick="openBookModal()">+ Book appointment</button></div>
+  <div class="topbar">
+    <div>
+      <div id="dash-welcome" style="font-size:11px;color:#444444;text-transform:uppercase;letter-spacing:.06em;font-weight:500;margin-bottom:4px">Good morning</div>
+      <h1>Dashboard</h1>
+      <div class="sub" id="dash-date">Loading...</div>
+    </div>
+    <button class="btn-sm primary" onclick="openBookModal()">+ Book appointment</button>
+  </div>
+
   <div class="metrics">
-    <div class="metric metric-blue">
+    <div class="metric metric-featured">
       <div class="metric-top"><div class="ml">New leads this week</div><div class="metric-icon"><svg viewBox="0 0 24 24" width="15" height="15" fill="#74C69D"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg></div></div>
       <div class="mv" id="m-leads">8</div><span class="ms up">+3 vs last week</span>
     </div>
-    <div class="metric metric-green">
+    <div class="metric">
       <div class="metric-top"><div class="ml">Appointments booked</div><div class="metric-icon"><svg viewBox="0 0 24 24" width="15" height="15" fill="#74C69D"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg></div></div>
       <div class="mv" id="m-appts">5</div><span class="ms up">+2 vs last week</span>
     </div>
-    <div class="metric metric-amber">
+    <div class="metric">
       <div class="metric-top"><div class="ml">Pending follow-ups</div><div class="metric-icon"><svg viewBox="0 0 24 24" width="15" height="15" fill="#74C69D"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg></div></div>
       <div class="mv" id="m-followups">3</div><span class="ms warn">needs action</span>
     </div>
-    <div class="metric metric-teal">
+    <div class="metric">
       <div class="metric-top"><div class="ml">Conversion rate</div><div class="metric-icon"><svg viewBox="0 0 24 24" width="15" height="15" fill="#74C69D"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg></div></div>
-      <div class="mv" id="m-conversion">—</div><span class="ms up">leads → appointments</span>
-    </div>
-  </div>
-  <div class="charts-row">
-    <div class="chart-card">
-      <div class="chart-card-title">Leads — last 7 days</div>
-      <div class="chart-wrap"><canvas id="leads-chart"></canvas></div>
-    </div>
-    <div class="chart-card">
-      <div class="chart-card-title">Lead status</div>
-      <div class="chart-wrap-sm"><canvas id="status-chart"></canvas></div>
+      <div class="mv" id="m-conversion">—</div><span class="ms neutral">leads → appointments</span>
     </div>
   </div>
 
-  <div class="two-col">
-    <div class="card">
-      <div class="panel-header"><span class="panel-title">Recent leads</span><button class="panel-action" onclick="showScreen('leads',document.querySelectorAll('.nav-item')[2])">View all →</button></div>
-      <table class="tbl" id="dash-leads-tbl"></table>
-    </div>
-    <div class="right-col">
-      <div class="card">
-        <div class="panel-header"><span class="panel-title">Upcoming appointments</span><button class="panel-action" onclick="showScreen('calendar',document.querySelectorAll('.nav-item')[4])">Calendar →</button></div>
-        <div id="dash-appts"></div>
+  <div class="dash-mid-row">
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <span class="chart-card-title">Leads — last 7 days</span>
       </div>
-      <div class="card">
-        <div class="panel-header"><span class="panel-title">Activity</span></div>
-        <div id="dash-feed"></div>
-      </div>
+      <div class="chart-card-sub">Daily lead volume from chatbot &amp; phone</div>
+      <div class="chart-wrap"><canvas id="leads-chart"></canvas></div>
     </div>
+    <div class="feed-card">
+      <div class="panel-header"><span class="panel-title">Activity feed</span></div>
+      <div class="feed-scroll" id="dash-feed"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="panel-header">
+      <span class="panel-title">Recent leads</span>
+      <button class="panel-action" onclick="showScreen('leads',document.querySelectorAll('.nav-item')[2])">View all →</button>
+    </div>
+    <table class="tbl" id="dash-leads-tbl"></table>
   </div>
 </div>
 
@@ -782,7 +817,9 @@ function renderDashAppts() {
   }).join('');
 }
 function renderFeed() {
-  document.getElementById('dash-feed').innerHTML = feed.map(f=>`
+  const el = document.getElementById('dash-feed');
+  if (!el) return;
+  el.innerHTML = feed.map(f=>`
     <div class="act"><div class="act-dot ${f.color}"></div><div><div class="act-text">${f.text}</div><div class="act-time">${f.time}</div></div></div>`).join('');
 }
 
@@ -1164,7 +1201,19 @@ function renderCharts() {
   const ctx1 = document.getElementById('leads-chart');
   if (!ctx1) return;
   if (window._leadsChart) window._leadsChart.destroy();
-  const barColors = dayCounts.map((_, i) => i === dayCounts.length - 1 ? '#74C69D' : '#2D6A4F');
+  // Create gradient fills for each bar (dark green → bright green)
+  const chartCtx = ctx1.getContext('2d');
+  const barColors = dayCounts.map((v, i) => {
+    const grad = chartCtx.createLinearGradient(0, 0, 0, 220);
+    if (i === dayCounts.length - 1) {
+      grad.addColorStop(0, '#74C69D');
+      grad.addColorStop(1, 'rgba(116,198,157,0.3)');
+    } else {
+      grad.addColorStop(0, '#2D6A4F');
+      grad.addColorStop(1, 'rgba(45,106,79,0.3)');
+    }
+    return grad;
+  });
   window._leadsChart = new Chart(ctx1, {
     type: 'bar',
     data: {
@@ -1172,7 +1221,7 @@ function renderCharts() {
       datasets: [{
         data: dayCounts,
         backgroundColor: barColors,
-        borderRadius: 4,
+        borderRadius: 5,
         borderSkipped: false,
       }]
     },
@@ -1411,6 +1460,11 @@ function renderSidebarUser() {
   document.getElementById('sidebar-user-initials').textContent = initials;
   document.getElementById('sidebar-user-biz').textContent = biz || email;
   document.getElementById('sidebar-user-email').textContent = biz ? email : '';
+  const firstName = biz ? biz.split(' ')[0] : email.split('@')[0];
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const welcomeEl = document.getElementById('dash-welcome');
+  if (welcomeEl) welcomeEl.textContent = `${greeting}, ${firstName}`;
 }
 
 function renderWidgetCode() {
@@ -1431,6 +1485,10 @@ function runAppWithDemoData() {
   hideAuthScreen();
   document.getElementById('sidebar-user-initials').textContent = 'JM';
   document.getElementById('sidebar-user-biz').textContent = 'GreenPro Landscaping';
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const welcomeEl = document.getElementById('dash-welcome');
+  if (welcomeEl) welcomeEl.textContent = `${greeting}, GreenPro`;
   document.getElementById('widget-id-span').textContent = 'lp_demo1234';
   document.getElementById('widget-id-display').textContent = 'lp_demo1234';
   renderDashLeads(); renderDashAppts(); renderFeed(); updateMetrics(); setTimeout(renderCharts, 50);
