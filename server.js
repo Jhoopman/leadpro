@@ -913,6 +913,9 @@ app.post('/api/book-appointment', async (req, res) => {
   }
 });
 
+app.get('/privacy', (req, res) => res.sendFile(path.join(__dirname, 'privacy.html')));
+app.get('/terms', (req, res) => res.sendFile(path.join(__dirname, 'terms.html')));
+
 app.listen(PORT, () => {
   try { require('child_process').exec('open http://localhost:' + PORT + '/app'); } catch(e) {}
 });
