@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Outreach Playbook — LeadPro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green:       #1a4d2e;
+      --green-mid:   #2d7a4f;
+      --green-light: #74C69D;
+      --text:        #ffffff;
+      --muted:       #aaaaaa;
+      --border:      #1f1f1f;
+      --bg:          #0a0a0a;
+      --card:        #111111;
+      --card2:       #161616;
+      --radius:      10px;
+      --shadow:      0 2px 16px rgba(0,0,0,0.4);
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.6;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--green);
+      padding: 0 24px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      color: #fff;
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: -0.3px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .logo-accent { color: var(--green-light); }
+    header nav { display: flex; gap: 20px; align-items: center; }
+    header nav a {
+      color: rgba(255,255,255,0.7);
+      font-size: 13px;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    header nav a:hover { color: #fff; }
+
+    /* ── PAGE SHELL ── */
+    main { max-width: 980px; margin: 0 auto; padding: 36px 24px 80px; }
+
+    .page-title {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 4px;
+    }
+    .page-sub {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 28px;
+    }
+
+    /* ── FILL-IN BAR ── */
+    .fill-bar {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: flex-end;
+      margin-bottom: 28px;
+      box-shadow: var(--shadow);
+    }
+    .fill-bar-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+      display: block;
+    }
+    .fill-field { display: flex; flex-direction: column; flex: 1; min-width: 150px; }
+    .fill-field input {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 7px;
+      padding: 9px 13px;
+      font-size: 13px;
+      font-family: inherit;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .fill-field input::placeholder { color: #555; }
+    .fill-field input:focus { border-color: var(--green-mid); }
+    .fill-bar-note {
+      font-size: 12px;
+      color: #555;
+      align-self: center;
+      padding-top: 20px;
+      white-space: nowrap;
+    }
+
+    /* ── TABS ── */
+    .tab-nav {
+      display: flex;
+      gap: 4px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 28px;
+      overflow-x: auto;
+    }
+    .tab-btn {
+      padding: 10px 18px;
+      border: none;
+      background: none;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      white-space: nowrap;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .tab-btn:hover { color: #ccc; }
+    .tab-btn.active { color: var(--green-light); border-bottom-color: var(--green-light); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── PERSONA HEADER ── */
+    .persona-header {
+      margin-bottom: 24px;
+    }
+    .persona-tag {
+      display: inline-block;
+      background: rgba(116,198,157,0.12);
+      color: var(--green-light);
+      border: 1px solid rgba(116,198,157,0.25);
+      border-radius: 20px;
+      padding: 3px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      margin-bottom: 10px;
+    }
+    .persona-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      letter-spacing: -0.3px;
+    }
+    .persona-desc {
+      font-size: 14px;
+      color: var(--muted);
+      max-width: 640px;
+      line-height: 1.6;
+    }
+
+    /* ── SCRIPT GRID ── */
+    .script-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 700px) {
+      .script-grid { grid-template-columns: 1fr; }
+    }
+    .script-card-full { grid-column: 1 / -1; }
+
+    /* ── SCRIPT CARD ── */
+    .script-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .script-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--card2);
+    }
+    .script-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--green-light);
+    }
+    .script-timing {
+      font-size: 11px;
+      color: #555;
+    }
+    .copy-btn {
+      padding: 4px 12px;
+      border-radius: 5px;
+      border: 1px solid #2a2a2a;
+      background: #1a1a1a;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+      white-space: nowrap;
+    }
+    .copy-btn:hover { border-color: var(--green-light); color: var(--green-light); }
+    .copy-btn.copied { background: rgba(116,198,157,0.12); color: var(--green-light); border-color: var(--green-light); }
+
+    /* Email subject line */
+    .email-subject {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .email-subject strong { color: #ccc; }
+
+    /* Script body */
+    .script-body {
+      padding: 16px;
+      font-size: 14px;
+      color: #d0d0d0;
+      line-height: 1.75;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    /* Highlight placeholders */
+    .script-body .ph {
+      color: var(--green-light);
+      font-weight: 600;
+    }
+    /* Stage directions */
+    .script-body .stage {
+      color: #555;
+      font-style: italic;
+    }
+
+    /* ── SEQUENCE LABEL ── */
+    .sequence-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 28px 0 16px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #444;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+    .sequence-divider::before, .sequence-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <svg viewBox="0 0 100 100" width="28" height="28" style="flex-shrink:0"><rect x="0" y="0" width="100" height="100" rx="18" fill="#2D6A4F"/><rect x="18" y="68" width="13" height="18" rx="2" fill="white" opacity="0.5"/><rect x="36" y="53" width="13" height="33" rx="2" fill="white" opacity="0.75"/><rect x="54" y="36" width="13" height="50" rx="2" fill="white"/><rect x="72" y="24" width="13" height="62" rx="2" fill="white"/><polyline points="18,70 36,55 54,40 78,20" fill="none" stroke="#74C69D" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="78" cy="20" r="5" fill="#74C69D"/></svg>
+    Lead<span class="logo-accent">Pro</span>
+    <span style="font-weight:400;opacity:0.5;font-size:14px">/ Outreach Playbook</span>
+  </div>
+  <nav>
+    <a href="/prospector">← Prospector</a>
+    <a href="/app">Dashboard</a>
+  </nav>
+</header>
+
+<main>
+  <h1 class="page-title">LeadPro Outreach Playbook</h1>
+  <p class="page-sub">Three contractor personas. Every touchpoint. Fill in your info below and placeholders update live.</p>
+
+  <!-- Fill-in bar -->
+  <div class="fill-bar">
+    <div class="fill-field">
+      <span class="fill-bar-label">Your name</span>
+      <input type="text" id="fi-name"  placeholder="e.g. Jake" oninput="applyFills()" />
+    </div>
+    <div class="fill-field">
+      <span class="fill-bar-label">Your phone</span>
+      <input type="text" id="fi-phone" placeholder="e.g. (540) 555-0192" oninput="applyFills()" />
+    </div>
+    <div class="fill-field">
+      <span class="fill-bar-label">Trade / industry</span>
+      <input type="text" id="fi-trade" placeholder="e.g. HVAC" oninput="applyFills()" />
+    </div>
+    <div class="fill-field">
+      <span class="fill-bar-label">Your city</span>
+      <input type="text" id="fi-city"  placeholder="e.g. Richmond" oninput="applyFills()" />
+    </div>
+    <span class="fill-bar-note">Green text = fill in before calling</span>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('a', this)">Persona A — No website</button>
+    <button class="tab-btn"        onclick="switchTab('b', this)">Persona B — Has website, losing leads</button>
+    <button class="tab-btn"        onclick="switchTab('c', this)">Persona C — Uses Jobber / HCP</button>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       PERSONA A
+  ════════════════════════════════════════════════════════════════ -->
+  <div class="tab-panel active" id="panel-a">
+    <div class="persona-header">
+      <div class="persona-tag">Persona A</div>
+      <div class="persona-title">Solo operator, no website</div>
+      <div class="persona-desc">Runs on word of mouth. Never paid for software. Skeptical — but cash-motivated. Lead with the missed-call pain point and keep it under 30 seconds.</div>
+    </div>
+
+    <div class="sequence-divider">First contact</div>
+    <div class="script-grid">
+
+      <div class="script-card">
+        <div class="script-card-header">
+          <span class="script-label">Cold Call <span class="script-timing">30 sec</span></span>
+          <button class="copy-btn" onclick="copyCard(this)">Copy</button>
+        </div>
+        <div class="script-body" data-raw
+>"Hey, is this [Name]? This is <span class="ph">[Your name]</span> with LeadPro — we work with <span class="ph">[trade]</span> contractors in <span class="ph">[city]</span>.
+Quick question — when you're on a job and miss a call, what happens to that lead?
+<span class="stage">[Pause — let them answer]</span>
+Yeah, that's exactly what we fix. LeadPro texts them back in 60 seconds automatically — most guys recover 2-3 jobs a week they were just losing.
+Could I show you how it works? Takes two minutes."</div>
+      </div>
+
+      <div class="script-card">
+        <div class="script-card-header">
+          <span class="script-label">Voicemail <span class="script-timing">15 sec</span></span>
+          <button class="copy-btn" onclick="copyCard(this)">Copy</button>
+        </div>
+        <div class="script-body" data-raw
+>"Hey [Name], this is <span class="ph">[Your name]</span> with LeadPro. I work with <span class="ph">[trade]</span> contractors who are losing jobs to voicemail. If that's you, call me back — I can show you something in two minutes that'll fix it. <span class="ph">[Your number]</span>."</div>
+      </div>
+
+      <div class="script-card">
+        <div class="script-card-header">
+          <span class="script-label">LinkedIn DM</span>
+          <button class="copy-btn" onclick="copyCard(this)">Copy</button>
+        </div>
+        <div class="script-body" data-raw
+>"Hey [Name] — noticed you do <span class="ph">[trade]</span> work in <span class="ph">[city]</span>. Quick question: what do you do when you miss a call while you're on a job?
+We built something that fixes that — happy to show you in 2 minutes if it's a pain point."</div>
+      </div>
+
+      <div class="script-card">
+        <div class="script-card-header">
+          <span class="script-label">Cold Email — #1</span>
+          <button class="copy-btn" onclick="copyCard(this)">Copy</button>
+        </div>
+        <div class="email-subject"><strong>Subject:</strong> "Missing calls while you're on jobs, [Name]?"</div>
+        <div class="script-body" data-raw
+>Hey [Name] —
+Saw your business in <span class="ph">[city]</span>. Most <span class="ph">[trade]</span> contractors I talk to lose 3-5 jobs a week because they can't answer while they're working.
+LeadPro fixes that — texts every missed call back in 60 seconds and books the appointment automatically.
+Worth a 2-minute look? I'll show you live.
+<span class="ph">[Your name]</span></div>
+      </div>
+
+    </div>
+
+    <div class="sequence-divider">Email follow-up sequence</div>
+    <div class="script-grid">
+
+      <div class="script-card">
+        <div class="script-card-header">
+          <span class="script-label">Follow-up #2 <span class="script-timing">Day 3</span></span>
+          <button class="copy-btn" onclick="copyCard(this)">Copy</button>
+        </div>
+        <div class="email-subject"><strong>Subject:</strong> "Quick follow up"</div>
+        <div class="script-body" data-raw
+>Hey [Name] —
+Sent you a note a few days ago about missed calls.
+Wanted to share one thing: the average contractor recovers $1,400-$2,200 in their first month with LeadPro. That's usually 3-4 jobs they were just losing to voicemail.
+Still worth 2 minutes?
+<span class="ph">[Your name]</span></div>
+      </div>
+
+      <div class="script-card">
+        <div class="script-card-header">
+          <span class="script-label">Follow-up #3 <span class="script-timing">Day 7 — breakup</span></span>
+          <button class="copy-btn" onclick="copyCard(this)">Copy</button>
+        </div>
+        <div class="email-subject"><strong>Subject:</strong> "Closing the loop"</div>
+        <div class="script-body" data-raw
+>Hey [Name] —
+Last note from me, I promise.
+If missing calls isn't a pain right now, totally understand. If it ever becomes one — or you lose a big job to voicemail and want to make sure it never happens again — we're at leadpro.com.
+Good luck with the season.
+<span class="ph">[Your name]</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       PERSONA B
+  ════════════════════════════════════════════════════════════════ -->
+  <div class="tab-panel" id="panel-b">
+    <div class="persona-header">
+      <div class="persona-tag">Persona B</div>
+      <div class="persona-title">Small crew, has website, losing leads to voicemail</div>
+      <div class="persona-desc">Some tech comfort. Has a website but no chat widget. They know they're losing leads — lead with the site gap and the after-hours angle.</div>
+    </div>
+
+    <div class="sequence-divider">First contact</div>
+    <div class="script-grid">
+
+      <div class="script-card">
+        <div class="script-card-header">
+          <span class="script-label">Cold Call <span class="script-timing">30 sec</span></span>
+          <button class="copy-btn" onclick="copyCard(this)">Copy</button>
+        </div>
+        <div class="script-body" data-raw
+>Hey [Name], this is <span class="ph">[Your name]</span> with LeadPro.
+I was on your website earlier — you guys do [service] in <span class="ph">[city]</span>, right?
+I noticed you don't have a chat widget or any way for people to book online after hours.
+We work with contractors to fix exactly that — LeadPro texts every missed call back in 60 seconds and puts a booking widget right on your site.
+Most of our guys see it pay for itself in the first week.
+Could I show you a 2-minute demo?</div>
+      </div>
+
+      <div class="script-card">
+        <div class="script-card-header">
+          <span class="script-label">Voicemail <span class="script-timing">15 sec</span></span>
+          <button class="copy-btn" onclick="copyCard(this)">Copy</button>
+        </div>
+        <div class="script-body" data-raw
+>Hey [Name], this is <span class="ph">[Your name]</span> from LeadPro.
+I was on your website today — you're missing a chat widget and after-hours booking. That's costing you leads every day.
+Call me back and I'll show you the fix in 2 minutes. <span class="ph">[Your number]</span>.</div>
+      </div>
+
+      <div class="script-card">
+        <div class="script-card-header">
+          <span class="script-label">LinkedIn DM</span>
+          <button class="copy-btn" onclick="copyCard(this)">Copy</button>
+        </div>
+        <div class="script-body" data-raw
+>Hey [Name] — checked out [website]. Great site but I noticed no after-hours booking or chat.
+We add that for <span class="ph">[trade]</span> contractors in <span class="ph">[city]</span> — also texts every missed call back automatically.
+Happy to show you in 2 min if that's useful.</div>
+      </div>
+
+      <div class="script-card">
+        <div class="script-card-header">
+          <span class="script-label">Cold Email — #1</span>
+          <button class="copy-btn" onclick="copyCard(this)">Copy</button>
+        </div>
+        <div class="email-subject"><strong>Subject:</strong> "Your website is losing you jobs at night, [Name]"</div>
+        <div class="script-body" data-raw
+>Hey [Name] —
+Was on [website] today — nice site.
+One thing I noticed: no way for people to book or even chat after hours.
+A homeowner's AC dies at 9pm — they go to your site, find nothing, and call your competitor who has a chat widget.
+LeadPro puts a booking widget on your site AND texts every missed call back in 60 seconds.
+2-minute demo? I'll show you exactly what it looks like on your site.
+<span class="ph">[Your name]</span></div>
+      </div>
+
+    </div>
+
+    <div class="sequence-divider">Email follow-up sequence</div>
+    <div class="script-grid">
+
+      <div class="script-card">
+        <div class="script-card-header">
+          <span class="script-label">Follow-up #2 <span class="script-timing">Day 3</span></span>
+          <button class="copy-btn" onclick="copyCard(this)">Copy</button>
+        </div>
+        <div class="email-subject"><strong>Subject:</strong> "Saw a <span class="ph">[trade]</span> company in <span class="ph">[city]</span> just picked this up"</div>
+        <div class="script-body" data-raw
+>Hey [Name] —
+Following up from earlier this week.
+Just set up LeadPro for another <span class="ph">[trade]</span> contractor in [nearby city]. First week: 4 leads recovered from missed calls, 2 booked through the website widget.
+Worth seeing if we can do the same for you?
+<span class="ph">[Your name]</span></div>
+      </div>
+
+      <div class="script-card">
+        <div class="script-card-header">
+          <span class="script-label">Follow-up #3 <span class="script-timing">Day 7 — breakup</span></span>
+          <button class="copy-btn" onclick="copyCard(this)">Copy</button>
+        </div>
+        <div class="email-subject"><strong>Subject:</strong> "Last one from me"</div>
+        <div class="script-body" data-raw
+>Hey [Name] —
+Won't bug you again after this.
+If you ever want to stop losing leads after hours, we're at leadpro.com — free to try.
+<span class="ph">[Your name]</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       PERSONA C
+  ════════════════════════════════════════════════════════════════ -->
+  <div class="tab-panel" id="panel-c">
+    <div class="persona-header">
+      <div class="persona-tag">Persona C</div>
+      <div class="persona-title">Growing company, uses Jobber / HouseCall Pro</div>
+      <div class="persona-desc">Already paying for software. Lead with integration and the gap those tools leave — don't pitch basics. They respond to ROI numbers and the "front door" framing.</div>
+    </div>
+
+    <div class="sequence-divider">First contact</div>
+    <div class="script-grid">
+
+      <div class="script-card">
+        <div class="script-card-header">
+          <span class="script-label">Cold Call <span class="script-timing">30 sec</span></span>
+          <button class="copy-btn" onclick="copyCard(this)">Copy</button>
+        </div>
+        <div class="script-body" data-raw
+>Hey [Name], this is <span class="ph">[Your name]</span> with LeadPro.
+I know you're probably using [Jobber/HouseCall Pro] for dispatch and invoicing — we actually work alongside that.
+LeadPro handles the part those tools miss: the calls that come in when your guys are on jobs and nobody answers. We text them back in 60 seconds and book them into your calendar automatically.
+It's basically a front door for leads before they get into your CRM.
+Could I show you how it connects in 2 minutes?</div>
+      </div>
+
+      <div class="script-card">
+        <div class="script-card-header">
+          <span class="script-label">Voicemail <span class="script-timing">15 sec</span></span>
+          <button class="copy-btn" onclick="copyCard(this)">Copy</button>
+        </div>
+        <div class="script-body" data-raw
+>Hey [Name], <span class="ph">[Your name]</span> from LeadPro.
+You're probably on Jobber or HouseCall Pro — we plug into those and handle the leads they miss. Specifically: missed calls, after-hours booking, instant text-back.
+Two minutes to show you — call me back. <span class="ph">[Your number]</span>.</div>
+      </div>
+
+      <div class="script-card">
+        <div class="script-card-header">
+          <span class="script-label">LinkedIn DM</span>
+          <button class="copy-btn" onclick="copyCard(this)">Copy</button>
+        </div>
+        <div class="script-body" data-raw
+>Hey [Name] — see you're running [Jobber/HouseCall Pro]. LeadPro plugs into that and handles what it misses — missed calls, after-hours leads, instant text-back.
+Happy to show you how they connect in 2 min.</div>
+      </div>
+
+      <div class="script-card">
+        <div class="script-card-header">
+          <span class="script-label">Cold Email — #1</span>
+          <button class="copy-btn" onclick="copyCard(this)">Copy</button>
+        </div>
+        <div class="email-subject"><strong>Subject:</strong> "The leads Jobber doesn't catch, [Name]"</div>
+        <div class="script-body" data-raw
+>Hey [Name] —
+Jobber is great at running jobs you already have. LeadPro gets you more jobs — specifically the ones that call while your crew is busy and nobody answers.
+We text them back in 60 seconds, book them into your calendar, and hand them off to Jobber.
+Most contractors using both see 15-20% more booked jobs in the first month.
+Two minutes to show you how it connects?
+<span class="ph">[Your name]</span></div>
+      </div>
+
+    </div>
+
+    <div class="sequence-divider">Email follow-up sequence</div>
+    <div class="script-grid">
+
+      <div class="script-card">
+        <div class="script-card-header">
+          <span class="script-label">Follow-up #2 <span class="script-timing">Day 3</span></span>
+          <button class="copy-btn" onclick="copyCard(this)">Copy</button>
+        </div>
+        <div class="email-subject"><strong>Subject:</strong> "Quick question about your missed call rate"</div>
+        <div class="script-body" data-raw
+>Hey [Name] —
+Following up from earlier.
+One question: do you know how many calls you miss in a week while your crew is on jobs?
+Most operators we talk to don't — until they set up LeadPro and see the dashboard. Average is 4-7 missed calls a week. At $400-600/job, that's $1,600-$4,200 sitting on the table.
+Worth seeing your number?
+<span class="ph">[Your name]</span></div>
+      </div>
+
+      <div class="script-card">
+        <div class="script-card-header">
+          <span class="script-label">Follow-up #3 <span class="script-timing">Day 7 — breakup</span></span>
+          <button class="copy-btn" onclick="copyCard(this)">Copy</button>
+        </div>
+        <div class="email-subject"><strong>Subject:</strong> "Closing the loop, [Name]"</div>
+        <div class="script-body" data-raw
+>Hey [Name] —
+Last note.
+If lead capture is dialed in and missed calls aren't a problem, you're ahead of most operators — honestly impressive.
+If that ever changes, leadpro.com — works with Jobber out of the box.
+<span class="ph">[Your name]</span></div>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+<script>
+'use strict';
+
+/* ── TAB SWITCHING ──────────────────────────────────────────────────────────── */
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ── FILL-IN REPLACEMENT ────────────────────────────────────────────────────── */
+// Store original HTML for each script body so we can re-render on every keystroke
+// without losing the <span class="ph"> markup.
+const originals = new Map();
+
+document.querySelectorAll('.script-body').forEach((el, i) => {
+  originals.set(el, el.innerHTML);
+});
+
+// Also store subject lines
+document.querySelectorAll('.email-subject').forEach(el => {
+  originals.set(el, el.innerHTML);
+});
+
+function applyFills() {
+  const name  = document.getElementById('fi-name').value.trim();
+  const phone = document.getElementById('fi-phone').value.trim();
+  const trade = document.getElementById('fi-trade').value.trim();
+  const city  = document.getElementById('fi-city').value.trim();
+
+  // Map of placeholder text → fill value
+  const fills = [
+    { ph: '[Your name]',   val: name  },
+    { ph: '[Your number]', val: phone },
+    { ph: '[trade]',       val: trade },
+    { ph: '[city]',        val: city  },
+  ];
+
+  originals.forEach((original, el) => {
+    let html = original;
+    fills.forEach(({ ph, val }) => {
+      if (!val) return; // leave placeholder visible if field is empty
+      // Replace inside <span class="ph">...</span> tags specifically,
+      // so we keep the green styling but swap the text content.
+      const escaped = ph.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const re = new RegExp(`(<span class="ph">)${escaped}(</span>)`, 'g');
+      html = html.replace(re, `$1${escHtml(val)}$2`);
+    });
+    el.innerHTML = html;
+  });
+}
+
+/* ── COPY BUTTON ────────────────────────────────────────────────────────────── */
+function copyCard(btn) {
+  // Walk up to find the script-card, then grab .script-body text
+  const card    = btn.closest('.script-card');
+  const subject = card.querySelector('.email-subject');
+  const body    = card.querySelector('.script-body');
+
+  let text = '';
+  if (subject) {
+    text += subject.textContent.trim() + '\n\n';
+  }
+  text += body.textContent.trim();
+
+  navigator.clipboard.writeText(text).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  });
+
+  const orig = btn.textContent;
+  btn.textContent = 'Copied!';
+  btn.classList.add('copied');
+  setTimeout(() => {
+    btn.textContent = orig;
+    btn.classList.remove('copied');
+  }, 1500);
+}
+
+/* ── HELPERS ─────────────────────────────────────────────────────────────────── */
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+</script>
+</body>
+</html>
