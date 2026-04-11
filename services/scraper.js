@@ -99,10 +99,35 @@ function checkWebsiteQuality(html, finalUrl) {
 function scoreContractor(analysis) {
   let score = 0;
   const missing = [];
-  if (!analysis.hasWebsite)    { score += 40; missing.push('No website'); }
-  if (!analysis.hasChatWidget) { score += 25; missing.push('No chat widget'); }
-  if (analysis.hasWebsite && analysis.websiteQualityScore < 2) { score += 15; missing.push('Poor website quality'); }
-  if (!analysis.hasPhone)      { score += 20; missing.push('No phone listed'); }
+
+  if (!analysis.hasWebsite) {
+    score += 35;
+    missing.push('No website');
+  } else {
+    if (!analysis.hasChatWidget) {
+      score += 30;
+      missing.push('No chat widget');
+    }
+    if (!analysis.hasSSL) {
+      score += 10;
+      missing.push('No SSL');
+    }
+    if (!analysis.hasMobileViewport) {
+      score += 8;
+      missing.push('No mobile viewport');
+    }
+  }
+
+  if (!analysis.hasPhone) {
+    score += 12;
+    missing.push('No phone listed');
+  }
+
+  if (analysis.rating && analysis.rating < 4.0) {
+    score += 5;
+    missing.push('Low Google rating');
+  }
+
   return { score: Math.min(score, 100), missing };
 }
 

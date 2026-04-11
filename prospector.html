@@ -6,6 +6,7 @@
   <title>Contractor Prospector — LeadPro</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -26,6 +27,9 @@
       --yellow-pale: #fffbeb;
       --blue:        #2563eb;
       --blue-pale:   #eff6ff;
+      --hot:         #74C69D;
+      --warm:        #f0a500;
+      --cold:        #777777;
     }
     body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
 
@@ -63,7 +67,7 @@
       display: flex;
       gap: 12px;
       align-items: flex-end;
-      margin-bottom: 28px;
+      margin-bottom: 20px;
       box-shadow: var(--shadow);
       flex-wrap: wrap;
     }
@@ -99,6 +103,40 @@
     .btn-outline { background: var(--white); color: var(--text); border: 1px solid var(--border); }
     .btn-outline:hover { border-color: #aaa; }
 
+    /* ── TABS ── */
+    .tab-nav {
+      display: flex;
+      gap: 4px;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .tab-btn {
+      padding: 9px 18px;
+      border: none;
+      background: none;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      border-radius: 6px 6px 0 0;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active { color: var(--green-mid); border-bottom-color: var(--green-mid); }
+    .tab-badge {
+      display: inline-block;
+      background: var(--hot);
+      color: #0f2d1a;
+      border-radius: 10px;
+      padding: 1px 7px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-left: 6px;
+    }
+
     /* ── STATUS / LEGEND ── */
     .toolbar {
       display: flex;
@@ -111,9 +149,9 @@
     .legend { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
     .legend-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
     .dot { width: 10px; height: 10px; border-radius: 50%; }
-    .dot-red    { background: var(--red); }
-    .dot-yellow { background: var(--yellow); }
-    .dot-blue   { background: var(--blue); }
+    .dot-hot  { background: var(--hot); }
+    .dot-warm { background: var(--warm); }
+    .dot-cold { background: var(--cold); }
     .count-badge { font-size: 13px; color: var(--muted); }
 
     /* ── RESULTS TABLE ── */
@@ -142,7 +180,7 @@
     tr.called { opacity: 0.42; }
     tr.called td:first-child::before { content: '✓ '; color: var(--green-mid); font-weight: 700; }
 
-    /* Score badge */
+    /* Score badge — new color scheme */
     .score-badge {
       display: inline-flex;
       align-items: center;
@@ -153,26 +191,30 @@
       font-weight: 700;
       font-size: 14px;
       color: #fff;
+      flex-shrink: 0;
     }
-    .score-hot    { background: var(--red); }
-    .score-warm   { background: var(--yellow); }
-    .score-cool   { background: var(--blue); }
+    .score-hot  { background: var(--hot);  color: #0f2d1a; }
+    .score-warm { background: var(--warm); color: #fff; }
+    .score-cold { background: var(--cold); color: #fff; }
+    /* keep old aliases for backward compat */
+    .score-cool { background: var(--cold); color: #fff; }
 
     /* Row accent */
-    tr.row-hot    td:first-child { border-left: 3px solid var(--red); }
-    tr.row-warm   td:first-child { border-left: 3px solid var(--yellow); }
-    tr.row-cool   td:first-child { border-left: 3px solid var(--blue); }
+    tr.row-hot  td:first-child { border-left: 3px solid var(--hot); }
+    tr.row-warm td:first-child { border-left: 3px solid var(--warm); }
+    tr.row-cold td:first-child { border-left: 3px solid #ccc; }
+    tr.row-cool td:first-child { border-left: 3px solid #ccc; }
 
     /* Heat row background */
-    tr.row-hot  { background: var(--red-pale); }
-    tr.row-warm { background: var(--yellow-pale); }
+    tr.row-hot  { background: rgba(116,198,157,0.07); }
+    tr.row-warm { background: rgba(240,165,0,0.06); }
 
     .biz-name { font-weight: 600; }
     .biz-website a { color: var(--green-mid); text-decoration: none; font-size: 12px; }
     .biz-website a:hover { text-decoration: underline; }
     .no-website { color: var(--muted); font-size: 12px; font-style: italic; }
 
-    /* Missing tags */
+    /* Missing / why tags */
     .tags { display: flex; flex-wrap: wrap; gap: 4px; }
     .tag {
       background: #f3f4f6;
@@ -182,10 +224,12 @@
       color: #555;
       white-space: nowrap;
     }
-    .tag-hot { background: #fee2e2; color: #991b1b; }
+    .tag-hot  { background: rgba(116,198,157,0.18); color: #0f5c2e; font-weight: 600; }
+    .tag-warm { background: rgba(240,165,0,0.15);   color: #7a4e00; font-weight: 600; }
+    .why-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px; font-weight: 600; }
 
     /* Actions */
-    .actions { display: flex; gap: 6px; }
+    .actions { display: flex; gap: 6px; flex-wrap: wrap; }
     .btn-sm {
       padding: 6px 11px;
       border-radius: 6px;
@@ -203,6 +247,71 @@
     .btn-sm.called-btn.active { background: var(--green-pale); color: var(--green); border-color: var(--green-light); }
     .btn-sm.pitch-btn { background: var(--green-pale); color: var(--green); border-color: var(--green-light); }
     .btn-sm.pitch-btn:hover { background: #d1eadc; }
+    .btn-sm.save-btn { background: #fff; color: var(--green-mid); border-color: var(--green-light); }
+    .btn-sm.save-btn:hover { background: var(--green-pale); }
+    .btn-sm.save-btn.saved { background: var(--hot); color: #0f2d1a; border-color: var(--hot); cursor: default; }
+    .btn-sm.danger { color: var(--red); border-color: #fca5a5; }
+    .btn-sm.danger:hover { background: #fef2f2; }
+
+    /* ── CAMPAIGN CARDS ── */
+    .campaign-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+      margin-top: 4px;
+    }
+    .campaign-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: box-shadow 0.15s;
+    }
+    .campaign-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+    .campaign-card-name { font-size: 15px; font-weight: 700; }
+    .campaign-card-date { font-size: 12px; color: var(--muted); }
+    .campaign-card-stats { display: flex; gap: 16px; }
+    .campaign-stat { font-size: 13px; color: var(--muted); }
+    .campaign-stat strong { color: var(--text); font-weight: 700; }
+    .campaign-card-actions { display: flex; gap: 8px; margin-top: 4px; }
+
+    /* ── CAMPAIGN LEADS TABLE extras ── */
+    .status-select {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 5px 8px;
+      font-size: 12px;
+      font-family: inherit;
+      color: var(--text);
+      background: var(--white);
+      outline: none;
+      cursor: pointer;
+      min-width: 130px;
+    }
+    .status-select:focus { border-color: var(--green-mid); }
+    .status-select.status-won    { background: rgba(116,198,157,0.15); color: #0f5c2e; border-color: var(--hot); }
+    .status-select.status-booked { background: rgba(240,165,0,0.12);   color: #7a4e00; border-color: var(--warm); }
+    .status-select.status-nope   { background: #f9f9f9; color: var(--muted); }
+
+    .notes-input {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 9px;
+      font-size: 12px;
+      font-family: inherit;
+      color: var(--text);
+      background: var(--white);
+      outline: none;
+      resize: none;
+      width: 180px;
+      min-height: 52px;
+      line-height: 1.5;
+    }
+    .notes-input:focus { border-color: var(--green-mid); }
 
     /* ── EMPTY / LOADING STATES ── */
     .state-box {
@@ -245,6 +354,8 @@
       padding: 28px;
       box-shadow: 0 20px 60px rgba(0,0,0,0.18);
       position: relative;
+      max-height: 90vh;
+      overflow-y: auto;
     }
     .modal h2 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
     .modal .modal-sub { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
@@ -272,6 +383,34 @@
     }
     .close-btn:hover { color: var(--text); }
 
+    /* ── SAVE MODAL extras ── */
+    .campaign-picker { display: flex; flex-direction: column; gap: 8px; margin-bottom: 4px; }
+    .campaign-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      font-size: 13px;
+    }
+    .campaign-option:hover { border-color: var(--green-mid); background: var(--green-pale); }
+    .campaign-option.selected { border-color: var(--green-mid); background: var(--green-pale); font-weight: 600; }
+    .campaign-option input[type=radio] { accent-color: var(--green-mid); }
+    .modal-divider { text-align: center; color: var(--muted); font-size: 12px; margin: 12px 0; position: relative; }
+    .modal-divider::before, .modal-divider::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 42%;
+      height: 1px;
+      background: var(--border);
+    }
+    .modal-divider::before { left: 0; }
+    .modal-divider::after { right: 0; }
+
     /* ── ERROR BANNER ── */
     .error-banner {
       background: #fef2f2;
@@ -292,6 +431,7 @@
       tr { border-bottom: 2px solid var(--border); padding: 10px 0; }
       tr:last-child { border-bottom: none; }
       .actions { padding: 8px 14px; }
+      .notes-input { width: 100%; }
     }
   </style>
 </head>
@@ -324,14 +464,71 @@
     <button class="btn btn-primary" id="searchBtn" onclick="runSearch()">Search</button>
   </div>
 
+  <!-- Tab navigation -->
+  <div class="tab-nav">
+    <button class="tab-btn active" id="tabSearch" onclick="switchTab('search')">Search Results</button>
+    <button class="tab-btn" id="tabCampaigns" onclick="switchTab('campaigns')">
+      Campaigns<span id="tabCampaignBadge" class="tab-badge" style="display:none">0</span>
+    </button>
+  </div>
+
   <div class="error-banner" id="errorBanner"></div>
 
-  <div id="resultsArea">
-    <div class="state-box">
-      <div class="icon">🔍</div>
-      <h3>Ready to prospect</h3>
-      <p>Enter a location and industry above to find contractors<br>and score their digital presence.</p>
+  <!-- SEARCH PANEL -->
+  <div id="searchPanel">
+    <div id="resultsArea">
+      <div class="state-box">
+        <div class="icon">🔍</div>
+        <h3>Ready to prospect</h3>
+        <p>Enter a location and industry above to find contractors<br>and score their digital presence.</p>
+      </div>
     </div>
+  </div>
+
+  <!-- CAMPAIGNS PANEL -->
+  <div id="campaignsPanel" style="display:none">
+
+    <!-- Not logged in -->
+    <div id="campaignNotLoggedIn" class="state-box" style="display:none">
+      <div class="icon">🔐</div>
+      <h3>Sign in to save campaigns</h3>
+      <p>Campaigns sync to your LeadPro account. <a href="/app" style="color:var(--green-mid)">Sign in here</a>.</p>
+    </div>
+
+    <!-- Campaign list -->
+    <div id="campaignListView">
+      <div class="toolbar">
+        <span style="font-size:15px;font-weight:700">Your Campaigns</span>
+        <button class="btn btn-primary" style="font-size:13px;padding:8px 16px" onclick="openNewCampaignPrompt()">+ New Campaign</button>
+      </div>
+      <div id="campaignCards"></div>
+    </div>
+
+    <!-- Leads inside a campaign -->
+    <div id="campaignLeadsView" style="display:none">
+      <div class="toolbar" style="margin-bottom:16px">
+        <button class="btn btn-outline" style="font-size:13px;padding:8px 14px" onclick="backToCampaigns()">← Campaigns</button>
+        <span id="campaignLeadsTitle" style="font-size:15px;font-weight:700"></span>
+        <span id="campaignLeadsStats" style="font-size:13px;color:var(--muted)"></span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Business</th>
+              <th>Score</th>
+              <th>Why this lead</th>
+              <th>Status</th>
+              <th>Notes</th>
+              <th>Last Contacted</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="campaignLeadsBody"></tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
 </main>
 
@@ -349,204 +546,280 @@
   </div>
 </div>
 
+<!-- Save to Campaign Modal -->
+<div class="modal-overlay" id="saveModal">
+  <div class="modal" style="max-width:480px">
+    <button class="close-btn" onclick="closeSaveModal()">×</button>
+    <h2>Save to Campaign</h2>
+    <p class="modal-sub" id="saveModalSub">Choose a campaign or create a new one</p>
+
+    <div id="existingCampaignPicker" class="campaign-picker"></div>
+
+    <div class="modal-divider" id="modalDivider" style="display:none">or</div>
+
+    <div style="margin-top:4px">
+      <label style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">New campaign name</label>
+      <input type="text" id="newCampaignInput"
+        placeholder="e.g. Roanoke HVAC April"
+        style="width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:14px;font-family:inherit;outline:none;transition:border-color .15s"
+        onfocus="this.style.borderColor='var(--green-mid)';deselectCampaignOptions()"
+        onblur="this.style.borderColor='var(--border)'" />
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeSaveModal()">Cancel</button>
+      <button class="btn btn-primary" id="confirmSaveBtn" onclick="confirmSave()">Save Lead</button>
+    </div>
+  </div>
+</div>
+
 <script>
-  let currentResults = [];
-  let currentIndustry = '';
+'use strict';
 
-  async function runSearch() {
-    const location = document.getElementById('locationInput').value.trim();
-    const industry = document.getElementById('industrySelect').value;
-    if (!location) { document.getElementById('locationInput').focus(); return; }
+/* ── STATE ─────────────────────────────────────────────────────────────────── */
+let currentResults  = [];
+let currentIndustry = '';
+let currentUser     = null;
+let campaigns       = [];          // cached campaign list
+let activeCampaignId = null;       // currently viewed campaign
+let saveTarget      = null;        // lead being saved
+let savedLeadIdx    = new Set();   // indexes already saved this session
+let selectedCampaignId = null;     // selection inside save modal
 
-    currentIndustry = industry;
-    const btn = document.getElementById('searchBtn');
-    btn.disabled = true;
-    btn.textContent = 'Searching…';
-    document.getElementById('errorBanner').style.display = 'none';
-    showLoading(location, industry);
-
-    try {
-      const res = await fetch('/api/prospector', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ location, industry })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Server error');
-      currentResults = data.results || [];
-      renderResults(currentResults, location, industry);
-    } catch(e) {
-      showError(e.message);
-      document.getElementById('resultsArea').innerHTML = '';
-    } finally {
-      btn.disabled = false;
-      btn.textContent = 'Search';
-    }
+/* ── SUPABASE AUTH INIT ─────────────────────────────────────────────────────── */
+(async function initAuth() {
+  try {
+    const cfg = await fetch('/config').then(r => r.json());
+    if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) return;
+    const sb = supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) currentUser = session.user;
+  } catch(e) {
+    console.warn('[Prospector] Auth init failed:', e.message);
   }
+})();
 
-  document.getElementById('locationInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter') runSearch();
-  });
+/* ── TABS ───────────────────────────────────────────────────────────────────── */
+function switchTab(tab) {
+  document.getElementById('tabSearch').classList.toggle('active', tab === 'search');
+  document.getElementById('tabCampaigns').classList.toggle('active', tab === 'campaigns');
+  document.getElementById('searchPanel').style.display    = tab === 'search'    ? '' : 'none';
+  document.getElementById('campaignsPanel').style.display = tab === 'campaigns' ? '' : 'none';
+  if (tab === 'campaigns') loadCampaignsPanel();
+}
 
-  function showLoading(location, industry) {
+/* ── SEARCH ─────────────────────────────────────────────────────────────────── */
+async function runSearch() {
+  const location = document.getElementById('locationInput').value.trim();
+  const industry = document.getElementById('industrySelect').value;
+  if (!location) { document.getElementById('locationInput').focus(); return; }
+
+  currentIndustry = industry;
+  const btn = document.getElementById('searchBtn');
+  btn.disabled = true;
+  btn.textContent = 'Searching…';
+  document.getElementById('errorBanner').style.display = 'none';
+  showLoading(location, industry);
+
+  try {
+    const res = await fetch('/api/prospector', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ location, industry })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Server error');
+    currentResults = data.results || [];
+    savedLeadIdx.clear();
+    renderResults(currentResults, location, industry);
+  } catch(e) {
+    showError(e.message);
+    document.getElementById('resultsArea').innerHTML = '';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Search';
+  }
+}
+
+document.getElementById('locationInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') runSearch();
+});
+
+function showLoading(location, industry) {
+  document.getElementById('resultsArea').innerHTML = `
+    <div class="state-box">
+      <div class="spinner"></div>
+      <h3>Scanning ${industry} contractors in ${location}…</h3>
+      <p>Scraping all sites in parallel. Usually done in 10–20 seconds.</p>
+    </div>`;
+}
+
+function showError(msg) {
+  const banner = document.getElementById('errorBanner');
+  banner.textContent = '⚠️ ' + msg;
+  banner.style.display = 'block';
+}
+
+/* ── SCORING HELPERS ────────────────────────────────────────────────────────── */
+function heatClass(score) {
+  if (score >= 80) return 'hot';
+  if (score >= 50) return 'warm';
+  return 'cold';
+}
+
+function scoreBadgeClass(score) {
+  if (score >= 80) return 'score-hot';
+  if (score >= 50) return 'score-warm';
+  return 'score-cold';
+}
+
+/* ── RENDER RESULTS ─────────────────────────────────────────────────────────── */
+function renderResults(results, location, industry) {
+  if (!results.length) {
     document.getElementById('resultsArea').innerHTML = `
       <div class="state-box">
-        <div class="spinner"></div>
-        <h3>Scanning ${industry} contractors in ${location}…</h3>
-        <p>Checking websites for chat widgets, phone numbers, and website quality.<br>This may take 20–40 seconds.</p>
+        <div class="icon">😕</div>
+        <h3>No results found</h3>
+        <p>Try a different location or industry.</p>
       </div>`;
+    return;
   }
 
-  function showError(msg) {
-    const banner = document.getElementById('errorBanner');
-    banner.textContent = '⚠️ ' + msg;
-    banner.style.display = 'block';
-  }
+  const hot  = results.filter(r => r.score >= 80).length;
+  const warm = results.filter(r => r.score >= 50 && r.score < 80).length;
+  const cold = results.filter(r => r.score < 50).length;
 
-  function heatClass(score) {
-    if (score >= 60) return 'hot';
-    if (score >= 30) return 'warm';
-    return 'cool';
-  }
-
-  function renderResults(results, location, industry) {
-    if (!results.length) {
-      document.getElementById('resultsArea').innerHTML = `
-        <div class="state-box">
-          <div class="icon">😕</div>
-          <h3>No results found</h3>
-          <p>Try a different location or industry.</p>
-        </div>`;
-      return;
-    }
-
-    const hot  = results.filter(r => r.score >= 60).length;
-    const warm = results.filter(r => r.score >= 30 && r.score < 60).length;
-    const cool = results.filter(r => r.score < 30).length;
-
-    let html = `
-      <div class="toolbar">
-        <div class="legend">
-          <span class="legend-item"><span class="dot dot-red"></span>Hot (60+) — ${hot}</span>
-          <span class="legend-item"><span class="dot dot-yellow"></span>Warm (30–59) — ${warm}</span>
-          <span class="legend-item"><span class="dot dot-blue"></span>Cool (&lt;30) — ${cool}</span>
-        </div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <span class="count-badge">${results.length} contractors found in ${location}</span>
-          <button class="btn btn-outline" onclick="exportCSV()" style="font-size:13px;padding:7px 14px">Export CSV</button>
-        </div>
+  let html = `
+    <div class="toolbar">
+      <div class="legend">
+        <span class="legend-item"><span class="dot dot-hot"></span>Hot (80+) — ${hot}</span>
+        <span class="legend-item"><span class="dot dot-warm"></span>Warm (50–79) — ${warm}</span>
+        <span class="legend-item"><span class="dot dot-cold"></span>Cold (&lt;50) — ${cold}</span>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Business</th>
-              <th>Phone</th>
-              <th>Website</th>
-              <th>Missing</th>
-              <th>Score</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>`;
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="count-badge">${results.length} contractors in ${escHtml(location)}</span>
+        <button class="btn btn-outline" onclick="exportCSV()" style="font-size:13px;padding:7px 14px">Export CSV</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Business</th>
+            <th>Phone</th>
+            <th>Website</th>
+            <th>Why this lead</th>
+            <th>Score</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>`;
 
-    results.forEach((r, i) => {
-      const heat = heatClass(r.score);
-      const scoreClass = heat === 'hot' ? 'score-hot' : heat === 'warm' ? 'score-warm' : 'score-cool';
-      const rowClass   = `row-${heat}`;
+  results.forEach((r, i) => {
+    const heat = heatClass(r.score);
+    const badgeClass = scoreBadgeClass(r.score);
+    const rowClass   = `row-${heat}`;
 
-      const missingTags = r.missing.map(m => {
-        const isHot = heat === 'hot';
-        return `<span class="tag${isHot ? ' tag-hot' : ''}">${m}</span>`;
-      }).join('');
+    const missingTags = r.missing.map(m =>
+      `<span class="tag tag-${heat === 'cold' ? '' : heat}">${escHtml(m)}</span>`
+    ).join('');
 
-      const websiteCell = r.website
-        ? `<div class="biz-website"><a href="${escHtml(r.website)}" target="_blank" rel="noopener">${escHtml(shortenUrl(r.website))}</a></div>
-           <div style="font-size:11px;color:var(--muted);margin-top:2px">${r.hasSSL ? '🔒 SSL' : '⚠️ No SSL'}${r.hasMobileViewport ? ' · 📱 Mobile' : ' · 📵 No viewport'}</div>`
-        : `<span class="no-website">No website found</span>`;
+    const websiteCell = r.website
+      ? `<div class="biz-website"><a href="${escHtml(r.website)}" target="_blank" rel="noopener">${escHtml(shortenUrl(r.website))}</a></div>
+         <div style="font-size:11px;color:var(--muted);margin-top:2px">${r.hasSSL ? '🔒 SSL' : '⚠️ No SSL'}${r.hasMobileViewport ? ' · 📱 Mobile' : ' · 📵 No viewport'}</div>`
+      : `<span class="no-website">No website found</span>`;
 
-      html += `
-            <tr class="${rowClass}" id="row-${i}">
-              <td data-label="Business" class="biz-name">${escHtml(r.name)}</td>
-              <td data-label="Phone">${r.phone ? escHtml(r.phone) : '<span style="color:var(--muted)">—</span>'}</td>
-              <td data-label="Website">${websiteCell}</td>
-              <td data-label="Missing"><div class="tags">${missingTags || '<span style="color:var(--muted);font-size:12px">Nothing major</span>'}</div></td>
-              <td data-label="Score"><span class="score-badge ${scoreClass}">${r.score}</span></td>
-              <td data-label="Actions">
-                <div class="actions">
-                  <button class="btn-sm called-btn" onclick="toggleCalled(${i}, this)">Mark Called</button>
-                  <button class="btn-sm pitch-btn" onclick="openPitch(${i})">Copy Pitch</button>
-                </div>
-              </td>
-            </tr>`;
-    });
+    const alreadySaved = savedLeadIdx.has(i);
+    const saveLabel = alreadySaved ? 'Saved ✓' : 'Save';
+    const saveClass = alreadySaved ? 'save-btn saved' : 'save-btn';
 
-    html += `</tbody></table></div>`;
-    document.getElementById('resultsArea').innerHTML = html;
-  }
-
-  function toggleCalled(i, btn) {
-    const row = document.getElementById('row-' + i);
-    const isCalled = row.classList.toggle('called');
-    btn.classList.toggle('active', isCalled);
-    btn.textContent = isCalled ? 'Called ✓' : 'Mark Called';
-  }
-
-  function openPitch(i) {
-    const r = currentResults[i];
-    const script = generatePitchScript(r, currentIndustry);
-    document.getElementById('pitchTitle').textContent = `Cold Call Script — ${r.name}`;
-    document.getElementById('pitchSub').textContent = `Missing: ${r.missing.join(', ') || 'general outreach'}`;
-    document.getElementById('pitchText').value = script;
-    document.getElementById('pitchModal').classList.add('open');
-  }
-
-  function closePitchModal() {
-    document.getElementById('pitchModal').classList.remove('open');
-  }
-
-  async function copyPitch() {
-    const text = document.getElementById('pitchText').value;
-    try {
-      await navigator.clipboard.writeText(text);
-      const btn = document.querySelector('.modal-actions .btn-primary');
-      btn.textContent = 'Copied!';
-      setTimeout(() => { btn.textContent = 'Copy Script'; }, 1800);
-    } catch(e) {
-      document.getElementById('pitchText').select();
-      document.execCommand('copy');
-    }
-  }
-
-  document.getElementById('pitchModal').addEventListener('click', function(e) {
-    if (e.target === this) closePitchModal();
+    html += `
+          <tr class="${rowClass}" id="row-${i}">
+            <td data-label="Business"><div class="biz-name">${escHtml(r.name)}</div><div style="font-size:11px;color:var(--muted);margin-top:2px">${escHtml(r.address||'')}</div></td>
+            <td data-label="Phone">${r.phone ? escHtml(r.phone) : '<span style="color:var(--muted)">—</span>'}</td>
+            <td data-label="Website">${websiteCell}</td>
+            <td data-label="Why this lead">
+              <div class="tags">${missingTags || '<span style="color:var(--muted);font-size:12px">Solid web presence</span>'}</div>
+            </td>
+            <td data-label="Score"><span class="score-badge ${badgeClass}">${r.score}</span></td>
+            <td data-label="Actions">
+              <div class="actions">
+                <button class="btn-sm called-btn" onclick="toggleCalled(${i}, this)">Mark Called</button>
+                <button class="btn-sm pitch-btn" onclick="openPitch(${i})">Copy Pitch</button>
+                <button class="btn-sm ${saveClass}" id="save-btn-${i}" onclick="openSaveModal(${i})"${alreadySaved ? ' disabled' : ''}>${saveLabel}</button>
+              </div>
+            </td>
+          </tr>`;
   });
 
-  function generatePitchScript(r, industry) {
-    const name = r.name;
-    const missing = r.missing;
-    const painPoints = [];
+  html += `</tbody></table></div>`;
+  document.getElementById('resultsArea').innerHTML = html;
+}
 
-    if (missing.includes('No website')) {
-      painPoints.push("you don't have a website yet — which means customers who Google you late at night just move on to a competitor");
-    }
-    if (missing.includes('No chat widget')) {
-      painPoints.push("your site doesn't have live chat, so visitors who aren't ready to call just leave without leaving a lead");
-    }
-    if (missing.includes('Poor website quality')) {
-      painPoints.push("your site isn't fully set up for mobile, which is where most customers are browsing from these days");
-    }
-    if (missing.includes('No phone listed')) {
-      painPoints.push("it's hard for customers to find a phone number, so you're probably losing people who want to call right now");
-    }
+/* ── MARK CALLED ────────────────────────────────────────────────────────────── */
+function toggleCalled(i, btn) {
+  const row = document.getElementById('row-' + i);
+  const isCalled = row.classList.toggle('called');
+  btn.classList.toggle('active', isCalled);
+  btn.textContent = isCalled ? 'Called ✓' : 'Mark Called';
+}
 
-    const problemLine = painPoints.length === 0
-      ? "a lot of contractors in your area are missing out on leads because they don't have 24/7 coverage online"
-      : painPoints.length === 1
-        ? `I noticed ${painPoints[0]}`
-        : `I noticed ${painPoints.slice(0, -1).join(', ')} — and also that ${painPoints[painPoints.length - 1]}`;
+/* ── PITCH MODAL ─────────────────────────────────────────────────────────────── */
+function openPitch(i) {
+  const r = currentResults[i];
+  const script = generatePitchScript(r, currentIndustry);
+  document.getElementById('pitchTitle').textContent = `Cold Call Script — ${r.name}`;
+  document.getElementById('pitchSub').textContent = `Missing: ${r.missing.join(', ') || 'general outreach'}`;
+  document.getElementById('pitchText').value = script;
+  document.getElementById('pitchModal').classList.add('open');
+}
 
-    return `Hi, is this ${name}?
+function closePitchModal() {
+  document.getElementById('pitchModal').classList.remove('open');
+}
+
+async function copyPitch() {
+  const text = document.getElementById('pitchText').value;
+  try {
+    await navigator.clipboard.writeText(text);
+    const btn = document.querySelector('.modal-actions .btn-primary');
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = 'Copy Script'; }, 1800);
+  } catch(e) {
+    document.getElementById('pitchText').select();
+    document.execCommand('copy');
+  }
+}
+
+document.getElementById('pitchModal').addEventListener('click', function(e) {
+  if (e.target === this) closePitchModal();
+});
+
+function generatePitchScript(r, industry) {
+  const name = r.name;
+  const missing = r.missing;
+  const painPoints = [];
+
+  if (missing.includes('No website')) {
+    painPoints.push("you don't have a website yet — which means customers who Google you late at night just move on to a competitor");
+  }
+  if (missing.includes('No chat widget')) {
+    painPoints.push("your site doesn't have live chat, so visitors who aren't ready to call just leave without leaving a lead");
+  }
+  if (missing.includes('No SSL') || missing.includes('No mobile viewport')) {
+    painPoints.push("your site isn't fully set up for mobile, which is where most customers are browsing from these days");
+  }
+  if (missing.includes('No phone listed')) {
+    painPoints.push("it's hard for customers to find a phone number, so you're probably losing people who want to call right now");
+  }
+
+  const problemLine = painPoints.length === 0
+    ? "a lot of contractors in your area are missing out on leads because they don't have 24/7 coverage online"
+    : painPoints.length === 1
+      ? `I noticed ${painPoints[0]}`
+      : `I noticed ${painPoints.slice(0, -1).join(', ')} — and also that ${painPoints[painPoints.length - 1]}`;
+
+  return `Hi, is this ${name}?
 
 [WAIT FOR RESPONSE]
 
@@ -565,49 +838,436 @@ I'm not trying to sell you anything today — I just want to show you how it wor
 [IF NOT SURE] — Totally understand. Can I send you a quick 2-minute demo video to your email so you can see it on your own time?
 
 Thanks for your time, ${name.split(' ')[0] || name}!`;
+}
+
+/* ── EXPORT CSV ─────────────────────────────────────────────────────────────── */
+function exportCSV() {
+  if (!currentResults.length) return;
+  const headers = ['Business Name', 'Phone', 'Website', 'Address', 'Score', 'Heat', 'Missing', 'Has Chat Widget', 'Has SSL', 'Mobile Viewport'];
+  const rows = currentResults.map(r => [
+    r.name,
+    r.phone || '',
+    r.website || '',
+    r.address || '',
+    r.score,
+    r.score >= 80 ? 'Hot' : r.score >= 50 ? 'Warm' : 'Cold',
+    r.missing.join('; '),
+    r.hasChatWidget ? 'Yes' : 'No',
+    r.hasSSL ? 'Yes' : 'No',
+    r.hasMobileViewport ? 'Yes' : 'No'
+  ]);
+
+  const csv = [headers, ...rows].map(row =>
+    row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')
+  ).join('\n');
+
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const loc = document.getElementById('locationInput').value.trim().replace(/[^a-z0-9]/gi, '-');
+  const ind = document.getElementById('industrySelect').value;
+  a.download = `prospector-${ind}-${loc}-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* ── SAVE TO CAMPAIGN MODAL ─────────────────────────────────────────────────── */
+function openSaveModal(i) {
+  if (!currentUser) {
+    alert('Sign in to save leads to campaigns. Go to /app to log in.');
+    return;
+  }
+  saveTarget = currentResults[i];
+  saveTarget._resultIndex = i;
+  selectedCampaignId = null;
+
+  const r = saveTarget;
+  document.getElementById('saveModalSub').textContent =
+    `Saving: ${r.name}${r.score ? ' · Score ' + r.score : ''}`;
+
+  // Populate existing campaigns
+  const picker = document.getElementById('existingCampaignPicker');
+  const divider = document.getElementById('modalDivider');
+
+  if (campaigns.length) {
+    picker.innerHTML = campaigns.map(c =>
+      `<div class="campaign-option" data-id="${c.id}" onclick="selectCampaignOption('${c.id}', this)">
+        <input type="radio" name="cmpPick" value="${c.id}">
+        <div>
+          <div style="font-weight:600">${escHtml(c.name)}</div>
+          <div style="font-size:11px;color:var(--muted)">${c.lead_count} lead${c.lead_count !== 1 ? 's' : ''}</div>
+        </div>
+      </div>`
+    ).join('');
+    divider.style.display = '';
+  } else {
+    picker.innerHTML = '<p style="font-size:13px;color:var(--muted);margin-bottom:4px">No campaigns yet — create one below.</p>';
+    divider.style.display = 'none';
   }
 
-  function exportCSV() {
-    if (!currentResults.length) return;
-    const headers = ['Business Name', 'Phone', 'Website', 'Address', 'Score', 'Heat', 'Missing', 'Has Chat Widget', 'Has SSL', 'Mobile Viewport'];
-    const rows = currentResults.map(r => [
-      r.name,
-      r.phone || '',
-      r.website || '',
-      r.address || '',
-      r.score,
-      r.score >= 60 ? 'Hot' : r.score >= 30 ? 'Warm' : 'Cool',
-      r.missing.join('; '),
-      r.hasChatWidget ? 'Yes' : 'No',
-      r.hasSSL ? 'Yes' : 'No',
-      r.hasMobileViewport ? 'Yes' : 'No'
-    ]);
+  document.getElementById('newCampaignInput').value = '';
+  document.getElementById('saveModal').classList.add('open');
+}
 
-    const csv = [headers, ...rows].map(row =>
-      row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')
-    ).join('\n');
+function selectCampaignOption(id, el) {
+  selectedCampaignId = id;
+  document.querySelectorAll('.campaign-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  el.querySelector('input[type=radio]').checked = true;
+  document.getElementById('newCampaignInput').value = '';
+}
 
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    const loc = document.getElementById('locationInput').value.trim().replace(/[^a-z0-9]/gi, '-');
-    const ind = document.getElementById('industrySelect').value;
-    a.download = `prospector-${ind}-${loc}-${new Date().toISOString().slice(0,10)}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+function deselectCampaignOptions() {
+  selectedCampaignId = null;
+  document.querySelectorAll('.campaign-option').forEach(o => {
+    o.classList.remove('selected');
+    const r = o.querySelector('input[type=radio]');
+    if (r) r.checked = false;
+  });
+}
+
+function closeSaveModal() {
+  document.getElementById('saveModal').classList.remove('open');
+  saveTarget = null;
+  selectedCampaignId = null;
+}
+
+document.getElementById('saveModal').addEventListener('click', function(e) {
+  if (e.target === this) closeSaveModal();
+});
+
+async function confirmSave() {
+  if (!saveTarget || !currentUser) return;
+  const btn = document.getElementById('confirmSaveBtn');
+  const newName = document.getElementById('newCampaignInput').value.trim();
+
+  if (!selectedCampaignId && !newName) {
+    document.getElementById('newCampaignInput').focus();
+    return;
   }
 
-  function escHtml(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+
+  try {
+    let campaignId = selectedCampaignId;
+
+    // Create new campaign if needed
+    if (!campaignId) {
+      const res = await fetch('/api/campaigns', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contractor_id: currentUser.id, name: newName })
+      });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.error || 'Failed to create campaign');
+      campaigns.unshift(d.campaign);
+      campaignId = d.campaign.id;
+      updateCampaignTabBadge();
+    }
+
+    // Add lead to campaign
+    const r = saveTarget;
+    const res2 = await fetch(`/api/campaigns/${campaignId}/leads`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        business_name: r.name,
+        phone:         r.phone   || '',
+        website:       r.website || '',
+        address:       r.address || '',
+        score:         r.score,
+        missing:       r.missing || [],
+      })
+    });
+    const d2 = await res2.json();
+    if (!res2.ok) throw new Error(d2.error || 'Failed to save lead');
+
+    // Mark button as saved
+    const idx = saveTarget._resultIndex;
+    savedLeadIdx.add(idx);
+    const saveBtn = document.getElementById(`save-btn-${idx}`);
+    if (saveBtn) {
+      saveBtn.textContent = 'Saved ✓';
+      saveBtn.classList.add('saved');
+      saveBtn.disabled = true;
+    }
+
+    // Update campaign lead count locally
+    const cmp = campaigns.find(c => c.id === campaignId);
+    if (cmp) cmp.lead_count = (cmp.lead_count || 0) + 1;
+    updateCampaignTabBadge();
+
+    closeSaveModal();
+  } catch(e) {
+    alert('Error saving lead: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Save Lead';
+  }
+}
+
+/* ── CAMPAIGNS PANEL ────────────────────────────────────────────────────────── */
+async function loadCampaignsPanel() {
+  if (!currentUser) {
+    document.getElementById('campaignNotLoggedIn').style.display = '';
+    document.getElementById('campaignListView').style.display    = 'none';
+    return;
+  }
+  document.getElementById('campaignNotLoggedIn').style.display = 'none';
+  document.getElementById('campaignListView').style.display    = '';
+  document.getElementById('campaignLeadsView').style.display   = 'none';
+
+  document.getElementById('campaignCards').innerHTML =
+    '<div class="state-box"><div class="spinner"></div><h3>Loading campaigns…</h3></div>';
+
+  try {
+    const res = await fetch(`/api/campaigns?contractor_id=${currentUser.id}`);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to load campaigns');
+    campaigns = data.campaigns || [];
+    updateCampaignTabBadge();
+    renderCampaignCards();
+  } catch(e) {
+    document.getElementById('campaignCards').innerHTML =
+      `<div class="state-box"><div class="icon">⚠️</div><h3>Error loading campaigns</h3><p>${escHtml(e.message)}</p></div>`;
+  }
+}
+
+function renderCampaignCards() {
+  const el = document.getElementById('campaignCards');
+  if (!campaigns.length) {
+    el.innerHTML = `
+      <div class="state-box">
+        <div class="icon">📋</div>
+        <h3>No campaigns yet</h3>
+        <p>Run a search and save leads to start tracking your outreach.</p>
+      </div>`;
+    return;
   }
 
-  function shortenUrl(url) {
-    try {
-      const u = new URL(url);
-      return u.hostname.replace(/^www\./, '');
-    } catch(e) { return url; }
+  el.innerHTML = `<div class="campaign-grid">${campaigns.map(c => `
+    <div class="campaign-card">
+      <div>
+        <div class="campaign-card-name">${escHtml(c.name)}</div>
+        <div class="campaign-card-date">${formatDate(c.created_at)}</div>
+      </div>
+      <div class="campaign-card-stats">
+        <div class="campaign-stat"><strong>${c.lead_count}</strong> lead${c.lead_count !== 1 ? 's' : ''}</div>
+        <div class="campaign-stat"><strong style="color:var(--hot)">${c.won_count}</strong> won</div>
+      </div>
+      <div class="campaign-card-actions">
+        <button class="btn btn-primary" style="font-size:13px;padding:7px 14px;flex:1" onclick="openCampaign('${c.id}', ${JSON.stringify(escHtml(c.name))})">View Leads →</button>
+        <button class="btn btn-outline btn-sm danger" style="padding:7px 10px" onclick="confirmDeleteCampaign('${c.id}', ${JSON.stringify(escHtml(c.name))})">Delete</button>
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+function openNewCampaignPrompt() {
+  if (!currentUser) {
+    alert('Sign in to create campaigns.');
+    return;
   }
+  const name = prompt('Campaign name:');
+  if (!name || !name.trim()) return;
+  createCampaignDirect(name.trim());
+}
+
+async function createCampaignDirect(name) {
+  try {
+    const res = await fetch('/api/campaigns', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contractor_id: currentUser.id, name })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    campaigns.unshift(data.campaign);
+    updateCampaignTabBadge();
+    renderCampaignCards();
+  } catch(e) {
+    alert('Error creating campaign: ' + e.message);
+  }
+}
+
+async function confirmDeleteCampaign(id, name) {
+  if (!confirm(`Delete campaign "${name}" and all its leads? This can't be undone.`)) return;
+  try {
+    const res = await fetch(`/api/campaigns/${id}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error('Delete failed');
+    campaigns = campaigns.filter(c => c.id !== id);
+    updateCampaignTabBadge();
+    renderCampaignCards();
+  } catch(e) {
+    alert('Error deleting campaign: ' + e.message);
+  }
+}
+
+function updateCampaignTabBadge() {
+  const badge = document.getElementById('tabCampaignBadge');
+  const total = campaigns.reduce((n, c) => n + (c.lead_count || 0), 0);
+  badge.textContent = total;
+  badge.style.display = total > 0 ? '' : 'none';
+}
+
+/* ── CAMPAIGN LEADS VIEW ─────────────────────────────────────────────────────── */
+async function openCampaign(id, name) {
+  activeCampaignId = id;
+  document.getElementById('campaignListView').style.display  = 'none';
+  document.getElementById('campaignLeadsView').style.display = '';
+  document.getElementById('campaignLeadsTitle').textContent  = name;
+  document.getElementById('campaignLeadsStats').textContent  = '';
+  document.getElementById('campaignLeadsBody').innerHTML     =
+    '<tr><td colspan="7" style="text-align:center;padding:24px"><div class="spinner" style="margin:0 auto"></div></td></tr>';
+
+  try {
+    const res = await fetch(`/api/campaigns/${id}/leads`);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    renderCampaignLeads(data.leads || []);
+  } catch(e) {
+    document.getElementById('campaignLeadsBody').innerHTML =
+      `<tr><td colspan="7" style="text-align:center;color:var(--red);padding:20px">${escHtml(e.message)}</td></tr>`;
+  }
+}
+
+function renderCampaignLeads(leads) {
+  const total = leads.length;
+  const won   = leads.filter(l => l.status === 'Won').length;
+  document.getElementById('campaignLeadsStats').textContent =
+    `${total} lead${total !== 1 ? 's' : ''} · ${won} won`;
+
+  if (!total) {
+    document.getElementById('campaignLeadsBody').innerHTML =
+      `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:40px;font-size:14px">No leads in this campaign yet.<br>Save some from the Search tab.</td></tr>`;
+    return;
+  }
+
+  const statuses = ['Not contacted', 'Called', 'Emailed', 'Demo booked', 'Won', 'Not interested'];
+
+  const rows = leads.map(l => {
+    const missing = safeParseMissing(l.missing);
+    const heat = heatClass(l.score || 0);
+    const badgeClass = scoreBadgeClass(l.score || 0);
+    const tags = missing.map(m => `<span class="tag tag-${heat === 'cold' ? '' : heat}">${escHtml(m)}</span>`).join('');
+    const lastContact = l.last_contacted_at ? formatDate(l.last_contacted_at) : '—';
+
+    const statusClass =
+      l.status === 'Won'          ? 'status-won' :
+      l.status === 'Demo booked'  ? 'status-booked' :
+      l.status === 'Not interested' ? 'status-nope' : '';
+
+    const opts = statuses.map(s =>
+      `<option${s === l.status ? ' selected' : ''}>${escHtml(s)}</option>`
+    ).join('');
+
+    return `<tr id="clead-${l.id}">
+      <td data-label="Business">
+        <div class="biz-name">${escHtml(l.business_name)}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">
+          ${l.phone ? escHtml(l.phone) : ''}
+          ${l.website ? `· <a href="${escHtml(l.website)}" target="_blank" rel="noopener" style="color:var(--green-mid)">${escHtml(shortenUrl(l.website))}</a>` : ''}
+        </div>
+      </td>
+      <td data-label="Score"><span class="score-badge ${badgeClass}">${l.score || 0}</span></td>
+      <td data-label="Why this lead"><div class="tags">${tags || '<span style="color:var(--muted);font-size:12px">—</span>'}</div></td>
+      <td data-label="Status">
+        <select class="status-select ${statusClass}" onchange="updateLeadStatus('${l.id}', this)">
+          ${opts}
+        </select>
+      </td>
+      <td data-label="Notes">
+        <textarea class="notes-input" placeholder="Add notes…" onblur="updateLeadNotes('${l.id}', this.value)">${escHtml(l.notes || '')}</textarea>
+      </td>
+      <td data-label="Last Contacted" style="font-size:12px;color:var(--muted)">${lastContact}</td>
+      <td>
+        <button class="btn-sm danger" onclick="removeLeadFromCampaign('${l.id}')">Remove</button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('campaignLeadsBody').innerHTML = rows;
+}
+
+function backToCampaigns() {
+  document.getElementById('campaignLeadsView').style.display = 'none';
+  document.getElementById('campaignListView').style.display  = '';
+  activeCampaignId = null;
+  loadCampaignsPanel();
+}
+
+async function updateLeadStatus(leadId, selectEl) {
+  const status = selectEl.value;
+  selectEl.className = 'status-select ' + (
+    status === 'Won'           ? 'status-won' :
+    status === 'Demo booked'   ? 'status-booked' :
+    status === 'Not interested'? 'status-nope' : ''
+  );
+
+  try {
+    await fetch(`/api/campaigns/leads/${leadId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status })
+    });
+  } catch(e) {
+    console.warn('[Prospector] updateLeadStatus error:', e.message);
+  }
+}
+
+async function updateLeadNotes(leadId, notes) {
+  try {
+    await fetch(`/api/campaigns/leads/${leadId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ notes })
+    });
+  } catch(e) {
+    console.warn('[Prospector] updateLeadNotes error:', e.message);
+  }
+}
+
+async function removeLeadFromCampaign(leadId) {
+  if (!confirm('Remove this lead from the campaign?')) return;
+  try {
+    await fetch(`/api/campaigns/leads/${leadId}`, { method: 'DELETE' });
+    const row = document.getElementById(`clead-${leadId}`);
+    if (row) row.remove();
+    // Refresh stats
+    const remaining = document.querySelectorAll('#campaignLeadsBody tr').length;
+    if (remaining === 0) {
+      document.getElementById('campaignLeadsBody').innerHTML =
+        `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:40px;font-size:14px">No leads remaining in this campaign.</td></tr>`;
+    }
+  } catch(e) {
+    alert('Error removing lead: ' + e.message);
+  }
+}
+
+/* ── HELPERS ────────────────────────────────────────────────────────────────── */
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function shortenUrl(url) {
+  try {
+    const u = new URL(url);
+    return u.hostname.replace(/^www\./, '');
+  } catch(e) { return url; }
+}
+
+function formatDate(iso) {
+  try {
+    return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  } catch(e) { return iso; }
+}
+
+function safeParseMissing(raw) {
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw;
+  try { return JSON.parse(raw); } catch(e) { return []; }
+}
 </script>
 </body>
 </html>
