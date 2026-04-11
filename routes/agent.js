@@ -416,4 +416,76 @@ router.post('/send-roi-email', catchAsync(async (req, res) => {
   res.json({ success: true, leadsThisWeek, estimatedValue, sentTo: contractorEmail });
 }));
 
+// POST /api/generate-pitch — AI-personalized cold-call opener for a prospector lead
+router.post('/api/generate-pitch', catchAsync(async (req, res) => {
+  const { name, phone, website, score, missing, address } = req.body;
+  if (!name) return res.status(400).json({ error: 'name required' });
+
+  // Extract city from address (first comma-delimited segment after street)
+  const city = (() => {
+    if (!address) return 'their area';
+    const parts = address.split(',').map(s => s.trim());
+    // "123 Main St, Richmond, VA 12345" → parts[1] = "Richmond"
+    return parts.length >= 2 ? parts[1] : parts[0];
+  })();
+
+  const missingStr = Array.isArray(missing) && missing.length
+    ? missing.join(', ')
+    : 'no major gaps identified';
+
+  const prompt = `Write a 3-sentence cold call opener for a contractor software sales rep calling ${name} in ${city}.
+
+Their gaps: ${missingStr}
+Their website: ${website || 'none found'}
+Lead score: ${score || 0}/100
+
+Rules:
+- Sentence 1: Identify yourself and the business by name
+- Sentence 2: Reference ONE specific gap you found on their site
+- Sentence 3: Ask for 2 minutes to show them how it works
+- Sound like a real person, not a script
+- Never mention AI — say 'automated text-back system'
+- Keep total length under 40 words`;
+
+  const payload = JSON.stringify({
+    model:      'claude-sonnet-4-6',
+    max_tokens: 200,
+    messages:   [{ role: 'user', content: prompt }],
+  });
+
+  // Use proxyToAnthropic internally — build a small promise wrapper
+  const pitch = await new Promise((resolve, reject) => {
+    const { https: _https } = { https: require('https') };
+    const apiReq = _https.request({
+      hostname: 'api.anthropic.com',
+      port:     443,
+      path:     '/v1/messages',
+      method:   'POST',
+      headers:  {
+        'Content-Type':      'application/json',
+        'Content-Length':    Buffer.byteLength(payload),
+        'x-api-key':         cfg.anthropicApiKey,
+        'anthropic-version': '2023-06-01',
+      },
+    }, apiRes => {
+      let d = '';
+      apiRes.on('data', c => d += c);
+      apiRes.on('end', () => {
+        try {
+          const parsed = JSON.parse(d);
+          const text = (parsed.content || []).map(c => c.text || '').join('').trim();
+          resolve(text || 'No pitch generated.');
+        } catch(e) {
+          reject(new Error('Claude response parse error'));
+        }
+      });
+    });
+    apiReq.on('error', reject);
+    apiReq.write(payload);
+    apiReq.end();
+  });
+
+  res.json({ pitch });
+}));
+
 module.exports = router;

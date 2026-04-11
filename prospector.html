@@ -247,6 +247,57 @@
     .btn-sm.called-btn.active { background: var(--green-pale); color: var(--green); border-color: var(--green-light); }
     .btn-sm.pitch-btn { background: var(--green-pale); color: var(--green); border-color: var(--green-light); }
     .btn-sm.pitch-btn:hover { background: #d1eadc; }
+    .btn-sm.pitch-btn:disabled { opacity: 0.6; cursor: default; }
+
+    /* ── Inline AI pitch panel ── */
+    .pitch-panel {
+      display: none;
+      margin-top: 10px;
+      background: #111;
+      border-left: 3px solid #74C69D;
+      border-radius: 0 6px 6px 0;
+      padding: 16px;
+      position: relative;
+    }
+    .pitch-panel.open { display: block; }
+    .pitch-text {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 14px;
+      color: #e0e0e0;
+      line-height: 1.65;
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin: 0;
+    }
+    .pitch-copy-btn {
+      margin-top: 12px;
+      padding: 5px 13px;
+      border-radius: 6px;
+      border: 1px solid #74C69D;
+      background: transparent;
+      color: #74C69D;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .pitch-copy-btn:hover { background: #74C69D; color: #0f2d1a; }
+    .pitch-loading {
+      font-size: 13px;
+      color: #74C69D;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .pitch-loading .mini-spin {
+      width: 14px; height: 14px;
+      border: 2px solid #333;
+      border-top-color: #74C69D;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
     .btn-sm.save-btn { background: #fff; color: var(--green-mid); border-color: var(--green-light); }
     .btn-sm.save-btn:hover { background: var(--green-pale); }
     .btn-sm.save-btn.saved { background: var(--hot); color: #0f2d1a; border-color: var(--hot); cursor: default; }
@@ -745,8 +796,12 @@ function renderResults(results, location, industry) {
             <td data-label="Actions">
               <div class="actions">
                 <button class="btn-sm called-btn" onclick="toggleCalled(${i}, this)">Mark Called</button>
-                <button class="btn-sm pitch-btn" onclick="openPitch(${i})">Copy Pitch</button>
+                <button class="btn-sm pitch-btn" id="pitch-btn-${i}" onclick="generatePitch(${i}, this)">Generate Pitch</button>
                 <button class="btn-sm ${saveClass}" id="save-btn-${i}" onclick="openSaveModal(${i})"${alreadySaved ? ' disabled' : ''}>${saveLabel}</button>
+              </div>
+              <div class="pitch-panel" id="pitch-panel-${i}">
+                <p class="pitch-text" id="pitch-text-${i}"></p>
+                <button class="pitch-copy-btn" id="pitch-copy-${i}" onclick="copyPitchInline(${i})">Copy</button>
               </div>
             </td>
           </tr>`;
@@ -764,7 +819,77 @@ function toggleCalled(i, btn) {
   btn.textContent = isCalled ? 'Called ✓' : 'Mark Called';
 }
 
-/* ── PITCH MODAL ─────────────────────────────────────────────────────────────── */
+/* ── AI PITCH GENERATOR (inline panel) ────────────────────────────────────── */
+async function generatePitch(i, btn) {
+  const r = currentResults[i];
+  const panel    = document.getElementById(`pitch-panel-${i}`);
+  const textEl   = document.getElementById(`pitch-text-${i}`);
+  const copyBtn  = document.getElementById(`pitch-copy-${i}`);
+
+  // Toggle off if already open and populated
+  if (panel.classList.contains('open') && textEl.dataset.done === '1') {
+    panel.classList.remove('open');
+    btn.textContent = 'Generate Pitch';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Generating…';
+  panel.classList.add('open');
+  copyBtn.style.display = 'none';
+  textEl.dataset.done = '';
+  textEl.innerHTML = '<span class="pitch-loading"><span class="mini-spin"></span>Writing your opener…</span>';
+
+  try {
+    const res = await fetch('/api/generate-pitch', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name:    r.name,
+        phone:   r.phone   || '',
+        website: r.website || '',
+        score:   r.score,
+        missing: r.missing || [],
+        address: r.address || '',
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Server error');
+
+    textEl.textContent = data.pitch;
+    textEl.dataset.done = '1';
+    copyBtn.style.display = '';
+    btn.textContent = 'Hide Pitch';
+  } catch(e) {
+    textEl.textContent = '⚠️ ' + e.message;
+    btn.textContent = 'Generate Pitch';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function copyPitchInline(i) {
+  const text = document.getElementById(`pitch-text-${i}`).textContent;
+  const btn  = document.getElementById(`pitch-copy-${i}`);
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch(e) {
+    // fallback
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity  = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  }
+  const orig = btn.textContent;
+  btn.textContent = 'Copied!';
+  setTimeout(() => { btn.textContent = orig; }, 1500);
+}
+
+/* ── PITCH MODAL (full script — existing) ────────────────────────────────── */
 function openPitch(i) {
   const r = currentResults[i];
   const script = generatePitchScript(r, currentIndustry);
