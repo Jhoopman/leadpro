@@ -3,3 +3,11 @@ node_modules/
 package-lock.json
 .env
 .env.*
+
+# local artifacts
+server.js.backup.js
+*.backup
+*.backup.js
+ITEMS/
+IMG_6238.jpg
+LeadPro_Claude_Code_Battle_Plan.docx

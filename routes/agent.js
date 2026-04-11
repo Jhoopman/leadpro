@@ -1,0 +1,307 @@
+// routes/agent.js
+// Handles all AI agent interactions:
+//   POST /widget-api       — widget chat (contractor scheduling + LeadPro marketing)
+//   POST /api              — raw Claude API proxy (dashboard internal use)
+//   POST /vapi-webhook     — Vapi phone call end-of-call report
+//   POST /send-confirmation — send confirmation email after chat lead captured
+//   POST /scrape           — scrape contractor website during onboarding
+
+const express   = require('express');
+const router    = express.Router();
+const https     = require('https');
+const supabase  = require('../services/supabase');
+const claude    = require('../services/claude');
+const email     = require('../services/email');
+const { formatSlotsForPrompt } = require('../services/calendar');
+const { catchAsync }           = require('../middleware/errorHandler');
+const { widgetLimit, apiLimit } = require('../middleware/rateLimit');
+const cfg       = require('../config');
+
+const MARKETING_WIDGET_ID = 'lp_rdzvuqld';
+
+const MARKETING_SYSTEM_PROMPT = `You are a sales assistant for LeadPro, AI lead generation software for contractors. Never ask for addresses, zip codes, or schedule appointments. You sell software. Answer pricing questions: Starter $49/month, Pro $149/month, 14 day free trial no credit card. Collect name, email, phone number only. Direct them to app.useleadpro.net to start their free trial. Keep responses clean and professional. No emojis. No bold markdown formatting. Write in plain conversational sentences like a real person texting, not a marketing bot. Keep responses short — 3-4 sentences max per reply.`;
+
+// ── HELPERS ──────────────────────────────────────────────────────────────────
+
+async function saveLead(lead, source) {
+  if (!lead.contractor_id) {
+    console.warn('saveLead: no contractor_id — skipping Supabase insert');
+    return;
+  }
+  const notes = [lead.datetime, lead.transcript ? lead.transcript.slice(0, 500) : null]
+    .filter(Boolean).join(' | ');
+
+  const { error } = await supabase.from('leads').insert({
+    contractor_id: lead.contractor_id,
+    name:          lead.name    || '',
+    phone:         lead.phone   || '',
+    address:       lead.address || '',
+    service:       lead.service || '',
+    notes:         notes || '',
+    status:        'new',
+  });
+
+  if (error) console.error('[saveLead] Supabase error:', error.message);
+  else       console.log('[saveLead] Lead saved — contractor:', lead.contractor_id);
+}
+
+// Pipes a Claude API request body directly to Anthropic and mirrors the response.
+// Used by the raw /api proxy and the widget routes.
+function proxyToAnthropic(payloadStr, res) {
+  const req = https.request({
+    hostname: 'api.anthropic.com',
+    port:     443,
+    path:     '/v1/messages',
+    method:   'POST',
+    headers:  {
+      'Content-Type':       'application/json',
+      'Content-Length':     Buffer.byteLength(payloadStr),
+      'x-api-key':          cfg.anthropicApiKey,
+      'anthropic-version':  '2023-06-01',
+    },
+  }, proxyRes => {
+    let d = '';
+    proxyRes.on('data', c => d += c);
+    proxyRes.on('end', () => {
+      try   { res.status(proxyRes.statusCode).json(JSON.parse(d)); }
+      catch (e) { res.status(500).json({ error: 'Claude API parse error' }); }
+    });
+  });
+  req.on('error', e => res.status(500).json({ error: e.message }));
+  req.write(payloadStr);
+  req.end();
+}
+
+// ── ROUTES ───────────────────────────────────────────────────────────────────
+
+// POST /widget-api — AI chat for embedded widget
+router.post('/widget-api', widgetLimit, (req, res) => {
+  const { messages, widgetId, bizName, services, availableSlots } = req.body;
+  if (!messages) return res.status(400).json({ error: 'No messages provided' });
+
+  // LeadPro marketing widget or undefined/empty widgetId → use marketing prompt
+  if (!widgetId || widgetId === MARKETING_WIDGET_ID) {
+    const pd = JSON.stringify({
+      model:      'claude-sonnet-4-6',
+      max_tokens: 500,
+      system:     MARKETING_SYSTEM_PROMPT,
+      messages,
+    });
+    return proxyToAnthropic(pd, res);
+  }
+
+  // Contractor scheduling widget
+  const biz      = bizName  || 'our company';
+  const svcList  = services || 'general services';
+  const slotText = formatSlotsForPrompt(availableSlots);
+
+  const systemPrompt = slotText
+    ? // Calendar connected — offer real slots, skip address
+      `You are a friendly scheduling assistant for ${biz}. Your job is to book a confirmed appointment.
+
+Services offered: ${svcList}
+
+Available appointment slots (offer ONLY these — do not suggest other times):
+${slotText}
+
+Goals:
+1. Greet the customer and ask how you can help
+2. Collect one at a time: name, phone number, email address, service needed
+3. Share the available times above and let them pick one
+4. Confirm all details back to them
+5. Tell them a calendar invite will be sent to their email
+
+Rules:
+- Sound human and conversational — no robotic tone
+- Ask one question at a time
+- Keep responses SHORT — 1-3 sentences max
+- Once you have all fields and a confirmed slot, output this ONCE at the END:
+LEAD_DATA:{"name":"...","phone":"...","email":"...","address":"","service":"...","datetime":"human readable slot","slot_start":"ISO8601","slot_end":"ISO8601"}`
+
+    : // No calendar — collect address and preferred time as free text
+      `You are a friendly scheduling assistant for ${biz}. Your job is to have a warm, natural conversation to gather info and book an appointment or estimate.
+
+Services offered: ${svcList}
+
+Goals:
+1. Greet the customer warmly and ask how you can help
+2. Naturally collect these 5 things (one at a time): name, phone number, address/zip code, service needed, preferred date and time
+3. Confirm all details back to them warmly
+4. Tell them the team will follow up to confirm within a few hours
+
+Rules:
+- Sound human and conversational — no bullet lists, no robotic tone
+- Ask one question at a time
+- Keep responses SHORT — 1-3 sentences max
+- Once you have all 5 fields, output this ONCE at the END of your message:
+LEAD_DATA:{"name":"...","phone":"...","email":"","address":"...","service":"...","datetime":"..."}`;
+
+  const pd = JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 500, system: systemPrompt, messages });
+  proxyToAnthropic(pd, res);
+});
+
+// POST /api — raw Claude API proxy (used by dashboard internals)
+router.post('/api', apiLimit, (req, res) => {
+  const pd = JSON.stringify(req.body);
+  proxyToAnthropic(pd, res);
+});
+
+// POST /scrape — scrape contractor website during onboarding
+router.post('/scrape', catchAsync(async (req, res) => {
+  const { url } = req.body;
+  if (!url) return res.status(400).json({ error: 'No URL provided' });
+
+  const fullUrl   = url.startsWith('http') ? url : 'https://' + url;
+  const { fetchPage } = require('../services/scraper');
+  const pageText  = await fetchPage(fullUrl);
+  const profile   = await claude.extractContractorProfile(pageText);
+  res.json({ success: true, profile });
+}));
+
+// POST /send-confirmation — chat widget calls this when LEAD_DATA is captured
+router.post('/send-confirmation', catchAsync(async (req, res) => {
+  const lead         = req.body;
+  const contractorId = lead.contractorId || null;
+
+  let bizName = lead.bizName || 'Our Team';
+  if (contractorId && !lead.bizName) {
+    const { data } = await supabase
+      .from('contractors')
+      .select('business_name')
+      .eq('id', contractorId)
+      .single();
+    if (data) bizName = data.business_name;
+  }
+
+  await saveLead({ ...lead, contractor_id: contractorId }, 'chat');
+  await email.sendConfirmation({ ...lead, bizName });
+  await email.sendLeadAlert({ ...lead, bizName }, 'Website chat');
+
+  res.json({ success: true });
+}));
+
+// POST /vapi-webhook — Vapi calls this at end of every phone call
+router.post('/vapi-webhook', (req, res) => {
+  // Acknowledge immediately — Vapi won't retry if we respond fast
+  res.json({ received: true });
+
+  const payload = req.body;
+  const msg     = payload.message || payload;
+  if ((msg.type || payload.type) !== 'end-of-call-report') return;
+
+  const s    = msg.structuredData || {};
+  const call = msg.call || {};
+  const lead = {
+    name:       s.name       || 'Unknown caller',
+    phone:      s.phone      || call.customer?.number || '—',
+    email:      s.email      || null,
+    address:    s.address    || '—',
+    service:    s.service    || '—',
+    datetime:   s.datetime   || '—',
+    transcript: msg.transcript || '',
+  };
+
+  // Fire-and-forget — we already responded 200
+  (async () => {
+    try {
+      await saveLead(lead, 'phone');
+      await email.sendLeadAlertWithTranscript(lead, 'Phone call', lead.transcript);
+      await email.sendConfirmation(lead);
+      console.log('[vapi-webhook] Phone lead processed:', lead.name);
+    } catch (e) {
+      console.error('[vapi-webhook] Error processing lead:', e.message);
+    }
+  })();
+});
+
+// POST /send-roi-email — send weekly ROI summary email to a contractor
+router.post('/send-roi-email', catchAsync(async (req, res) => {
+  const { contractorId } = req.body;
+  if (!contractorId) return res.status(400).json({ error: 'contractorId required' });
+
+  // ── Week boundaries (UTC) ──────────────────────────────────────────────────
+  const now          = new Date();
+  const dayOfWeek    = now.getUTCDay();                            // 0=Sun … 6=Sat
+  const daysFromMon  = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+
+  const thisMonday = new Date(now);
+  thisMonday.setUTCDate(thisMonday.getUTCDate() - daysFromMon);
+  thisMonday.setUTCHours(0, 0, 0, 0);
+
+  const lastMonday = new Date(thisMonday);
+  lastMonday.setUTCDate(lastMonday.getUTCDate() - 7);
+
+  // ── Supabase queries (parallel) ────────────────────────────────────────────
+  const [thisWeekRes, lastWeekRes, authRes, contractorRes] = await Promise.all([
+    supabase
+      .from('leads')
+      .select('name, service, requested_at')
+      .eq('contractor_id', contractorId)
+      .gte('requested_at', thisMonday.toISOString())
+      .order('requested_at', { ascending: false }),
+
+    supabase
+      .from('leads')
+      .select('id')
+      .eq('contractor_id', contractorId)
+      .gte('requested_at', lastMonday.toISOString())
+      .lt('requested_at', thisMonday.toISOString()),
+
+    supabase.auth.admin.getUserById(contractorId),
+
+    supabase
+      .from('contractors')
+      .select('business_name')
+      .eq('id', contractorId)
+      .single(),
+  ]);
+
+  if (thisWeekRes.error) return res.status(500).json({ error: thisWeekRes.error.message });
+  if (lastWeekRes.error) return res.status(500).json({ error: lastWeekRes.error.message });
+  if (authRes.error || !authRes.data?.user) return res.status(404).json({ error: 'Contractor not found' });
+
+  const contractorEmail = authRes.data.user.email;
+  const bizName         = contractorRes.data?.business_name || 'Your Business';
+
+  // ── Calculations ───────────────────────────────────────────────────────────
+  const leadsThisWeek  = thisWeekRes.data.length;
+  const leadsLastWeek  = lastWeekRes.data.length;
+  const percentChange  = leadsLastWeek === 0
+    ? 'first week'
+    : Math.round((leadsThisWeek - leadsLastWeek) / leadsLastWeek * 100);
+  const estimatedValue = leadsThisWeek * 450;
+  const roiMultiple    = Math.floor(estimatedValue / 97);
+
+  // ── Top 3 leads with human-readable time ──────────────────────────────────
+  function timeAgo(dateStr) {
+    const diffMs = Date.now() - new Date(dateStr).getTime();
+    const mins   = Math.floor(diffMs / 60_000);
+    const hrs    = Math.floor(mins / 60);
+    const days   = Math.floor(hrs  / 24);
+    if (days >= 1) return `${days} day${days  > 1 ? 's' : ''} ago`;
+    if (hrs  >= 1) return `${hrs} hour${hrs   > 1 ? 's' : ''} ago`;
+    return `${Math.max(1, mins)} min${mins > 1 ? 's' : ''} ago`;
+  }
+
+  const topLeads = thisWeekRes.data.slice(0, 3).map(l => ({
+    name:    l.name,
+    service: l.service,
+    timeAgo: timeAgo(l.requested_at),
+  }));
+
+  // ── Send ───────────────────────────────────────────────────────────────────
+  await email.sendROIEmail(contractorEmail, {
+    leadsThisWeek,
+    leadsLastWeek,
+    percentChange,
+    estimatedValue,
+    roiMultiple,
+    topLeads,
+    bizName,
+  });
+
+  console.log(`[send-roi-email] Sent to ${contractorEmail} — ${leadsThisWeek} leads, ~$${estimatedValue}`);
+  res.json({ success: true, leadsThisWeek, estimatedValue, sentTo: contractorEmail });
+}));
+
+module.exports = router;

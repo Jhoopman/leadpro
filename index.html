@@ -1180,6 +1180,139 @@
       /* Section header spacing */
       .section-header { margin-bottom: 40px; }
     }
+
+    /* ── HERO MICROCOPY ── */
+    .hero-microcopy {
+      font-size: 0.8rem;
+      color: #777777;
+      margin-top: -28px;
+      margin-bottom: 36px;
+    }
+
+    /* ── LIVE DEMO BLOCK ── */
+    .hero-demo {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 24px 28px;
+      max-width: 460px;
+      margin-bottom: 36px;
+    }
+    .demo-input-row {
+      display: flex;
+      gap: 10px;
+    }
+    .demo-input {
+      flex: 1;
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 9px;
+      color: white;
+      font-family: inherit;
+      font-size: 0.95rem;
+      padding: 11px 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .demo-input::placeholder { color: #555; }
+    .demo-input:focus { border-color: #74C69D; }
+    .demo-btn {
+      background: #2D6A4F;
+      color: white;
+      border: none;
+      border-radius: 9px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 11px 18px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .demo-btn:hover { background: #3a7a5f; transform: translateY(-1px); }
+    .demo-btn:disabled { opacity: 0.6; cursor: default; transform: none; }
+    .demo-confirm {
+      color: #74C69D;
+      font-size: 0.88rem;
+      margin-top: 14px;
+      min-height: 1.2em;
+      font-weight: 500;
+    }
+    .demo-countdown-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .demo-countdown-bar-track {
+      flex: 1;
+      height: 4px;
+      background: #2a2a2a;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .demo-countdown-bar {
+      height: 100%;
+      background: #74C69D;
+      border-radius: 99px;
+      width: 100%;
+      transition: width 1s linear;
+    }
+    .demo-countdown-label {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #74C69D;
+      min-width: 24px;
+      text-align: right;
+    }
+    .demo-countdown-unit { font-size: 0.75rem; color: #555; }
+    .demo-after {
+      font-size: 0.85rem;
+      color: #aaaaaa;
+      margin-top: 12px;
+      font-style: italic;
+      min-height: 1em;
+    }
+
+    /* ── PAIN BLOCKS ── */
+    .pain-blocks { background: #0f0f0f; padding: 72px 24px; }
+    .pain-blocks-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+    .pain-block {
+      background: #141414;
+      border: 1px solid #1f1f1f;
+      border-radius: 16px;
+      padding: 32px 28px;
+    }
+    .pain-block-headline {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 14px;
+      line-height: 1.4;
+    }
+    .pain-block-body {
+      font-size: 0.92rem;
+      color: #888888;
+      line-height: 1.65;
+    }
+    @media (max-width: 768px) {
+      .pain-blocks-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── PRICING 3-COL ── */
+    .pricing-grid-3 {
+      grid-template-columns: repeat(3, 1fr) !important;
+      max-width: 1060px !important;
+    }
+    @media (max-width: 900px) {
+      .pricing-grid-3 { grid-template-columns: 1fr !important; max-width: 480px !important; }
+    }
   </style>
 </head>
 <body>
@@ -1243,19 +1376,35 @@
       <span class="dot"></span>
       AI Scheduling for Contractors
     </div>
-    <h1 id="heroHeadline" class="reveal reveal-d1">Stop losing jobs<br/>to <em>voicemail.</em></h1>
-    <p class="hero-sub reveal reveal-d2">LeadPro answers every call, books every appointment, and qualifies every lead — 24/7 — so you can focus on the work, not the phone.</p>
+    <h1 id="heroHeadline" class="reveal reveal-d1">Stop Losing Jobs<br/>to <em>Voicemail</em></h1>
+    <p class="hero-sub reveal reveal-d2">LeadPro texts your missed calls back in 60 seconds and books the appointment — while you're still on the job.</p>
     <div class="hero-actions reveal reveal-d3">
       <a class="btn-hero" href="https://app.useleadpro.net">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        Start free — 14 days free
+        See It Work Free
       </a>
       <a class="hero-link" href="#how">
         See how it works
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
       </a>
     </div>
-    <div class="hero-trust reveal reveal-d4">
+    <p class="hero-microcopy reveal reveal-d3">No credit card. Live in 10 minutes.</p>
+
+    <!-- LIVE DEMO -->
+    <div class="hero-demo reveal reveal-d4">
+      <div class="demo-input-row">
+        <input type="tel" id="demoPhone" class="demo-input" placeholder="Enter your cell number" maxlength="20" />
+        <button class="demo-btn" id="demoBtn" onclick="startDemo()">Call me right now</button>
+      </div>
+      <p class="demo-confirm" id="demoConfirm"></p>
+      <div class="demo-countdown-wrap" id="demoCountdownWrap" style="display:none">
+        <div class="demo-countdown-bar-track"><div class="demo-countdown-bar" id="demoBar"></div></div>
+        <span class="demo-countdown-label" id="demoCountdownLabel">60</span><span class="demo-countdown-unit">s</span>
+      </div>
+      <p class="demo-after" id="demoAfter"></p>
+    </div>
+
+    <div class="hero-trust reveal reveal-d5">
       <span>
         <svg viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
         No credit card required
@@ -1382,60 +1531,20 @@
 </div>
 
 <!-- PAIN SECTION -->
-<section class="pain" id="pain">
+<section class="pain-blocks" id="pain">
   <div class="section-inner">
-    <div class="pain-grid">
-      <div>
-        <div class="section-tag reveal"><span class="dot" style="background:rgba(255,255,255,0.5)"></span> The Problem</div>
-        <h2 class="section-title reveal reveal-d1">You're losing jobs<br/>to voicemail.</h2>
-        <p class="section-sub reveal reveal-d2" style="margin-bottom: 40px;">Homeowners call once. If you don't answer, they call the next contractor on Google. Your phone is a leaky bucket — and you don't even know it.</p>
-        <div class="pain-points">
-          <div class="pain-point reveal reveal-d3">
-            <div class="pain-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.09 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
-            </div>
-            <div>
-              <div class="pain-point-title">Missed calls = missed revenue</div>
-              <div class="pain-point-desc">You're on a job site. The phone rings. You can't answer. That lead is gone in 30 seconds.</div>
-            </div>
-          </div>
-          <div class="pain-point reveal reveal-d4">
-            <div class="pain-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            </div>
-            <div>
-              <div class="pain-point-title">After-hours is prime time</div>
-              <div class="pain-point-desc">40% of service requests come in after 6pm and on weekends — when you're not at your desk.</div>
-            </div>
-          </div>
-          <div class="pain-point reveal reveal-d5">
-            <div class="pain-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
-            </div>
-            <div>
-              <div class="pain-point-title">Manual follow-up kills momentum</div>
-              <div class="pain-point-desc">Chasing leads from a sticky note is a second job. LeadPro tracks everything automatically.</div>
-            </div>
-          </div>
-        </div>
+    <div class="pain-blocks-grid">
+      <div class="pain-block reveal reveal-d1">
+        <p class="pain-block-headline">"You're under a crawlspace."</p>
+        <p class="pain-block-body">Your phone rings 6 times. You can't answer. By the time you call back, they've already booked your competitor.</p>
       </div>
-      <div class="pain-stats">
-        <div class="pain-stat reveal reveal-d1">
-          <div class="pain-stat-num"><span data-target="62" data-suffix="%">62%</span></div>
-          <div class="pain-stat-label">of callers hang up after voicemail without leaving a message</div>
-        </div>
-        <div class="pain-stat reveal reveal-d2">
-          <div class="pain-stat-num"><span data-target="5" data-suffix="×">5×</span></div>
-          <div class="pain-stat-label">higher conversion when a lead is contacted within 5 minutes</div>
-        </div>
-        <div class="pain-stat reveal reveal-d3">
-          <div class="pain-stat-num"><span data-target="40" data-suffix="%">40%</span></div>
-          <div class="pain-stat-label">of service requests arrive outside of business hours</div>
-        </div>
-        <div class="pain-stat reveal reveal-d4">
-          <div class="pain-stat-num">$<span data-target="12" data-suffix="k">12k</span></div>
-          <div class="pain-stat-label">estimated average annual revenue lost per contractor to missed calls</div>
-        </div>
+      <div class="pain-block reveal reveal-d2">
+        <p class="pain-block-headline">"Your answering service takes messages."</p>
+        <p class="pain-block-body">LeadPro books jobs. There's a hard difference between "I'll have him call you back" and "Your appointment is Thursday at 10am."</p>
+      </div>
+      <div class="pain-block reveal reveal-d3">
+        <p class="pain-block-headline">"The first contractor to respond wins."</p>
+        <p class="pain-block-body">Research shows lead conversion drops 10x after 5 minutes. LeadPro responds in under 60 seconds, every time, 24/7.</p>
       </div>
     </div>
   </div>
@@ -1541,43 +1650,57 @@
       <h2 class="section-title">Simple pricing.<br/>No surprises.</h2>
       <p class="section-sub">Start free for 14 days. No credit card required. One job booked by LeadPro pays for itself many times over.</p>
     </div>
-    <div class="pricing-grid">
+    <div class="pricing-grid pricing-grid-3">
+      <!-- FREE -->
       <div class="pricing-card reveal reveal-d1">
+        <div class="pricing-tier">Free</div>
+        <div class="pricing-price">
+          <span class="amount" style="font-size:2.6rem;">$0</span>
+          <span class="period">&nbsp;/ month</span>
+        </div>
+        <p class="pricing-desc">Missed-call text-back so no lead goes cold.</p>
+        <a class="pricing-cta" href="https://app.useleadpro.net" style="background:#1f1f1f;color:#74C69D;border:1px solid #2D6A4F;">Start Free — No Card</a>
+        <ul class="pricing-features">
+          <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> Missed-call text-back</li>
+          <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> Unlimited texts</li>
+          <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> 1 phone number</li>
+          <li style="color:#555555;"><svg viewBox="0 0 20 20" fill="currentColor" style="color:#333"><path d="M4 10h12M4 10a1 1 0 010-2h12a1 1 0 010 2"/></svg> No booking link</li>
+        </ul>
+      </div>
+      <!-- STARTER -->
+      <div class="pricing-card featured reveal reveal-d2">
+        <div class="pricing-badge">Most Popular</div>
         <div class="pricing-tier">Starter</div>
         <div class="pricing-price">
           <span class="currency">$</span>
-          <span class="amount">49</span>
+          <span class="amount">97</span>
           <span class="period">&nbsp;/ month</span>
         </div>
-        <p class="pricing-desc">Perfect for solo contractors and small crews looking to capture more leads without hiring staff.</p>
-        <a class="pricing-cta" href="https://app.useleadpro.net">Start free trial</a>
+        <p class="pricing-desc">Everything you need to turn missed calls into booked jobs.</p>
+        <a class="pricing-cta" href="https://app.useleadpro.net">Start 14-Day Trial</a>
         <ul class="pricing-features">
-          <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> AI phone agent (250 min/mo)</li>
-          <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> Chat widget (1 website)</li>
+          <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> Everything in Free</li>
+          <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> Booking link in every text</li>
+          <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> Chat widget for your website</li>
           <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> Lead dashboard</li>
           <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> SMS notifications</li>
-          <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> Website scraper (1 scan)</li>
-          <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> Email support</li>
         </ul>
       </div>
-      <div class="pricing-card featured reveal reveal-d2">
-        <div class="pricing-badge">Most Popular</div>
+      <!-- PRO -->
+      <div class="pricing-card reveal reveal-d3">
         <div class="pricing-tier">Pro</div>
         <div class="pricing-price">
           <span class="currency">$</span>
-          <span class="amount">149</span>
+          <span class="amount">197</span>
           <span class="period">&nbsp;/ month</span>
         </div>
-        <p class="pricing-desc">For growing contractors who need unlimited capacity, calendar sync, and priority support.</p>
-        <a class="pricing-cta" href="https://app.useleadpro.net">Start free trial</a>
+        <p class="pricing-desc">For contractors ready to scale with an AI agent that answers live calls.</p>
+        <a class="pricing-cta" href="https://app.useleadpro.net">Start 14-Day Trial</a>
         <ul class="pricing-features">
-          <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> AI phone agent (unlimited)</li>
-          <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> Chat widget (unlimited sites)</li>
-          <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> Google Calendar sync</li>
-          <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> SMS + push notifications</li>
-          <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> Website scraper (continuous)</li>
-          <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> Advanced analytics</li>
-          <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> Priority phone support</li>
+          <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> Everything in Starter</li>
+          <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> AI phone agent (answers live calls)</li>
+          <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> Call transcripts</li>
+          <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> Multi-location</li>
         </ul>
       </div>
     </div>
@@ -2014,5 +2137,56 @@ document.getElementById('contactForm').addEventListener('submit', async function
 </script>
 
 <script src="https://leadpro-1d5l.onrender.com/widget.js" data-id="lp_rdzvuqld"></script>
+
+<script>
+function startDemo() {
+  var phone = document.getElementById('demoPhone').value.trim();
+  if (!phone) { document.getElementById('demoPhone').focus(); return; }
+
+  var btn = document.getElementById('demoBtn');
+  btn.disabled = true;
+  btn.textContent = 'Calling…';
+
+  // Fire POST (best effort — UI proceeds regardless)
+  fetch('/demo-call', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ phone: phone })
+  }).catch(function(){});
+
+  // Show confirmation immediately
+  document.getElementById('demoConfirm').textContent =
+    '✓ Calling your number now. Hang up. Watch for a text within 60 seconds.';
+
+  // Show and start countdown
+  var wrap = document.getElementById('demoCountdownWrap');
+  var bar  = document.getElementById('demoBar');
+  var lbl  = document.getElementById('demoCountdownLabel');
+  wrap.style.display = 'flex';
+
+  var total = 60;
+  var remaining = total;
+
+  // Kick off first tick after 1s so the bar is visible at 100% briefly
+  var timer = setInterval(function() {
+    remaining--;
+    lbl.textContent = remaining;
+    bar.style.width = (remaining / total * 100) + '%';
+    if (remaining <= 0) {
+      clearInterval(timer);
+      document.getElementById('demoAfter').textContent =
+        'That text is exactly what your missed callers receive.';
+    }
+  }, 1000);
+}
+
+// Allow Enter key in the phone input
+document.addEventListener('DOMContentLoaded', function() {
+  var inp = document.getElementById('demoPhone');
+  if (inp) inp.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') startDemo();
+  });
+});
+</script>
 </body>
 </html>

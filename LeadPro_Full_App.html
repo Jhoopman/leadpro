@@ -410,6 +410,63 @@ nav { flex: 1; padding: 8px 0; }
   .metrics { grid-template-columns: 1fr 1fr; }
   .metric .mv { font-size: 28px; }
 }
+
+/* ROI HERO CARD */
+.roi-hero { background: #111111; border: 1px solid #1a1a1a; border-radius: 14px; padding: 20px 24px 16px; margin-bottom: 20px; display: flex; align-items: flex-start; gap: 24px; flex-wrap: wrap; }
+.roi-block { flex: 1; min-width: 140px; }
+.roi-label { font-size: 11px; font-weight: 600; color: #555555; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 7px; }
+.roi-value { font-size: 36px; font-weight: 600; color: #74C69D; line-height: 1; letter-spacing: -0.02em; margin-bottom: 5px; }
+.roi-sub { font-size: 12px; color: #666666; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.roi-change { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 5px; }
+.roi-change.up { background: rgba(45,106,79,0.18); color: #74C69D; }
+.roi-change.down { background: rgba(248,113,113,0.12); color: #f87171; }
+.roi-change.neutral { background: rgba(116,198,157,0.1); color: #74C69D; }
+.roi-tagline { font-size: 11px; color: #74C69D; font-style: italic; margin-top: 7px; }
+.roi-spark-block { flex: 2; min-width: 180px; display: flex; flex-direction: column; }
+.roi-spark-label { font-size: 10px; color: #444444; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 5px; }
+#roi-sparkline-canvas { width: 100%; height: 48px; display: block; }
+@media (max-width: 600px) { .roi-hero { gap: 14px; padding: 16px 16px 14px; } .roi-spark-block { flex: 0 0 100%; } }
+
+/* TEXT-BACK MESSAGE */
+.sms-tpl-area { width: 100%; min-height: 116px; padding: 10px 12px; font-size: 12.5px; font-family: 'Courier New', Consolas, monospace; border: 0.5px solid #2a2a2a; border-radius: var(--radius); background: #111111; color: #ffffff; outline: none; resize: vertical; line-height: 1.7; transition: border-color .15s; box-sizing: border-box; }
+.sms-tpl-area:focus { border-color: #74C69D; }
+.var-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 13px; }
+.var-pill { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 5px; background: #1a3a2a; color: #74C69D; cursor: pointer; border: 1px solid rgba(116,198,157,0.2); font-family: 'Courier New', Consolas, monospace; transition: background .12s, border-color .12s; user-select: none; line-height: 1.8; }
+.var-pill:hover { background: #1f4830; border-color: rgba(116,198,157,0.4); }
+.speed-options { display: flex; flex-direction: column; gap: 7px; margin: 10px 0; }
+.speed-opt { display: flex; align-items: center; gap: 11px; padding: 10px 14px; border: 0.5px solid #2a2a2a; border-radius: var(--radius); cursor: pointer; transition: border-color .15s, background .15s; }
+.speed-opt:hover { background: #161616; }
+.speed-opt.selected { border-color: #74C69D; background: rgba(116,198,157,0.04); }
+.speed-opt input[type=radio] { accent-color: #74C69D; width: 15px; height: 15px; flex-shrink: 0; cursor: pointer; }
+.speed-opt-label { font-size: 13px; color: #ffffff; display: flex; align-items: center; gap: 7px; }
+.speed-badge { font-size: 9px; padding: 2px 6px; background: rgba(116,198,157,0.12); color: #74C69D; border-radius: 4px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.speed-opt-sub { font-size: 11px; color: #555555; margin-top: 2px; }
+.tb-test-box { background: #0f0f0f; border: 0.5px solid #1a1a1a; border-radius: var(--radius); padding: 14px 16px; margin-top: 12px; display: none; }
+.tb-countdown { font-size: 34px; font-weight: 700; color: #74C69D; line-height: 1; margin: 10px 0 2px; font-variant-numeric: tabular-nums; }
+.tb-test-msg { font-size: 12px; color: #666666; line-height: 1.65; }
+.settings-sub-label { font-size: 10px; color: #555555; text-transform: uppercase; letter-spacing: .07em; font-weight: 600; margin-bottom: 8px; }
+
+/* ONBOARDING WIZARD */
+#onboard-overlay { position: fixed; inset: 0; background: #0A0A0A; z-index: 9000; display: none; align-items: center; justify-content: center; padding: 16px; }
+#onboard-overlay.show { display: flex; }
+#onboard-box { background: #141414; border-radius: 16px; padding: 32px; width: 420px; max-width: 100%; border: 0.5px solid #1f1f1f; box-shadow: 0 24px 64px rgba(0,0,0,0.7); }
+.ob-progress { display: flex; gap: 6px; margin-bottom: 28px; }
+.ob-dot { height: 3px; flex: 1; border-radius: 2px; background: #222222; transition: background .25s; }
+.ob-dot.active { background: #74C69D; }
+.ob-title { font-size: 18px; font-weight: 700; color: #ffffff; margin-bottom: 6px; }
+.ob-sub { font-size: 13px; color: #666666; margin-bottom: 22px; line-height: 1.6; }
+.ob-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; flex-wrap: wrap; }
+.ob-btn-primary { padding: 10px 20px; background: #2D6A4F; color: #ffffff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; transition: background .15s; white-space: nowrap; }
+.ob-btn-primary:hover { background: #3a7a5f; }
+.ob-btn-secondary { padding: 10px 16px; border: 0.5px solid #2a2a2a; background: none; color: #666666; border-radius: 8px; font-size: 13px; cursor: pointer; font-family: inherit; }
+.ob-btn-secondary:hover { background: #1a1a1a; color: #aaaaaa; }
+.ob-err { font-size: 12px; color: #f87171; min-height: 16px; margin: -6px 0 10px; }
+.ob-forward-box { background: #111111; border: 1px solid #1a1a1a; border-radius: 10px; padding: 16px 18px; margin: 4px 0 14px; }
+.ob-number { font-size: 22px; font-weight: 700; color: #74C69D; letter-spacing: 0.03em; margin: 6px 0 10px; }
+.ob-copy-btn { font-size: 11px; font-weight: 600; padding: 5px 12px; border: 1px solid rgba(116,198,157,0.3); border-radius: 6px; background: rgba(45,106,79,0.12); color: #74C69D; cursor: pointer; font-family: inherit; transition: background .15s; }
+.ob-copy-btn:hover { background: rgba(45,106,79,0.22); }
+.ob-success-icon { width: 52px; height: 52px; background: rgba(45,106,79,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 4px auto 18px; }
+.ob-success-icon svg { width: 26px; height: 26px; fill: #74C69D; }
 </style>
 </head>
 <body>
@@ -555,6 +612,24 @@ nav { flex: 1; padding: 8px 0; }
       <div class="sub" id="dash-date">Loading...</div>
     </div>
     <button class="btn-sm primary" onclick="openBookModal()">+ Book appointment</button>
+  </div>
+
+  <!-- ROI HERO CARD -->
+  <div class="roi-hero" id="roi-hero-card">
+    <div class="roi-block">
+      <div class="roi-label">Leads Recovered</div>
+      <div class="roi-value" id="roi-leads-count">—</div>
+      <div class="roi-sub">this month <span class="roi-change neutral" id="roi-change"></span></div>
+    </div>
+    <div class="roi-block">
+      <div class="roi-label">Estimated Value</div>
+      <div class="roi-value" id="roi-est-value">—</div>
+      <div class="roi-tagline" id="roi-tagline"></div>
+    </div>
+    <div class="roi-spark-block">
+      <div class="roi-spark-label">Last 30 days</div>
+      <canvas id="roi-sparkline-canvas" height="48"></canvas>
+    </div>
   </div>
 
   <div class="metrics">
@@ -729,6 +804,75 @@ nav { flex: 1; padding: 8px 0; }
     <div class="srow"><div class="srow-info"><div class="sl">Daily email digest</div><div class="ss">Summary of all leads sent at 7am</div></div><div class="toggle on" onclick="this.classList.toggle('on')"><div class="tthumb"></div></div></div>
     <div class="srow"><div class="srow-info"><div class="sl">Follow-up reminders</div><div class="ss">Alert if a lead hasn't been contacted in 2 hrs</div></div><div class="toggle" onclick="this.classList.toggle('on')"><div class="tthumb"></div></div></div>
   </div>
+  <div class="settings-section" id="textback-section">
+    <h3>Phone / AI Agent</h3>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:18px">Customize the automated text-back message sent when a caller hangs up without booking.</p>
+
+    <!-- Variable pills -->
+    <div class="settings-sub-label">Insert variable</div>
+    <div class="var-pills">
+      <span class="var-pill" onclick="insertVar('{{business_name}}')">{{business_name}}</span>
+      <span class="var-pill" onclick="insertVar('{{owner_name}}')">{{owner_name}}</span>
+      <span class="var-pill" onclick="insertVar('{{booking_link}}')">{{booking_link}}</span>
+      <span class="var-pill" onclick="insertVar('{{phone}}')">{{phone}}</span>
+    </div>
+
+    <!-- Template editor -->
+    <div class="settings-sub-label">Message template</div>
+    <textarea class="sms-tpl-area" id="sms-template" rows="6" oninput="updateSmsCharCount()">Hi, this is {{business_name}}! Sorry we missed your call — we're on a job right now. Reply here and we'll get back to you shortly, or tap the link below to book a time that works for you: {{booking_link}}
+
+We typically respond within 15 minutes during business hours.</textarea>
+    <div style="font-size:11px;color:#3a3a3a;margin-top:4px;text-align:right"><span id="sms-char-count">0</span> chars</div>
+
+    <!-- Response speed -->
+    <div class="settings-sub-label" style="margin-top:18px">Response speed</div>
+    <div class="speed-options">
+      <label class="speed-opt selected" id="speed-opt-60" onclick="selectSpeed(this)">
+        <input type="radio" name="response_speed" value="under_60" checked onclick="event.stopPropagation()">
+        <div>
+          <div class="speed-opt-label">Under 60 seconds <span class="speed-badge">Recommended</span></div>
+          <div class="speed-opt-sub">Instant reply — converts callers before they move on</div>
+        </div>
+      </label>
+      <label class="speed-opt" id="speed-opt-5m" onclick="selectSpeed(this)">
+        <input type="radio" name="response_speed" value="under_5m" onclick="event.stopPropagation()">
+        <div>
+          <div class="speed-opt-label">Under 5 minutes</div>
+          <div class="speed-opt-sub">Slight delay — still fully automated</div>
+        </div>
+      </label>
+      <label class="speed-opt" id="speed-opt-manual" onclick="selectSpeed(this)">
+        <input type="radio" name="response_speed" value="manual" onclick="event.stopPropagation()">
+        <div>
+          <div class="speed-opt-label">Manual</div>
+          <div class="speed-opt-sub">I'll reply myself — LeadPro just captures the lead</div>
+        </div>
+      </label>
+    </div>
+
+    <!-- Test it -->
+    <div class="settings-sub-label" style="margin-top:20px">Test it</div>
+    <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
+      <div class="field" style="flex:1;min-width:180px;margin-bottom:0">
+        <label>Your mobile number</label>
+        <input type="tel" id="tb-test-phone" placeholder="(540) 555-0192">
+      </div>
+      <button class="btn-sm primary" id="tb-test-btn" onclick="startSmsTest()" style="min-height:36px;white-space:nowrap;flex-shrink:0">Test it</button>
+    </div>
+    <div class="tb-test-box" id="tb-test-box">
+      <div style="font-size:13px;color:#ffffff;font-weight:500;margin-bottom:4px">Waiting for a missed call…</div>
+      <div class="tb-test-msg">Call your LeadPro number, hang up, and watch your phone. You'll get the text-back within 60 seconds.</div>
+      <div class="tb-countdown" id="tb-countdown">60</div>
+      <div style="font-size:10px;color:#3a3a3a;letter-spacing:.04em">SECONDS REMAINING</div>
+    </div>
+
+    <!-- Save -->
+    <div style="margin-top:20px;display:flex;align-items:center;gap:12px">
+      <button class="btn-sm primary" id="textback-save-btn" onclick="saveTextbackSettings()">Save settings</button>
+      <span id="textback-save-status" style="font-size:12px;color:#74C69D;opacity:0;transition:opacity .35s"></span>
+    </div>
+  </div>
+
   <div class="settings-section">
     <h3>Website embed code</h3>
     <p style="font-size:12px;color:var(--text2);margin-bottom:10px">Paste before &lt;/body&gt; on your website. The AI chatbot will appear as a floating button. Works on any site.</p>
@@ -837,6 +981,65 @@ nav { flex: 1; padding: 8px 0; }
   </div>
 </div>
 
+<!-- ONBOARDING WIZARD -->
+<div id="onboard-overlay">
+  <div id="onboard-box">
+
+    <!-- Step 1: Business info -->
+    <div id="ob-step-1">
+      <div class="ob-progress">
+        <div class="ob-dot active"></div>
+        <div class="ob-dot"></div>
+      </div>
+      <div class="ob-title">Welcome to LeadPro</div>
+      <div class="ob-sub">Let's set up your account in 2 quick steps.</div>
+      <div class="field">
+        <label>Business name</label>
+        <input type="text" id="ob-biz" placeholder="Green Lawn Co." autocomplete="organization">
+      </div>
+      <div class="field">
+        <label>Your phone number</label>
+        <input type="tel" id="ob-phone" placeholder="(540) 555-0192" autocomplete="tel">
+      </div>
+      <div class="ob-err" id="ob-err-1"></div>
+      <div class="ob-actions">
+        <button class="ob-btn-primary" onclick="obNext()">Continue →</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Phone forwarding -->
+    <div id="ob-step-2" style="display:none">
+      <div class="ob-progress">
+        <div class="ob-dot"></div>
+        <div class="ob-dot active"></div>
+      </div>
+      <div class="ob-title">Set up call forwarding</div>
+      <div class="ob-sub">Forward your business number to the LeadPro number below and you're live. You can do this in under 2 minutes from your carrier settings.</div>
+      <div class="ob-forward-box">
+        <div style="font-size:10px;color:#555555;text-transform:uppercase;letter-spacing:.07em;font-weight:600">Your LeadPro number</div>
+        <div class="ob-number" id="ob-lp-number">Loading…</div>
+        <button class="ob-copy-btn" id="ob-copy-btn" onclick="obCopyNumber(this)">Copy number</button>
+      </div>
+      <p style="font-size:12px;color:#555555;line-height:1.65;margin-bottom:0">LeadPro will answer every call, capture the lead, and send it straight to your dashboard.</p>
+      <div class="ob-actions">
+        <button class="ob-btn-secondary" onclick="obBack()">← Back</button>
+        <button class="ob-btn-primary" onclick="obComplete()">I've set up forwarding</button>
+      </div>
+    </div>
+
+    <!-- Success state -->
+    <div id="ob-success" style="display:none;text-align:center;padding:8px 0">
+      <div class="ob-success-icon">
+        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+      </div>
+      <div style="font-size:22px;font-weight:700;color:#ffffff;margin-bottom:10px">You're live.</div>
+      <div style="font-size:14px;color:#666666;line-height:1.7;margin-bottom:28px">LeadPro is now answering for you.<br>Every missed call becomes a lead.</div>
+      <button class="ob-btn-primary" style="width:100%;justify-content:center" onclick="obDismiss()">Go to dashboard</button>
+    </div>
+
+  </div>
+</div>
+
 <!-- SMS TOAST -->
 <div id="sms-toast">
   <div class="st-label">SMS alert sent to (540) 555-0192</div>
@@ -883,7 +1086,7 @@ function showScreen(id, el) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('s-'+id).classList.add('active');
   if (el) el.classList.add('active');
-  if (id==='dashboard') { renderDashLeads(); renderDashAppts(); renderFeed(); updateMetrics(); setTimeout(renderCharts, 50); }
+  if (id==='dashboard') { renderDashLeads(); renderDashAppts(); renderFeed(); updateMetrics(); setTimeout(renderCharts, 50); loadRoiCard(); }
   if (id==='leads') renderLeadsTable();
   if (id==='calls') { renderCallsTable(); checkVapiBanner(); }
   if (id==='calendar') renderCalendar();
@@ -1510,6 +1713,10 @@ async function afterLogin() {
   renderSidebarUser();
   renderWidgetCode();
   setupRealtime();
+  // Show onboarding wizard for contractors who haven't completed it yet
+  if (contractorProfile && !contractorProfile.onboarding_done) {
+    showOnboarding();
+  }
 }
 
 async function loadContractorProfile() {
@@ -1535,6 +1742,7 @@ async function loadContractorProfile() {
   checkPaywall();
   renderBillingSection();
   renderGoogleCalendarSection();
+  loadTextbackSettings();
 }
 
 function renderGoogleCalendarSection() {
@@ -1590,6 +1798,102 @@ async function loadData() {
     }));
   }
   renderDashLeads(); renderDashAppts(); renderFeed(); updateMetrics(); setTimeout(renderCharts, 50);
+  loadRoiCard();
+}
+
+// ── ROI HERO CARD ──
+async function loadRoiCard() {
+  if (!sb || !currentUser) return;
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+  const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();
+  const endOfLastMonth = startOfMonth;
+  const thirtyDaysAgo = new Date(now);
+  thirtyDaysAgo.setDate(now.getDate() - 29);
+  thirtyDaysAgo.setHours(0, 0, 0, 0);
+
+  const [{ data: thisMonth }, { data: lastMonth }, { data: sparkData }] = await Promise.all([
+    sb.from('leads').select('created_at').eq('contractor_id', currentUser.id).neq('status', 'spam').gte('created_at', startOfMonth),
+    sb.from('leads').select('created_at').eq('contractor_id', currentUser.id).neq('status', 'spam').gte('created_at', startOfLastMonth).lt('created_at', endOfLastMonth),
+    sb.from('leads').select('created_at').eq('contractor_id', currentUser.id).neq('status', 'spam').gte('created_at', thirtyDaysAgo.toISOString())
+  ]);
+
+  const thisCount = thisMonth ? thisMonth.length : 0;
+  const lastCount = lastMonth ? lastMonth.length : 0;
+  const value = thisCount * 450;
+  const n = Math.floor(value / 97);
+
+  document.getElementById('roi-leads-count').textContent = thisCount;
+  document.getElementById('roi-est-value').textContent = '$' + value.toLocaleString();
+
+  const changeEl = document.getElementById('roi-change');
+  if (lastCount === 0 && thisCount === 0) {
+    changeEl.textContent = 'no leads yet';
+    changeEl.className = 'roi-change neutral';
+  } else if (lastCount === 0) {
+    changeEl.textContent = '▲ first month';
+    changeEl.className = 'roi-change up';
+  } else {
+    const pct = Math.round((thisCount - lastCount) / lastCount * 100);
+    changeEl.textContent = (pct >= 0 ? '▲ ' : '▼ ') + Math.abs(pct) + '% vs last month';
+    changeEl.className = 'roi-change ' + (pct >= 0 ? 'up' : 'down');
+  }
+
+  const tagEl = document.getElementById('roi-tagline');
+  tagEl.textContent = n > 0 ? 'LeadPro paid for itself ' + n + 'x this month' : '';
+
+  // Build 30-day buckets
+  const buckets = {};
+  for (let i = 0; i < 30; i++) {
+    const d = new Date(thirtyDaysAgo);
+    d.setDate(d.getDate() + i);
+    buckets[dateKey(d)] = 0;
+  }
+  if (sparkData) {
+    sparkData.forEach(r => {
+      const k = dateKey(new Date(r.created_at));
+      if (k in buckets) buckets[k]++;
+    });
+  }
+  drawSparkline('roi-sparkline-canvas', Object.values(buckets));
+}
+
+function drawSparkline(canvasId, values) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.parentElement.offsetWidth || canvas.offsetWidth || 300;
+  const h = 48;
+  canvas.width = Math.round(w * dpr);
+  canvas.height = Math.round(h * dpr);
+  canvas.style.width = w + 'px';
+  canvas.style.height = h + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, w, h);
+
+  const n = values.length;
+  if (n < 2) return;
+  const max = Math.max(...values, 1);
+  const padX = 1, padY = 3;
+
+  const pts = values.map((v, i) => ({
+    x: padX + (i / (n - 1)) * (w - padX * 2),
+    y: padY + (1 - v / max) * (h - padY * 2)
+  }));
+
+  // Smooth line via bezier
+  ctx.beginPath();
+  ctx.strokeStyle = '#74C69D';
+  ctx.lineWidth = 1.5;
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+  ctx.moveTo(pts[0].x, pts[0].y);
+  for (let i = 1; i < pts.length; i++) {
+    const cpx = (pts[i - 1].x + pts[i].x) / 2;
+    ctx.bezierCurveTo(cpx, pts[i - 1].y, cpx, pts[i].y, pts[i].x, pts[i].y);
+  }
+  ctx.stroke();
 }
 
 function renderSidebarUser() {
@@ -1850,8 +2154,161 @@ async function openBillingPortal() {
   }
 }
 
+// ── TEXT-BACK MESSAGE ──
+const SMS_DEFAULT = `Hi, this is {{business_name}}! Sorry we missed your call — we're on a job right now. Reply here and we'll get back to you shortly, or tap the link below to book a time that works for you: {{booking_link}}\n\nWe typically respond within 15 minutes during business hours.`;
+let _tbTimer = null;
+
+function insertVar(tag) {
+  const ta = document.getElementById('sms-template');
+  if (!ta) return;
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  ta.value = ta.value.slice(0, s) + tag + ta.value.slice(e);
+  ta.selectionStart = ta.selectionEnd = s + tag.length;
+  ta.focus();
+  updateSmsCharCount();
+}
+
+function updateSmsCharCount() {
+  const ta = document.getElementById('sms-template');
+  const el = document.getElementById('sms-char-count');
+  if (ta && el) el.textContent = ta.value.length;
+}
+
+function selectSpeed(label) {
+  document.querySelectorAll('.speed-opt').forEach(o => o.classList.remove('selected'));
+  label.classList.add('selected');
+  const radio = label.querySelector('input[type=radio]');
+  if (radio) radio.checked = true;
+}
+
+function startSmsTest() {
+  const phone = document.getElementById('tb-test-phone').value.trim();
+  if (!phone) { document.getElementById('tb-test-phone').focus(); return; }
+  const box = document.getElementById('tb-test-box');
+  const countEl = document.getElementById('tb-countdown');
+  const btn = document.getElementById('tb-test-btn');
+  box.style.display = '';
+  if (_tbTimer) { clearInterval(_tbTimer); _tbTimer = null; }
+  let t = 60;
+  countEl.textContent = t;
+  countEl.style.color = '#74C69D';
+  btn.disabled = true; btn.textContent = 'Running…';
+  _tbTimer = setInterval(() => {
+    t--;
+    countEl.textContent = t;
+    if (t <= 0) {
+      clearInterval(_tbTimer); _tbTimer = null;
+      countEl.textContent = '✓';
+      countEl.style.color = '#74C69D';
+      box.querySelector('div').textContent = 'Text sent! Check your phone.';
+      btn.disabled = false; btn.textContent = 'Test it';
+    }
+  }, 1000);
+}
+
+async function saveTextbackSettings() {
+  const template = document.getElementById('sms-template')?.value.trim();
+  const speed = document.querySelector('input[name="response_speed"]:checked')?.value || 'under_60';
+  if (!template) return;
+  const btn = document.getElementById('textback-save-btn');
+  const statusEl = document.getElementById('textback-save-status');
+  btn.textContent = 'Saving…'; btn.disabled = true;
+  if (sb && currentUser) {
+    await sb.from('contractors').update({ sms_template: template, response_speed: speed }).eq('id', currentUser.id);
+    if (contractorProfile) { contractorProfile.sms_template = template; contractorProfile.response_speed = speed; }
+  }
+  btn.textContent = 'Save settings'; btn.disabled = false;
+  statusEl.textContent = 'Saved';
+  statusEl.style.opacity = '1';
+  setTimeout(() => { statusEl.style.opacity = '0'; }, 2200);
+}
+
+function loadTextbackSettings() {
+  const ta = document.getElementById('sms-template');
+  if (!ta) return;
+  ta.value = contractorProfile?.sms_template || SMS_DEFAULT;
+  updateSmsCharCount();
+  const speed = contractorProfile?.response_speed || 'under_60';
+  const map = { under_60: 'speed-opt-60', under_5m: 'speed-opt-5m', manual: 'speed-opt-manual' };
+  document.querySelectorAll('.speed-opt').forEach(o => o.classList.remove('selected'));
+  const active = document.getElementById(map[speed] || 'speed-opt-60');
+  if (active) {
+    active.classList.add('selected');
+    const r = active.querySelector('input');
+    if (r) r.checked = true;
+  }
+}
+
+// ── ONBOARDING WIZARD ──
+function showOnboarding() {
+  const overlay = document.getElementById('onboard-overlay');
+  overlay.classList.add('show');
+  // Pre-fill if profile already has data
+  if (contractorProfile?.business_name) document.getElementById('ob-biz').value = contractorProfile.business_name;
+  if (contractorProfile?.phone) document.getElementById('ob-phone').value = contractorProfile.phone;
+  // Populate the LeadPro forwarding number
+  const num = contractorProfile?.vapi_phone || '';
+  document.getElementById('ob-lp-number').textContent = num || 'We\'ll email you your number shortly';
+  document.getElementById('ob-copy-btn').style.display = num ? '' : 'none';
+  obShowStep(1);
+}
+
+function hideOnboarding() {
+  document.getElementById('onboard-overlay').classList.remove('show');
+}
+
+function obShowStep(n) {
+  document.getElementById('ob-step-1').style.display = n === 1 ? '' : 'none';
+  document.getElementById('ob-step-2').style.display = n === 2 ? '' : 'none';
+  document.getElementById('ob-success').style.display = n === 'success' ? '' : 'none';
+}
+
+function obNext() {
+  const biz = document.getElementById('ob-biz').value.trim();
+  const phone = document.getElementById('ob-phone').value.trim();
+  const errEl = document.getElementById('ob-err-1');
+  if (!biz) { errEl.textContent = 'Please enter your business name.'; return; }
+  errEl.textContent = '';
+  // Persist immediately — don't block on the await
+  if (sb && currentUser) {
+    sb.from('contractors').update({ business_name: biz, phone }).eq('id', currentUser.id);
+    if (contractorProfile) { contractorProfile.business_name = biz; contractorProfile.phone = phone; }
+  }
+  // Sync settings fields
+  bizName = biz;
+  const bizEl = document.getElementById('biz-name');
+  const phoneEl = document.getElementById('biz-phone');
+  if (bizEl) bizEl.value = biz;
+  if (phoneEl) phoneEl.value = phone;
+  renderSidebarUser();
+  obShowStep(2);
+}
+
+function obBack() { obShowStep(1); }
+
+function obCopyNumber(btn) {
+  const num = document.getElementById('ob-lp-number').textContent;
+  navigator.clipboard.writeText(num).catch(() => {});
+  btn.textContent = 'Copied!';
+  setTimeout(() => btn.textContent = 'Copy number', 2000);
+}
+
+async function obComplete() {
+  if (sb && currentUser) {
+    await sb.from('contractors').update({ onboarding_done: true }).eq('id', currentUser.id);
+    if (contractorProfile) contractorProfile.onboarding_done = true;
+  }
+  obShowStep('success');
+}
+
+function obDismiss() {
+  hideOnboarding();
+  showScreen('dashboard', document.querySelector('.nav-item'));
+}
+
 // ── INIT ──
 document.getElementById('dash-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+updateSmsCharCount(); // seed char count from default template text
 localStorage.removeItem('lp_api_key');
 document.getElementById('book-overlay').addEventListener('click', e=>{ if(e.target===document.getElementById('book-overlay')) closeBookModal(); });
 document.getElementById('event-overlay').addEventListener('click', e=>{ if(e.target===document.getElementById('event-overlay')) closeEventModal(); });
