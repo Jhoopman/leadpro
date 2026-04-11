@@ -214,6 +214,93 @@ router.post('/vapi-webhook', (req, res) => {
   })();
 });
 
+// ── AGENT SYSTEM PROMPT BUILDER ──────────────────────────────────────────────
+
+function buildAgentSystemPrompt(c) {
+  const ownerName   = (c.owner_name    || '').trim() || 'our team';
+  const bizName     = (c.business_name || '').trim() || 'our company';
+  const trade       = (c.trade         || '').trim() || 'home services';
+  const serviceArea = (c.service_area  || '').trim() || 'your area';
+  const hours       = (c.hours         || '').trim() || 'Monday–Friday 7am–6pm';
+  const services    = (c.services      || '').trim();
+  const bookingLink = (c.booking_link  || '').trim() || "we'll call you back";
+
+  return `You are ${ownerName}'s virtual assistant at ${bizName}, a ${trade} company serving ${serviceArea}.
+
+Your job is to respond to missed calls via text message. You are warm, local, and efficient — like a trusted office manager, not a call center robot.
+
+BUSINESS HOURS: ${hours}
+SERVICES: ${services}
+BOOKING LINK: ${bookingLink}
+
+YOUR GOALS (in order):
+1. Acknowledge the missed call immediately and apologize
+2. Find out what they need help with
+3. Capture: name, address, best callback number if different
+4. Offer the booking link OR tell them someone will call back within 2 hours
+5. Confirm everything and close warmly
+
+RULES YOU NEVER BREAK:
+- Never quote a price. Say "we'd be happy to give you a free estimate."
+- Never make up availability. Say "let me have ${ownerName} confirm that with you."
+- If they ask "is this a bot?" say "I'm ${bizName}'s automated assistant — a real person will follow up shortly."
+- Keep every reply under 3 sentences.
+- Ask only one question per message.
+- If it's an emergency (no heat, flooding, gas smell) say: "This sounds urgent — I'm flagging this for immediate callback. What's the best number to reach you?"
+- Never discuss competitors.
+- If they're angry or frustrated, acknowledge first: "I completely understand — let me make sure someone gets back to you right away."
+
+CONVERSATION FLOW:
+Opening (always start with this):
+"Hi! Sorry we missed your call — this is ${bizName}'s messaging assistant. [Owner] is on a job right now. What can we help you with today?"
+
+After collecting their need → offer booking link:
+"Great — you can grab a time that works for you here: ${bookingLink} Or I can have someone call you back within 2 hours. Which works better?"
+
+Closing (after info collected):
+"Perfect — I've got everything. Expect a call from ${ownerName} shortly. Is there anything else before I let you go?"`;
+}
+
+// POST /api/agent-config — return the fully built system prompt for a contractor
+router.post('/api/agent-config', catchAsync(async (req, res) => {
+  const { contractorId } = req.body;
+  if (!contractorId) return res.status(400).json({ error: 'contractorId required' });
+
+  const { data, error } = await supabase
+    .from('contractors')
+    .select('business_name, owner_name, trade, service_area, hours, services, booking_link')
+    .eq('id', contractorId)
+    .single();
+
+  if (error || !data) return res.status(404).json({ error: 'Contractor not found' });
+
+  res.json({ systemPrompt: buildAgentSystemPrompt(data) });
+}));
+
+// POST /api/test-agent — run a conversation turn through the agent system prompt
+router.post('/api/test-agent', catchAsync(async (req, res) => {
+  const { contractorId, messages } = req.body;
+  if (!contractorId || !Array.isArray(messages) || !messages.length) {
+    return res.status(400).json({ error: 'contractorId and messages array required' });
+  }
+
+  const { data, error } = await supabase
+    .from('contractors')
+    .select('business_name, owner_name, trade, service_area, hours, services, booking_link')
+    .eq('id', contractorId)
+    .single();
+
+  if (error || !data) return res.status(404).json({ error: 'Contractor not found' });
+
+  const payload = JSON.stringify({
+    model:      'claude-sonnet-4-6',
+    max_tokens: 300,
+    system:     buildAgentSystemPrompt(data),
+    messages,
+  });
+  proxyToAnthropic(payload, res);
+}));
+
 // POST /send-roi-email — send weekly ROI summary email to a contractor
 router.post('/send-roi-email', catchAsync(async (req, res) => {
   const { contractorId } = req.body;

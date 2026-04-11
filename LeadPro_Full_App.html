@@ -445,6 +445,23 @@ nav { flex: 1; padding: 8px 0; }
 .tb-countdown { font-size: 34px; font-weight: 700; color: #74C69D; line-height: 1; margin: 10px 0 2px; font-variant-numeric: tabular-nums; }
 .tb-test-msg { font-size: 12px; color: #666666; line-height: 1.65; }
 .settings-sub-label { font-size: 10px; color: #555555; text-transform: uppercase; letter-spacing: .07em; font-weight: 600; margin-bottom: 8px; }
+/* ── AGENT PREVIEW & CHAT ─────────────────────────────────────────────────── */
+#agent-missing-banner { display:none; background:rgba(220,90,40,0.1); border:0.5px solid rgba(220,90,40,0.35); border-radius:var(--radius); padding:10px 14px; margin-top:20px; font-size:12px; color:#e8a87c; line-height:1.55; }
+#agent-missing-banner a { color:#74C69D; text-decoration:underline; cursor:pointer; }
+#agent-prompt-preview { width:100%; min-height:200px; max-height:300px; padding:12px; font-size:14px; font-family:'Courier New',Consolas,monospace; border:0.5px solid #2a2a2a; border-radius:var(--radius); background:#0d0d0d; color:#b8b8b8; outline:none; resize:none; line-height:1.65; box-sizing:border-box; overflow-y:auto; }
+#agent-chat-panel { background:#0d0d0d; border:0.5px solid #2a2a2a; border-radius:var(--radius); margin-top:10px; overflow:hidden; }
+.acp-header { padding:10px 14px; border-bottom:0.5px solid #1a1a1a; font-size:11px; color:#555; text-transform:uppercase; letter-spacing:.07em; font-weight:600; }
+.acp-messages { min-height:180px; max-height:260px; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:9px; }
+.acp-bubble { max-width:82%; padding:9px 13px; border-radius:14px; font-size:13px; line-height:1.55; word-break:break-word; }
+.acp-bubble.agent { background:#1a2a22; color:#d4ead8; border-bottom-left-radius:4px; align-self:flex-start; }
+.acp-bubble.user { background:#2D6A4F; color:#ffffff; border-bottom-right-radius:4px; align-self:flex-end; }
+.acp-bubble.thinking { color:#555; font-style:italic; }
+.acp-input-row { display:flex; gap:8px; padding:10px 12px; border-top:0.5px solid #1a1a1a; }
+.acp-input-row input { flex:1; padding:8px 11px; font-size:13px; border:0.5px solid #2a2a2a; border-radius:8px; background:#111; color:#fff; font-family:inherit; outline:none; }
+.acp-input-row input:focus { border-color:#74C69D; }
+.acp-send-btn { padding:8px 14px; background:#2D6A4F; color:#fff; border:none; border-radius:8px; font-size:13px; cursor:pointer; font-family:inherit; white-space:nowrap; }
+.acp-send-btn:hover { background:#3a7a5f; }
+.acp-send-btn:disabled { opacity:.5; cursor:default; }
 
 /* ONBOARDING WIZARD */
 #onboard-overlay { position: fixed; inset: 0; background: #0A0A0A; z-index: 9000; display: none; align-items: center; justify-content: center; padding: 16px; }
@@ -870,6 +887,24 @@ We typically respond within 15 minutes during business hours.</textarea>
     <div style="margin-top:20px;display:flex;align-items:center;gap:12px">
       <button class="btn-sm primary" id="textback-save-btn" onclick="saveTextbackSettings()">Save settings</button>
       <span id="textback-save-status" style="font-size:12px;color:#74C69D;opacity:0;transition:opacity .35s"></span>
+    </div>
+
+    <!-- Missing info warning -->
+    <div id="agent-missing-banner"></div>
+
+    <!-- Agent prompt preview -->
+    <div class="settings-sub-label" style="margin-top:24px">Your agent's instructions</div>
+    <textarea id="agent-prompt-preview" readonly placeholder="Loading…"></textarea>
+
+    <!-- Chat test panel -->
+    <div class="settings-sub-label" style="margin-top:20px">This is exactly how your agent responds to customers</div>
+    <div id="agent-chat-panel">
+      <div class="acp-header">Chat with your agent</div>
+      <div class="acp-messages" id="acp-messages"></div>
+      <div class="acp-input-row">
+        <input type="text" id="acp-input" placeholder="Type a message…" onkeydown="if(event.key==='Enter')sendAgentTestMessage()">
+        <button class="acp-send-btn" id="acp-send-btn" onclick="sendAgentTestMessage()">Send</button>
+      </div>
     </div>
   </div>
 
@@ -2237,6 +2272,99 @@ function loadTextbackSettings() {
     const r = active.querySelector('input');
     if (r) r.checked = true;
   }
+  checkMissingAgentInfo();
+  loadAgentPromptPreview();
+  initAgentChat();
+}
+
+// ── AGENT PREVIEW & CHAT TEST ─────────────────────────────────────────────────
+
+const AGENT_MISSING_FIELDS = [
+  { key: 'owner_name',   label: 'Owner name' },
+  { key: 'trade',        label: 'Trade / industry' },
+  { key: 'service_area', label: 'Service area' },
+  { key: 'booking_link', label: 'Booking link' },
+];
+
+let _agentChatHistory = [];
+
+function checkMissingAgentInfo() {
+  const banner = document.getElementById('agent-missing-banner');
+  if (!banner || !contractorProfile) return;
+  const missing = AGENT_MISSING_FIELDS
+    .filter(f => !contractorProfile[f.key]?.trim())
+    .map(f => f.label);
+  if (!missing.length) { banner.style.display = 'none'; return; }
+  banner.style.display = '';
+  banner.innerHTML = `⚠ Your agent is missing some info — fill in <strong>${missing.join(', ')}</strong> in <a onclick="showScreen('settings',document.querySelector('[onclick*=settings]'))">Settings</a> to improve responses.`;
+}
+
+async function loadAgentPromptPreview() {
+  const ta = document.getElementById('agent-prompt-preview');
+  if (!ta || !currentUser) return;
+  ta.value = 'Loading…';
+  try {
+    const res = await fetch('/api/agent-config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contractorId: currentUser.id }),
+    });
+    if (!res.ok) throw new Error('Server error');
+    const { systemPrompt } = await res.json();
+    ta.value = systemPrompt || '';
+  } catch (e) {
+    ta.value = 'Could not load agent instructions.';
+  }
+}
+
+function _appendAgentBubble(role, text) {
+  const box = document.getElementById('acp-messages');
+  if (!box) return null;
+  const el = document.createElement('div');
+  el.className = `acp-bubble ${role}`;
+  el.textContent = text;
+  box.appendChild(el);
+  box.scrollTop = box.scrollHeight;
+  return el;
+}
+
+async function sendAgentTestMessage(overrideText) {
+  const input = document.getElementById('acp-input');
+  const btn   = document.getElementById('acp-send-btn');
+  const text  = overrideText !== undefined ? overrideText : (input?.value.trim() || '');
+  if (!text || !currentUser) return;
+  if (overrideText === undefined && input) input.value = '';
+
+  _agentChatHistory.push({ role: 'user', content: text });
+  _appendAgentBubble('user', text);
+
+  if (btn) { btn.disabled = true; btn.textContent = '…'; }
+  const thinking = _appendAgentBubble('agent thinking', 'Typing…');
+
+  try {
+    const res = await fetch('/api/test-agent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contractorId: currentUser.id, messages: _agentChatHistory }),
+    });
+    const data = await res.json();
+    const reply = data?.content?.[0]?.text || data?.error || 'No response.';
+    if (thinking) thinking.remove();
+    _agentChatHistory.push({ role: 'assistant', content: reply });
+    _appendAgentBubble('agent', reply);
+  } catch (e) {
+    if (thinking) thinking.remove();
+    _appendAgentBubble('agent', 'Error — could not reach agent.');
+  }
+
+  if (btn) { btn.disabled = false; btn.textContent = 'Send'; }
+}
+
+function initAgentChat() {
+  _agentChatHistory = [];
+  const box = document.getElementById('acp-messages');
+  if (box) box.innerHTML = '';
+  sendAgentTestMessage('Hi, I need my AC fixed');
 }
 
 // ── ONBOARDING WIZARD ──
