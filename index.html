@@ -1550,13 +1550,80 @@
   </div>
 </section>
 
+<!-- TESTIMONIALS -->
+<section class="testimonials" id="testimonials">
+  <div class="section-inner">
+    <div class="section-header center reveal">
+      <div class="section-tag"><span class="dot"></span> Testimonials</div>
+      <h2 class="section-title">Contractors who stopped losing jobs</h2>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card reveal reveal-d1">
+        <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="testimonial-quote">"I was losing 3-4 jobs a week to voicemail. First week with LeadPro I recovered two jobs worth $1,400. Paid for itself on day four."</p>
+        <div class="testimonial-name">Marcus T., HVAC &mdash; Richmond, VA</div>
+      </div>
+      <div class="testimonial-card reveal reveal-d2">
+        <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="testimonial-quote">"My answering service took messages for two years. LeadPro booked 6 appointments the first month. I wish I'd switched sooner."</p>
+        <div class="testimonial-name">Derek P., Plumbing &mdash; Roanoke, VA</div>
+      </div>
+      <div class="testimonial-card reveal reveal-d3">
+        <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="testimonial-quote">"Skeptical at first &mdash; I thought my customers wouldn't want to text. They don't care. They just want someone to respond fast. LeadPro does that."</p>
+        <div class="testimonial-name">Steve H., Electrical &mdash; Lynchburg, VA</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+.testimonials { background: #0A0A0A; padding: 80px 24px; }
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  max-width: 1120px;
+  margin: 0 auto;
+  margin-top: 48px;
+}
+.testimonial-card {
+  background: #141414;
+  border: 1px solid #1f1f1f;
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.testimonial-stars {
+  color: #74C69D;
+  font-size: 16px;
+  letter-spacing: 2px;
+}
+.testimonial-quote {
+  color: #aaaaaa;
+  font-size: 14px;
+  line-height: 1.7;
+  flex: 1;
+}
+.testimonial-name {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+}
+@media (max-width: 768px) {
+  .testimonials-grid { grid-template-columns: 1fr; }
+}
+</style>
+
 <!-- HOW IT WORKS -->
 <section class="how" id="how">
   <div class="section-inner">
     <div class="section-header center reveal">
       <div class="section-tag"><span class="dot"></span> How It Works</div>
-      <h2 class="section-title">From lead to booked job<br/>in minutes, not days.</h2>
-      <p class="section-sub">LeadPro plugs into your existing workflow in under 10 minutes. No developers. No complex setup.</p>
+      <h2 class="section-title">Miss a call.<br/>Get the job anyway.</h2>
+      <p class="section-sub">Four steps. Happens automatically. You don't lift a finger.</p>
     </div>
     <div class="steps">
       <!-- Animated connector line -->
@@ -1565,23 +1632,23 @@
       </div>
       <div class="step reveal reveal-d1">
         <div class="step-num">1</div>
-        <div class="step-title">Connect your number</div>
-        <div class="step-desc">Forward your business line to LeadPro or use a dedicated local number. Done in 2 minutes.</div>
+        <div class="step-title">You miss a call</div>
+        <div class="step-desc">You're on a job. A homeowner calls. You can't answer. That used to mean a lost job.</div>
       </div>
       <div class="step reveal reveal-d2">
         <div class="step-num">2</div>
-        <div class="step-title">AI answers every call</div>
-        <div class="step-desc">Your AI agent introduces itself as your assistant, asks the right questions, and qualifies the lead.</div>
+        <div class="step-title">LeadPro texts them instantly</div>
+        <div class="step-desc">Within 60 seconds, they get a text from your business — your name, a short message, a link to book.</div>
       </div>
       <div class="step reveal reveal-d3">
         <div class="step-num">3</div>
-        <div class="step-title">Job gets booked</div>
-        <div class="step-desc">The agent schedules appointments directly into your calendar and confirms with the customer via text.</div>
+        <div class="step-title">They book the appointment</div>
+        <div class="step-desc">Most people book right from the text. No back-and-forth, no phone tag.</div>
       </div>
       <div class="step reveal reveal-d4">
         <div class="step-num">4</div>
         <div class="step-title">You get notified</div>
-        <div class="step-desc">Receive a summary of every call, new lead, and booking — right to your phone in real time.</div>
+        <div class="step-desc">You finish the job. You get a notification. New lead booked, appointment confirmed.</div>
       </div>
     </div>
   </div>
@@ -1593,50 +1660,50 @@
     <div class="section-header center reveal">
       <div class="section-tag"><span class="dot"></span> Features</div>
       <h2 class="section-title">Everything you need.<br/>Nothing you don't.</h2>
-      <p class="section-sub">Built specifically for contractors — not generic CRMs bolted together with duct tape.</p>
+      <p class="section-sub">Built for contractors who are on the job all day, not sitting at a desk.</p>
     </div>
     <div class="features-grid">
       <div class="feature-card reveal reveal-d1">
         <div class="feature-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
         </div>
-        <div class="feature-title">Chat Widget</div>
-        <div class="feature-desc">Embed a smart chat widget on your website. Visitors get instant answers and can book jobs directly — no form, no friction.</div>
+        <div class="feature-title">Texts back in 60 seconds</div>
+        <div class="feature-desc">Every missed call gets an instant text from your business. Before they can dial your competitor.</div>
       </div>
       <div class="feature-card reveal reveal-d1" style="transition-delay:0.1s">
         <div class="feature-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.09 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
         </div>
-        <div class="feature-title">AI Phone Agent</div>
-        <div class="feature-desc">A conversational voice AI that sounds natural, handles objections, collects job details, and books appointments — 24/7.</div>
+        <div class="feature-title">Books the appointment</div>
+        <div class="feature-desc">Sends a booking link, collects their info, locks in the time. You come off the job to a confirmed appointment, not a voicemail.</div>
       </div>
       <div class="feature-card reveal reveal-d2">
         <div class="feature-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
         </div>
-        <div class="feature-title">Lead Dashboard</div>
-        <div class="feature-desc">A real-time command center showing all your leads, call history, and job status — in one clean, mobile-friendly view.</div>
+        <div class="feature-title">Works 24/7</div>
+        <div class="feature-desc">2am emergency call? Weekend? Holiday? LeadPro answers. You sleep.</div>
       </div>
       <div class="feature-card reveal reveal-d3">
         <div class="feature-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         </div>
-        <div class="feature-title">Website Scraper</div>
-        <div class="feature-desc">Paste your URL and LeadPro learns your services, pricing, and coverage area to train your AI agent automatically.</div>
+        <div class="feature-title">Knows your business</div>
+        <div class="feature-desc">Set it up with your services, your area, your hours. It answers like it's been working for you for years.</div>
       </div>
       <div class="feature-card reveal reveal-d4">
         <div class="feature-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
         </div>
-        <div class="feature-title">Instant Alerts</div>
-        <div class="feature-desc">Get a text or push notification the moment a new lead comes in or a job is booked — so you're always in the loop.</div>
+        <div class="feature-title">Shows you the ROI</div>
+        <div class="feature-desc">Dashboard shows every lead recovered and its estimated value. Most contractors see LeadPro pay for itself in week one.</div>
       </div>
       <div class="feature-card reveal reveal-d5">
         <div class="feature-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         </div>
-        <div class="feature-title">Calendar Integration</div>
-        <div class="feature-desc">Sync with Google Calendar. LeadPro checks your real availability and books jobs into open slots automatically.</div>
+        <div class="feature-title">Live in 10 minutes</div>
+        <div class="feature-desc">Forward your number. Add your business name. Done. No developers. No contracts. No 90-day setup.</div>
       </div>
     </div>
   </div>
@@ -1718,38 +1785,45 @@
     <div class="faq-list">
       <details class="faq-item">
         <summary class="faq-q">
-          Will the AI sound robotic on the phone?
+          Will my customers know they're texting a bot?
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         </summary>
-        <p class="faq-a">No. LeadPro uses modern conversational AI with natural speech patterns, pauses, and inflection. Most callers assume they're speaking with a human receptionist. The agent introduces itself as your assistant and handles the conversation professionally from start to finish.</p>
+        <p class="faq-a">They'll know it's automated — and they won't care. What customers hate is calling and never hearing back. LeadPro responds in under 60 seconds, every time. That's faster than any human receptionist.</p>
+      </details>
+      <details class="faq-item">
+        <summary class="faq-q">
+          What if I already have an answering service?
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </summary>
+        <p class="faq-a">Answering services take messages. LeadPro books jobs. There's a hard difference between "I'll have him call you back" and "Your appointment is Thursday at 10am." What does your answering service cost? LeadPro is $97/mo and it actually converts.</p>
+      </details>
+      <details class="faq-item">
+        <summary class="faq-q">
+          I need to qualify leads myself. How does AI know my business?
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </summary>
+        <p class="faq-a">LeadPro doesn't close the job — you do. It captures their name, address, what they need, and their availability. You still make the final call. What it stops is the lead going cold while you're finishing a job.</p>
       </details>
       <details class="faq-item">
         <summary class="faq-q">
           How long does setup take?
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         </summary>
-        <p class="faq-a">Most contractors are live in under 10 minutes. You create an account, paste in your website URL (we scrape it to train your agent), set your hours and service area, and forward your number. That's it. No technical setup required.</p>
+        <p class="faq-a">Ten minutes. Forward your business number to your LeadPro number, add your business name, and you're live. No IT. No training. No 90-day onboarding.</p>
       </details>
       <details class="faq-item">
         <summary class="faq-q">
-          Do I need to change my business phone number?
+          Does it work with my current tools?
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         </summary>
-        <p class="faq-a">No. You keep your existing number. LeadPro assigns you a local number, and you set up a conditional call forward from your current number — so when you can't answer, LeadPro picks up. You can also use the LeadPro number directly if you prefer.</p>
+        <p class="faq-a">Yes. LeadPro works alongside Jobber, HouseCall Pro, ServiceTitan — whatever you use. It handles the calls they miss. Think of it as the front door; your existing tools run the rest.</p>
       </details>
       <details class="faq-item">
         <summary class="faq-q">
-          What if a caller has a question the AI can't answer?
+          What if I want to cancel?
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         </summary>
-        <p class="faq-a">The agent is trained on your specific business — your services, pricing, and FAQs. For anything truly out of scope, it gracefully takes a message and lets the caller know you'll follow up personally. You'll get an instant notification with the full transcript so you can call back right away.</p>
-      </details>
-      <details class="faq-item">
-        <summary class="faq-q">
-          Can I cancel anytime?
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        </summary>
-        <p class="faq-a">Yes, absolutely. No contracts, no cancellation fees. You can cancel from your account dashboard at any time and your plan stays active until the end of the billing period. We also offer a full 14-day free trial, no credit card required.</p>
+        <p class="faq-a">Cancel anytime, no questions asked. We're confident you won't want to once you see your first recovered job hit the dashboard.</p>
       </details>
     </div>
   </div>
