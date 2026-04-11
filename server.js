@@ -321,7 +321,7 @@ app.use((req, res, next) => {
 
 // Serve public folder (e.g. Google site verification)
 app.use(express.static(path.join(__dirname, 'public')));
-app.get('/google376e70e313fa6dca.html', (req, res) => res.sendFile(path.join(__dirname, 'public', 'google376e70e313fa6dca.html')));
+app.get('/google376e70e313fa6dca.html', (req, res) => res.sendFile(path.join(__dirname, 'google376e70e313fa6dca.html')));
 
 // Static files
 app.get('/widget.js', (req, res) => res.sendFile(path.join(__dirname, 'widget.js')));
