@@ -246,11 +246,83 @@ nav { flex: 1; padding: 8px 0; }
 .ev-label { font-size: 11px; color: var(--text3); width: 70px; flex-shrink: 0; padding-top: 1px; }
 .ev-val { font-size: 13px; color: #aaaaaa; }
 
-/* SETTINGS */
+/* SETTINGS — legacy (kept for non-settings screens) */
 .settings-section { background: #141414; border: 0.5px solid #1f1f1f; border-radius: 12px; padding: 18px 20px; margin-bottom: 12px; }
 .scrape-input-row { display: flex; gap: 8px; }
 .scrape-input-row input { flex: 1; padding: 8px 11px; font-size: 13px; border: 0.5px solid #2a2a2a; border-radius: var(--radius); background: #111111; color: #ffffff; font-family: inherit; outline: none; }
 .scrape-input-row input:focus { border-color: #2D6A4F; }
+
+/* ── SETTINGS REDESIGN ────────────────────────────────────────────────────── */
+.s-group { background: #141414; border: 0.5px solid #1f1f1f; border-radius: 16px; overflow: hidden; margin-bottom: 20px; }
+.s-group-label { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 0.08em; padding: 0 4px; margin-bottom: 8px; display: block; font-weight: 600; }
+.s-row { display: flex; align-items: center; padding: 13px 18px; border-bottom: 0.5px solid #1a1a1a; gap: 12px; }
+.s-row:last-child { border-bottom: none; }
+.s-input-row { align-items: flex-start; }
+.s-row-icon { width: 32px; height: 32px; border-radius: 8px; background: #1f1f1f; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.s-row-body { flex: 1; min-width: 0; }
+.s-row-label { font-size: 14px; color: #ffffff; font-weight: 500; }
+.s-row-sub { font-size: 12px; color: #555; margin-top: 1px; line-height: 1.45; }
+.s-row-right { flex-shrink: 0; display: flex; align-items: center; gap: 8px; }
+.s-field-label { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 0.07em; font-weight: 600; margin-bottom: 6px; }
+/* Inputs */
+.s-input { width: 100%; background: #1a1a1a; border: 0.5px solid transparent; border-radius: 10px; padding: 10px 14px; font-size: 14px; color: #ffffff; font-family: inherit; outline: none; transition: border-color 0.15s; }
+.s-input:focus { border-color: #2D6A4F; }
+.s-textarea { width: 100%; background: #1a1a1a; border: 0.5px solid transparent; border-radius: 10px; padding: 10px 14px; font-size: 13px; color: #ffffff; font-family: inherit; outline: none; transition: border-color 0.15s; resize: vertical; line-height: 1.65; min-height: 100px; box-sizing: border-box; }
+.s-textarea:focus { border-color: #2D6A4F; }
+.s-agent-preview { width: 100%; min-height: 120px; max-height: 160px; background: #1a1a1a; border: 0.5px solid #2a2a2a; border-radius: 10px; padding: 10px 14px; font-size: 12px; font-family: 'Courier New', Consolas, monospace; color: #aaaaaa; outline: none; resize: none; line-height: 1.65; overflow-y: auto; box-sizing: border-box; }
+/* Buttons */
+.s-save-btn { background: #2D6A4F; color: #fff; border: none; border-radius: 9px; padding: 9px 20px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; white-space: nowrap; flex-shrink: 0; }
+.s-save-btn:hover { background: #3a7a5f; }
+.s-save-btn:disabled { opacity: 0.6; cursor: default; }
+.s-preview-btn { background: #1f1f1f; color: #aaaaaa; border: 0.5px solid #2a2a2a; border-radius: 7px; padding: 5px 12px; font-size: 11px; font-weight: 600; cursor: pointer; font-family: inherit; white-space: nowrap; }
+.s-preview-btn:hover { background: #2a2a2a; color: #fff; }
+.s-danger-link { background: none; border: none; color: #f87171; font-size: 12px; cursor: pointer; font-family: inherit; padding: 0; white-space: nowrap; }
+.s-danger-link:hover { text-decoration: underline; }
+.s-connect-btn { background: #ffffff; color: #111; border: none; border-radius: 8px; padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; white-space: nowrap; display: inline-block; text-decoration: none; }
+.s-connect-btn:hover { background: #eeeeee; }
+/* Saved confirm inline */
+.s-saved-confirm { font-size: 12px; color: #74C69D; opacity: 0; transition: opacity 0.3s; }
+/* Status dot */
+.s-status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; display: inline-block; }
+/* Pill badges */
+.s-pill { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
+.s-pill-green { background: rgba(116,198,157,0.15); color: #74C69D; }
+.s-pill-amber { background: rgba(251,191,36,0.12); color: #fbbf24; }
+/* iOS-style toggle (44×26) */
+.s-toggle { width: 44px; height: 26px; border-radius: 13px; background: #2a2a2a; position: relative; cursor: pointer; transition: background 0.2s; flex-shrink: 0; }
+.s-toggle.on { background: #2D6A4F; }
+.s-tthumb { width: 22px; height: 22px; background: #fff; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: transform 0.2s; pointer-events: none; }
+.s-toggle.on .s-tthumb { transform: translateX(18px); }
+/* Speed selector as segmented control */
+.speed-options { display: flex; flex-direction: row; gap: 2px; background: #1a1a1a; border-radius: 10px; padding: 3px; margin: 8px 0 0; }
+.speed-opt { flex: 1; text-align: center; padding: 8px 6px; border-radius: 8px; font-size: 12px; font-weight: 500; color: #555; cursor: pointer; transition: all 0.15s; border: none; background: none; font-family: inherit; }
+.speed-opt:hover:not(.selected) { color: #aaaaaa; }
+.speed-opt.selected { background: #2D6A4F; color: #ffffff; }
+.speed-opt input[type=radio] { display: none; }
+.speed-opt-label { font-size: 12px; font-weight: 500; display: block; }
+.speed-badge { display: block; font-size: 9px; opacity: 0.7; margin-top: 1px; background: none; color: inherit; border-radius: 0; padding: 0; letter-spacing: 0; text-transform: none; }
+.speed-opt-sub { display: none; }
+/* Monospace pill */
+.s-mono-pill { font-family: 'Courier New', monospace; font-size: 11px; background: #1f1f1f; border: 0.5px solid #2a2a2a; border-radius: 6px; padding: 4px 10px; color: #74C69D; white-space: nowrap; }
+/* Dark code block */
+.s-code-block { background: #111111; border: 0.5px solid #2a2a2a; border-radius: 10px; padding: 12px 44px 12px 14px; overflow-x: auto; position: relative; }
+/* Agent missing banner */
+#agent-missing-banner { display: none; border-left: 3px solid #fbbf24; background: rgba(251,191,36,0.06); padding: 10px 16px; font-size: 12px; color: #fbbf24; line-height: 1.55; }
+#agent-missing-banner a { color: #74C69D; text-decoration: underline; cursor: pointer; }
+/* Billing card */
+.s-billing-plan-card { padding: 20px 18px 18px; border-bottom: 0.5px solid #1a1a1a; }
+.s-plan-name-large { font-size: 18px; font-weight: 700; color: #ffffff; }
+.s-plan-price-large { font-size: 26px; font-weight: 700; color: #74C69D; line-height: 1; }
+.s-upgrade-row { display: flex; gap: 12px; padding: 16px 18px; flex-wrap: wrap; }
+.s-plan-card { flex: 1; min-width: 130px; background: #1a1a1a; border: 0.5px solid #2a2a2a; border-radius: 12px; padding: 16px 14px; cursor: pointer; transition: all 0.15s; text-align: left; font-family: inherit; }
+.s-plan-card:hover { border-color: #2D6A4F; background: rgba(45,106,79,0.1); }
+.s-plan-card-featured { border-color: #2D6A4F; background: rgba(45,106,79,0.08); }
+.s-plan-card-name { font-size: 11px; font-weight: 700; color: #74C69D; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+.s-plan-card-price { font-size: 22px; font-weight: 700; color: #ffffff; line-height: 1; margin-bottom: 6px; }
+.s-plan-card-price span { font-size: 12px; font-weight: 400; color: #555; }
+.s-plan-card-desc { font-size: 11px; color: #555; line-height: 1.45; margin-bottom: 12px; }
+.s-plan-cta { font-size: 12px; font-weight: 600; color: #2D6A4F; }
+.s-plan-card-featured .s-plan-cta { color: #74C69D; }
 #scrape-status { font-size: 12px; margin-top: 6px; color: var(--text3); min-height: 16px; }
 #scrape-status.err { color: #f87171; }
 #scrape-timestamp { font-size: 11px; color: var(--text3); margin-top: 4px; }
@@ -796,166 +868,331 @@ nav { flex: 1; padding: 8px 0; }
 
 <!-- ── SETTINGS ── -->
 <div id="s-settings" class="screen">
-  <div class="topbar"><div><h1>Settings</h1></div></div>
-  <div class="settings-section">
-    <h3>Business info</h3>
-    <div class="field"><label>Business name (shown in chatbot)</label><input type="text" id="biz-name" value=""></div>
-    <div class="field"><label>Your phone number (SMS alerts go here)</label><input type="tel" id="biz-phone" value="(540) 555-0192"></div>
-    <div class="field"><label>Services offered <span style="font-size:10px;color:var(--text3);font-weight:400">(comma-separated — auto-filled by scraper below)</span></label><input type="text" id="biz-services" placeholder="Lawn care, Pest control, Tree trimming..."></div>
-    <button class="btn-sm primary" id="biz-save-btn" onclick="saveBizInfo()">Save</button>
-  </div>
-  <div class="settings-section">
-    <h3>Website scraper</h3>
-    <p style="font-size:13px;color:var(--text2);margin-bottom:12px">Paste your business website URL and LeadPro will extract your business info to power the AI chatbot automatically.</p>
-    <div class="scrape-input-row">
-      <input type="url" id="scrape-url" placeholder="https://yourbusiness.com">
-      <button class="btn-sm primary" id="scrape-btn" onclick="scrapeWebsite()">Scrape site</button>
-    </div>
-    <div id="scrape-status"></div>
-    <div id="scrape-timestamp"></div>
-    <div id="scrape-profile-card"></div>
-  </div>
-  <div class="settings-section">
-    <h3>Notifications</h3>
-    <div class="srow"><div class="srow-info"><div class="sl">SMS alert on new lead</div><div class="ss">Text me the moment the AI captures a lead</div></div><div class="toggle on" onclick="this.classList.toggle('on')"><div class="tthumb"></div></div></div>
-    <div class="srow"><div class="srow-info"><div class="sl">Daily email digest</div><div class="ss">Summary of all leads sent at 7am</div></div><div class="toggle on" onclick="this.classList.toggle('on')"><div class="tthumb"></div></div></div>
-    <div class="srow"><div class="srow-info"><div class="sl">Follow-up reminders</div><div class="ss">Alert if a lead hasn't been contacted in 2 hrs</div></div><div class="toggle" onclick="this.classList.toggle('on')"><div class="tthumb"></div></div></div>
-  </div>
-  <div class="settings-section" id="textback-section">
-    <h3>Phone / AI Agent</h3>
-    <p style="font-size:13px;color:var(--text2);margin-bottom:18px">Customize the automated text-back message sent when a caller hangs up without booking.</p>
+  <div class="topbar"><div><h1>Settings</h1><div class="sub">Account, AI agent, and integrations</div></div></div>
 
-    <!-- Variable pills -->
-    <div class="settings-sub-label">Insert variable</div>
-    <div class="var-pills">
-      <span class="var-pill" onclick="insertVar('{{business_name}}')">{{business_name}}</span>
-      <span class="var-pill" onclick="insertVar('{{owner_name}}')">{{owner_name}}</span>
-      <span class="var-pill" onclick="insertVar('{{booking_link}}')">{{booking_link}}</span>
-      <span class="var-pill" onclick="insertVar('{{phone}}')">{{phone}}</span>
+  <!-- ══════════════════════════════════════════════════════════
+       BUSINESS PROFILE
+  ══════════════════════════════════════════════════════════ -->
+  <span class="s-group-label">Business Profile</span>
+  <div class="s-group">
+    <div class="s-row s-input-row">
+      <div class="s-row-body">
+        <div class="s-field-label">Business name</div>
+        <input type="text" id="biz-name" value="" class="s-input" placeholder="Green Lawn Co.">
+      </div>
+    </div>
+    <div class="s-row s-input-row">
+      <div class="s-row-body">
+        <div class="s-field-label">Phone number</div>
+        <input type="tel" id="biz-phone" value="(540) 555-0192" class="s-input">
+      </div>
+    </div>
+    <div class="s-row s-input-row" style="border-bottom:none">
+      <div class="s-row-body">
+        <div class="s-field-label">Services offered <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#444">(comma-separated)</span></div>
+        <input type="text" id="biz-services" class="s-input" placeholder="Lawn care, Pest control, Tree trimming…">
+      </div>
+    </div>
+    <div class="s-row" style="justify-content:flex-end;padding-top:10px;padding-bottom:14px;border-top:0.5px solid #1a1a1a;border-bottom:none;gap:10px">
+      <span class="s-saved-confirm" id="biz-save-confirm">Saved</span>
+      <button class="s-save-btn" id="biz-save-btn" onclick="saveBizInfo()">Save changes</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       WEBSITE SCRAPER
+  ══════════════════════════════════════════════════════════ -->
+  <span class="s-group-label">Website Scraper</span>
+  <div class="s-group">
+    <div class="s-row">
+      <div class="s-row-body">
+        <div class="s-row-label">Auto-fill from your site</div>
+        <div class="s-row-sub">Paste your URL — LeadPro extracts your business info to power the AI agent</div>
+      </div>
+    </div>
+    <div class="s-row s-input-row" style="border-bottom:none">
+      <div class="s-row-body">
+        <div style="display:flex;gap:8px;align-items:flex-start">
+          <input type="url" id="scrape-url" class="s-input" placeholder="https://yourbusiness.com" style="flex:1">
+          <button class="s-save-btn" id="scrape-btn" onclick="scrapeWebsite()">Scrape</button>
+        </div>
+        <div id="scrape-status" style="font-size:12px;color:#555;margin-top:8px;min-height:16px"></div>
+        <div id="scrape-timestamp" style="font-size:11px;color:#444;margin-top:2px"></div>
+        <div id="scrape-profile-card"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       PHONE & FORWARDING / AI AGENT
+  ══════════════════════════════════════════════════════════ -->
+  <span class="s-group-label">Phone &amp; AI Agent</span>
+  <div class="s-group" id="textback-section">
+
+    <!-- Forwarding status -->
+    <div class="s-row">
+      <div class="s-row-body">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span class="s-status-dot" style="background:#555;width:8px;height:8px"></span>
+          <span class="s-row-label">Call forwarding</span>
+          <span class="s-pill s-pill-amber">Setup required</span>
+        </div>
+        <div class="s-row-sub" style="margin-top:6px">Forward your business number to your LeadPro number to activate AI call handling. Takes under 2 minutes in your carrier settings.</div>
+      </div>
     </div>
 
-    <!-- Template editor -->
-    <div class="settings-sub-label">Message template</div>
-    <textarea class="sms-tpl-area" id="sms-template" rows="6" oninput="updateSmsCharCount()">Hi, this is {{business_name}}! Sorry we missed your call — we're on a job right now. Reply here and we'll get back to you shortly, or tap the link below to book a time that works for you: {{booking_link}}
+    <!-- Variable pills row -->
+    <div class="s-row s-input-row">
+      <div class="s-row-body">
+        <div class="s-field-label">Insert variable</div>
+        <div class="var-pills" style="margin-bottom:0;margin-top:8px">
+          <span class="var-pill" onclick="insertVar('{{business_name}}')">{{business_name}}</span>
+          <span class="var-pill" onclick="insertVar('{{owner_name}}')">{{owner_name}}</span>
+          <span class="var-pill" onclick="insertVar('{{booking_link}}')">{{booking_link}}</span>
+          <span class="var-pill" onclick="insertVar('{{phone}}')">{{phone}}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Message template -->
+    <div class="s-row s-input-row">
+      <div class="s-row-body">
+        <div class="s-field-label">Message template</div>
+        <textarea class="sms-tpl-area s-textarea" id="sms-template" rows="5" oninput="updateSmsCharCount()" style="margin-top:6px;font-family:'Courier New',Consolas,monospace;font-size:12.5px">Hi, this is {{business_name}}! Sorry we missed your call — we're on a job right now. Reply here and we'll get back to you shortly, or tap the link below to book a time that works for you: {{booking_link}}
 
 We typically respond within 15 minutes during business hours.</textarea>
-    <div style="font-size:11px;color:#3a3a3a;margin-top:4px;text-align:right"><span id="sms-char-count">0</span> chars</div>
+        <div style="font-size:11px;color:#3a3a3a;margin-top:4px;text-align:right"><span id="sms-char-count">0</span> chars</div>
+      </div>
+    </div>
 
-    <!-- Response speed -->
-    <div class="settings-sub-label" style="margin-top:18px">Response speed</div>
-    <div class="speed-options">
-      <label class="speed-opt selected" id="speed-opt-60" onclick="selectSpeed(this)">
-        <input type="radio" name="response_speed" value="under_60" checked onclick="event.stopPropagation()">
-        <div>
-          <div class="speed-opt-label">Under 60 seconds <span class="speed-badge">Recommended</span></div>
-          <div class="speed-opt-sub">Instant reply — converts callers before they move on</div>
+    <!-- Response speed — segmented control -->
+    <div class="s-row s-input-row">
+      <div class="s-row-body">
+        <div class="s-field-label">Response speed</div>
+        <div class="speed-options">
+          <label class="speed-opt selected" id="speed-opt-60" onclick="selectSpeed(this)">
+            <input type="radio" name="response_speed" value="under_60" checked onclick="event.stopPropagation()">
+            <span class="speed-opt-label">Under 60s</span>
+            <span class="speed-badge">Recommended</span>
+          </label>
+          <label class="speed-opt" id="speed-opt-5m" onclick="selectSpeed(this)">
+            <input type="radio" name="response_speed" value="under_5m" onclick="event.stopPropagation()">
+            <span class="speed-opt-label">5 min</span>
+            <span class="speed-badge">Automated</span>
+          </label>
+          <label class="speed-opt" id="speed-opt-manual" onclick="selectSpeed(this)">
+            <input type="radio" name="response_speed" value="manual" onclick="event.stopPropagation()">
+            <span class="speed-opt-label">Manual</span>
+            <span class="speed-badge">I reply</span>
+          </label>
         </div>
-      </label>
-      <label class="speed-opt" id="speed-opt-5m" onclick="selectSpeed(this)">
-        <input type="radio" name="response_speed" value="under_5m" onclick="event.stopPropagation()">
-        <div>
-          <div class="speed-opt-label">Under 5 minutes</div>
-          <div class="speed-opt-sub">Slight delay — still fully automated</div>
-        </div>
-      </label>
-      <label class="speed-opt" id="speed-opt-manual" onclick="selectSpeed(this)">
-        <input type="radio" name="response_speed" value="manual" onclick="event.stopPropagation()">
-        <div>
-          <div class="speed-opt-label">Manual</div>
-          <div class="speed-opt-sub">I'll reply myself — LeadPro just captures the lead</div>
-        </div>
-      </label>
+      </div>
     </div>
 
     <!-- Test it -->
-    <div class="settings-sub-label" style="margin-top:20px">Test it</div>
-    <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
-      <div class="field" style="flex:1;min-width:180px;margin-bottom:0">
-        <label>Your mobile number</label>
-        <input type="tel" id="tb-test-phone" placeholder="(540) 555-0192">
+    <div class="s-row s-input-row">
+      <div class="s-row-body">
+        <div class="s-field-label">Test it</div>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <input type="tel" id="tb-test-phone" class="s-input" placeholder="(540) 555-0192" style="flex:1">
+          <button class="s-save-btn" id="tb-test-btn" onclick="startSmsTest()">Send test</button>
+        </div>
+        <div class="tb-test-box" id="tb-test-box" style="display:none;margin-top:10px">
+          <div style="font-size:13px;color:#ffffff;font-weight:500;margin-bottom:4px">Waiting for a missed call…</div>
+          <div class="tb-test-msg">Call your LeadPro number, hang up, and watch your phone. You'll get the text-back within 60 seconds.</div>
+          <div class="tb-countdown" id="tb-countdown">60</div>
+          <div style="font-size:10px;color:#3a3a3a;letter-spacing:.04em">SECONDS REMAINING</div>
+        </div>
       </div>
-      <button class="btn-sm primary" id="tb-test-btn" onclick="startSmsTest()" style="min-height:36px;white-space:nowrap;flex-shrink:0">Test it</button>
-    </div>
-    <div class="tb-test-box" id="tb-test-box">
-      <div style="font-size:13px;color:#ffffff;font-weight:500;margin-bottom:4px">Waiting for a missed call…</div>
-      <div class="tb-test-msg">Call your LeadPro number, hang up, and watch your phone. You'll get the text-back within 60 seconds.</div>
-      <div class="tb-countdown" id="tb-countdown">60</div>
-      <div style="font-size:10px;color:#3a3a3a;letter-spacing:.04em">SECONDS REMAINING</div>
     </div>
 
     <!-- Save -->
-    <div style="margin-top:20px;display:flex;align-items:center;gap:12px">
-      <button class="btn-sm primary" id="textback-save-btn" onclick="saveTextbackSettings()">Save settings</button>
-      <span id="textback-save-status" style="font-size:12px;color:#74C69D;opacity:0;transition:opacity .35s"></span>
+    <div class="s-row" style="justify-content:flex-end;gap:10px;border-bottom:0.5px solid #1a1a1a">
+      <span id="textback-save-status" class="s-saved-confirm">Saved</span>
+      <button class="s-save-btn" id="textback-save-btn" onclick="saveTextbackSettings()">Save settings</button>
     </div>
 
-    <!-- Missing info warning -->
+    <!-- Missing info banner (inline amber warning) -->
     <div id="agent-missing-banner"></div>
 
     <!-- Agent prompt preview -->
-    <div class="settings-sub-label" style="margin-top:24px">Your agent's instructions</div>
-    <textarea id="agent-prompt-preview" readonly placeholder="Loading…"></textarea>
+    <div class="s-row s-input-row">
+      <div class="s-row-body">
+        <div class="s-field-label">Agent instructions</div>
+        <textarea id="agent-prompt-preview" class="s-agent-preview" readonly placeholder="Loading…" style="margin-top:6px"></textarea>
+      </div>
+    </div>
 
     <!-- Chat test panel -->
-    <div class="settings-sub-label" style="margin-top:20px">This is exactly how your agent responds to customers</div>
-    <div id="agent-chat-panel">
-      <div class="acp-header">Chat with your agent</div>
-      <div class="acp-messages" id="acp-messages"></div>
-      <div class="acp-input-row">
-        <input type="text" id="acp-input" placeholder="Type a message…" onkeydown="if(event.key==='Enter')sendAgentTestMessage()">
-        <button class="acp-send-btn" id="acp-send-btn" onclick="sendAgentTestMessage()">Send</button>
+    <div class="s-row s-input-row" style="border-bottom:none;padding:0">
+      <div class="s-row-body" style="width:100%">
+        <div id="agent-chat-panel" style="border-radius:0;border:none;background:#0d0d0d">
+          <div class="acp-header" style="font-size:11px;color:#555;text-transform:uppercase;letter-spacing:.07em;font-weight:600;padding:10px 18px;border-bottom:0.5px solid #1a1a1a">Chat with your agent</div>
+          <div class="acp-messages" id="acp-messages"></div>
+          <div class="acp-input-row">
+            <input type="text" id="acp-input" placeholder="Type a message…" onkeydown="if(event.key==='Enter')sendAgentTestMessage()">
+            <button class="acp-send-btn" id="acp-send-btn" onclick="sendAgentTestMessage()">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       INTEGRATIONS — Google Calendar
+  ══════════════════════════════════════════════════════════ -->
+  <span class="s-group-label">Integrations</span>
+  <div class="s-group" id="gcal-section">
+    <!-- Connected state -->
+    <div id="gcal-connected-row" style="display:none">
+      <div class="s-row" style="border-bottom:none">
+        <div class="s-row-icon">
+          <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:#74C69D"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg>
+        </div>
+        <div class="s-row-body">
+          <div class="s-row-label" style="display:flex;align-items:center;gap:7px">
+            <span class="s-status-dot" style="background:#74C69D"></span>
+            Google Calendar
+            <span class="s-pill s-pill-green" style="font-size:10px">Connected</span>
+          </div>
+          <div class="s-row-sub" id="gcal-email">—</div>
+        </div>
+        <div class="s-row-right">
+          <button onclick="disconnectGoogleCalendar()" class="s-danger-link">Disconnect</button>
+        </div>
+      </div>
+    </div>
+    <!-- Disconnected state -->
+    <div id="gcal-disconnected-row">
+      <div class="s-row" style="border-bottom:none">
+        <div class="s-row-icon">
+          <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:#555"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg>
+        </div>
+        <div class="s-row-body">
+          <div class="s-row-label" style="display:flex;align-items:center;gap:7px">
+            <span class="s-status-dot" style="background:#555"></span>
+            Google Calendar
+          </div>
+          <div class="s-row-sub">Not connected — AI can't check your availability</div>
+        </div>
+        <div class="s-row-right">
+          <a id="gcal-connect-btn" class="s-connect-btn" style="cursor:pointer" onclick="connectGoogleCalendar()">Connect</a>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="settings-section">
-    <h3>Website embed code</h3>
-    <p style="font-size:12px;color:var(--text2);margin-bottom:10px">Paste before &lt;/body&gt; on your website. The AI chatbot will appear as a floating button. Works on any site.</p>
-    <div class="snippet" id="widget-embed-code">&lt;script src="https://leadpro-1d5l.onrender.com/widget.js" data-id="<span id="widget-id-span" style="color:var(--green-mid)">loading...</span>"&gt;&lt;/script&gt;<button class="cc" onclick="copyEmbedCode(this)">Copy</button></div>
-    <p style="font-size:11px;color:var(--text3);margin-top:8px">Your widget ID: <strong id="widget-id-display" style="color:var(--text)">—</strong></p>
-  </div>
-  <div class="settings-section" id="gcal-section">
-    <h3>Google Calendar</h3>
-    <p style="font-size:13px;color:var(--text2);margin-bottom:14px">Connect your Google Calendar so the AI chatbot can check your availability and book appointments directly — no double bookings.</p>
-    <div id="gcal-connected-row" style="display:none">
-      <div class="srow">
-        <div class="srow-info">
-          <div class="sl" style="display:flex;align-items:center;gap:6px">
-            <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#22c55e"></span>
-            Connected
-          </div>
-          <div class="ss" id="gcal-email">—</div>
+  <!-- ══════════════════════════════════════════════════════════
+       WEBSITE WIDGET
+  ══════════════════════════════════════════════════════════ -->
+  <span class="s-group-label">Website Widget</span>
+  <div class="s-group">
+    <div class="s-row">
+      <div class="s-row-body">
+        <div class="s-row-label">Widget ID</div>
+        <div class="s-row-sub">Your unique chatbot identifier</div>
+      </div>
+      <div class="s-row-right">
+        <code class="s-mono-pill" id="widget-id-display">—</code>
+      </div>
+    </div>
+    <div class="s-row s-input-row" style="border-bottom:none">
+      <div class="s-row-body">
+        <div class="s-field-label">Embed code</div>
+        <div class="s-code-block" id="widget-embed-code" style="margin-top:8px">
+          <code style="font-family:'Courier New',monospace;font-size:11px;color:#74C69D;line-height:1.6;word-break:break-all;display:block">&lt;script src="https://leadpro-1d5l.onrender.com/widget.js" data-id="<span id="widget-id-span" style="color:#ffffff">loading...</span>"&gt;&lt;/script&gt;</code>
+          <button class="cc" onclick="copyEmbedCode(this)" style="position:absolute;top:8px;right:8px;font-size:10px;background:#1f1f1f;border:0.5px solid #2a2a2a;padding:3px 10px;border-radius:6px;cursor:pointer;color:#aaaaaa;font-family:inherit">Copy</button>
         </div>
-        <button class="btn-sm" onclick="disconnectGoogleCalendar()" style="color:#e85d3a;border-color:#3a1a1a">Disconnect</button>
+        <div style="font-size:11px;color:#444;margin-top:8px">Paste before &lt;/body&gt; on your site. Works on any platform.</div>
       </div>
-    </div>
-    <div id="gcal-disconnected-row">
-      <a id="gcal-connect-btn" class="btn-sm primary" style="display:inline-block;text-decoration:none;cursor:pointer" onclick="connectGoogleCalendar()">Connect Google Calendar</a>
     </div>
   </div>
-  <div class="settings-section" id="billing-section">
-    <h3>Plan &amp; billing</h3>
-    <div class="srow">
-      <div class="srow-info">
-        <div class="sl">Current plan</div>
-        <div class="ss" id="billing-plan-detail">Loading…</div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       NOTIFICATIONS
+  ══════════════════════════════════════════════════════════ -->
+  <span class="s-group-label">Notifications</span>
+  <div class="s-group">
+    <div class="s-row">
+      <div class="s-row-body">
+        <div class="s-row-label">SMS alert on new lead</div>
+        <div class="s-row-sub">Text me the moment the AI captures a lead</div>
       </div>
-      <span class="plan-badge plan-free" id="billing-badge">Free</span>
-    </div>
-    <div class="srow" id="billing-trial-row" style="display:none">
-      <div class="srow-info">
-        <div class="sl">Trial ends</div>
-        <div class="ss" id="billing-trial-end">—</div>
+      <div class="s-row-right">
+        <div class="s-toggle on" onclick="this.classList.toggle('on')"><div class="s-tthumb"></div></div>
       </div>
     </div>
-    <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
-      <button class="upgrade-btn starter" onclick="startCheckout('starter')">Upgrade to Starter — $49/mo</button>
-      <button class="upgrade-btn pro" onclick="startCheckout('pro')">Upgrade to Pro — $149/mo</button>
+    <div class="s-row">
+      <div class="s-row-body">
+        <div class="s-row-label">Daily email digest</div>
+        <div class="s-row-sub">Summary of all leads sent at 7am</div>
+      </div>
+      <div class="s-row-right">
+        <div class="s-toggle on" onclick="this.classList.toggle('on')"><div class="s-tthumb"></div></div>
+      </div>
     </div>
-    <div style="margin-top:10px">
-      <button class="btn-sm" id="billing-portal-btn" style="display:none" onclick="openBillingPortal()">Manage billing &amp; invoices →</button>
+    <div class="s-row">
+      <div class="s-row-body">
+        <div class="s-row-label">Weekly ROI email</div>
+        <div class="s-row-sub">Every Monday 8am</div>
+      </div>
+      <div class="s-row-right">
+        <button class="s-preview-btn" style="margin-right:4px">Preview</button>
+        <div class="s-toggle on" onclick="this.classList.toggle('on')"><div class="s-tthumb"></div></div>
+      </div>
+    </div>
+    <div class="s-row" style="border-bottom:none">
+      <div class="s-row-body">
+        <div class="s-row-label">Follow-up reminders</div>
+        <div class="s-row-sub">Alert if a lead hasn't been contacted in 2 hrs</div>
+      </div>
+      <div class="s-row-right">
+        <div class="s-toggle" onclick="this.classList.toggle('on')"><div class="s-tthumb"></div></div>
+      </div>
     </div>
   </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       BILLING
+  ══════════════════════════════════════════════════════════ -->
+  <span class="s-group-label">Plan &amp; Billing</span>
+  <div class="s-group" id="billing-section">
+    <!-- Current plan card -->
+    <div class="s-billing-plan-card">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div style="flex:1">
+          <div style="margin-bottom:3px">
+            <span class="plan-badge plan-free" id="billing-badge">Free trial</span>
+          </div>
+          <div class="s-plan-name-large" style="margin-top:10px">Current Plan</div>
+          <div style="font-size:13px;color:#555;margin-top:4px" id="billing-plan-detail">Loading…</div>
+          <div id="billing-trial-row" style="display:none;margin-top:6px">
+            <span style="font-size:11px;color:#fbbf24">Trial ends: </span><span style="font-size:11px;color:#fbbf24" id="billing-trial-end">—</span>
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <button class="btn-sm" id="billing-portal-btn" style="display:none" onclick="openBillingPortal()">Manage billing →</button>
+        </div>
+      </div>
+    </div>
+    <!-- Upgrade path -->
+    <div class="s-upgrade-row">
+      <button class="s-plan-card" onclick="startCheckout('starter')">
+        <div class="s-plan-card-name">Starter</div>
+        <div class="s-plan-card-price">$49<span>/mo</span></div>
+        <div class="s-plan-card-desc">AI chat widget, lead capture, email &amp; SMS alerts</div>
+        <div class="s-plan-cta">Get Starter →</div>
+      </button>
+      <button class="s-plan-card s-plan-card-featured" onclick="startCheckout('pro')">
+        <div class="s-plan-card-name">Pro ★ Most popular</div>
+        <div class="s-plan-card-price">$149<span>/mo</span></div>
+        <div class="s-plan-card-desc">Everything in Starter + AI phone calls &amp; priority support</div>
+        <div class="s-plan-cta">Get Pro →</div>
+      </button>
+    </div>
+  </div>
+
 </div>
 
 </div><!-- /main -->
