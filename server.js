@@ -319,6 +319,9 @@ app.use((req, res, next) => {
   next();
 });
 
+// Serve public folder (e.g. Google site verification)
+app.use(express.static(path.join(__dirname, 'public')));
+
 // Static files
 app.get('/widget.js', (req, res) => res.sendFile(path.join(__dirname, 'widget.js')));
 app.get('/widget-chat.html', (req, res) => res.sendFile(path.join(__dirname, 'widget-chat.html')));
