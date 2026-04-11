@@ -605,7 +605,7 @@ nav { flex: 1; padding: 8px 0; }
   <div id="chat-wrap">
     <div id="chat-header">
       <div class="av"><svg viewBox="0 0 24 24"><path d="M17 8C8 10 5.9 16.17 3.82 19.83 3.36 20.63 2 20.28 2 19.37V4.5A2.5 2.5 0 014.5 2h15A2.5 2.5 0 0122 4.5v10a2.5 2.5 0 01-2.5 2.5H17V8z"/></svg></div>
-      <div><div class="cn">GreenPro Assistant</div><div class="cs"><div class="cdot"></div>Online — replies instantly</div></div>
+      <div><div class="cn" id="chat-widget-title">LeadPro Assistant</div><div class="cs"><div class="cdot"></div>Online — replies instantly</div></div>
     </div>
     <div id="messages"><div id="typing"><span></span><span></span><span></span></div></div>
     <div id="lead-card">
@@ -656,19 +656,19 @@ nav { flex: 1; padding: 8px 0; }
   <div class="metrics">
     <div class="metric metric-green">
       <div class="metric-top"><div class="ml">Total calls this month</div><div class="metric-icon"><svg viewBox="0 0 24 24" width="15" height="15" fill="#74C69D"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02L6.6 10.8z"/></svg></div></div>
-      <div class="mv" id="calls-total">5</div><span class="ms up">this month</span>
+      <div class="mv" id="calls-total">—</div><span class="ms up">this month</span>
     </div>
     <div class="metric metric-blue">
       <div class="metric-top"><div class="ml">Calls answered</div><div class="metric-icon"><svg viewBox="0 0 24 24" width="15" height="15" fill="#74C69D"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg></div></div>
-      <div class="mv" id="calls-answered">4</div><span class="ms up" id="calls-answer-pct">80% answer rate</span>
+      <div class="mv" id="calls-answered">—</div><span class="ms up" id="calls-answer-pct">— answer rate</span>
     </div>
     <div class="metric metric-amber">
       <div class="metric-top"><div class="ml">Avg call duration</div><div class="metric-icon"><svg viewBox="0 0 24 24" width="15" height="15" fill="#74C69D"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L11 14.5V7h1.5v6.74l4.43 2.62-.69 1.14z"/></svg></div></div>
-      <div class="mv" id="calls-avg-dur">2:34</div><span class="ms warn">per call</span>
+      <div class="mv" id="calls-avg-dur">—</div><span class="ms warn">per call</span>
     </div>
     <div class="metric metric-teal">
       <div class="metric-top"><div class="ml">Leads captured</div><div class="metric-icon"><svg viewBox="0 0 24 24" width="15" height="15" fill="#74C69D"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg></div></div>
-      <div class="mv" id="calls-leads">3</div><span class="ms up">from calls</span>
+      <div class="mv" id="calls-leads">—</div><span class="ms up">from calls</span>
     </div>
   </div>
 
@@ -707,7 +707,7 @@ nav { flex: 1; padding: 8px 0; }
   <div class="topbar"><div><h1>Settings</h1></div></div>
   <div class="settings-section">
     <h3>Business info</h3>
-    <div class="field"><label>Business name (shown in chatbot)</label><input type="text" id="biz-name" value="GreenPro Landscaping &amp; Pest Control"></div>
+    <div class="field"><label>Business name (shown in chatbot)</label><input type="text" id="biz-name" value=""></div>
     <div class="field"><label>Your phone number (SMS alerts go here)</label><input type="tel" id="biz-phone" value="(540) 555-0192"></div>
     <div class="field"><label>Services offered <span style="font-size:10px;color:var(--text3);font-weight:400">(comma-separated — auto-filled by scraper below)</span></label><input type="text" id="biz-services" placeholder="Lawn care, Pest control, Tree trimming..."></div>
     <button class="btn-sm primary" id="biz-save-btn" onclick="saveBizInfo()">Save</button>
@@ -845,7 +845,7 @@ nav { flex: 1; padding: 8px 0; }
 
 <script>
 // ── STATE ──
-let bizName = 'GreenPro Landscaping & Pest Control';
+let bizName = '';
 let chatHistory = [], chatStarted = false, capturedLead = null;
 const _now = new Date();
 let calYear = _now.getFullYear(), calMonth = _now.getMonth();
@@ -1305,7 +1305,7 @@ function renderCharts() {
     dayLabels.push(dayNames[d.getDay()]);
     const key = dateKey(d);
     const found = leads.filter(l => l.requested && l.requested.includes(key.slice(5).replace('-','/'))).length;
-    dayCounts[6 - i] = found || [1,3,2,5,4,6,3][6-i]; // demo fallback
+    dayCounts[6 - i] = found;
   }
 
   const ctx1 = document.getElementById('leads-chart');
@@ -1519,6 +1519,8 @@ async function loadContractorProfile() {
   if (contractorProfile) {
     bizName = contractorProfile.business_name || bizName;
     document.getElementById('biz-name').value = bizName;
+    const titleEl = document.getElementById('chat-widget-title');
+    if (titleEl) titleEl.textContent = (bizName || 'LeadPro') + ' Assistant';
     document.getElementById('biz-phone').value = contractorProfile.phone || '';
     document.getElementById('biz-services').value = contractorProfile.services || '';
     if (contractorProfile.website_url) document.getElementById('scrape-url').value = contractorProfile.website_url;
@@ -1623,11 +1625,11 @@ function copyEmbedCode(btn) {
 function runAppWithDemoData() {
   hideAuthScreen();
   document.getElementById('sidebar-user-initials').textContent = 'JM';
-  document.getElementById('sidebar-user-biz').textContent = 'GreenPro Landscaping';
+  document.getElementById('sidebar-user-biz').textContent = 'LeadPro';
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
   const welcomeEl = document.getElementById('dash-welcome');
-  if (welcomeEl) welcomeEl.textContent = `${greeting}, GreenPro`;
+  if (welcomeEl) welcomeEl.textContent = greeting;
   document.getElementById('widget-id-span').textContent = 'lp_demo1234';
   document.getElementById('widget-id-display').textContent = 'lp_demo1234';
   renderDashLeads(); renderDashAppts(); renderFeed(); updateMetrics(); setTimeout(renderCharts, 50);
