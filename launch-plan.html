@@ -1,0 +1,1300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LeadPro 90-Day Launch Plan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green:        #1a4d2e;
+      --green-mid:    #2d7a4f;
+      --green-light:  #3da368;
+      --hot:          #74C69D;
+      --hot-dim:      rgba(116,198,157,0.12);
+      --amber:        #f0a500;
+      --amber-dim:    rgba(240,165,0,0.10);
+      --bg:           #0d1117;
+      --surface:      #161b22;
+      --surface-2:    #1c2230;
+      --border:       #30363d;
+      --text:         #e6edf3;
+      --muted:        #8b949e;
+      --radius:       10px;
+      --shadow:       0 2px 16px rgba(0,0,0,0.4);
+    }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--green);
+      padding: 0 24px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.06);
+    }
+    .logo { color: #fff; font-weight: 700; font-size: 18px; letter-spacing: -0.3px; display: flex; align-items: center; gap: 8px; }
+    .logo span { color: var(--hot); }
+    .nav-links { display: flex; gap: 20px; align-items: center; }
+    header a { color: rgba(255,255,255,0.7); font-size: 13px; text-decoration: none; transition: color 0.15s; }
+    header a:hover { color: #fff; }
+    header a.active { color: var(--hot); font-weight: 600; }
+
+    /* ── MAIN ── */
+    main { max-width: 1100px; margin: 0 auto; padding: 32px 24px 80px; }
+
+    .page-header { margin-bottom: 28px; }
+    .page-header h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 4px; }
+    .page-header p  { color: var(--muted); font-size: 14px; }
+
+    /* ── TABS ── */
+    .tab-nav {
+      display: flex;
+      gap: 4px;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 28px;
+    }
+    .tab-btn {
+      padding: 9px 20px;
+      border: none;
+      background: none;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      border-radius: 6px 6px 0 0;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active { color: var(--hot); border-bottom-color: var(--hot); }
+
+    /* ── PROGRESS BAR ── */
+    .progress-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 22px;
+      margin-bottom: 28px;
+      box-shadow: var(--shadow);
+    }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 10px;
+    }
+    .progress-label .count { font-size: 15px; font-weight: 600; color: var(--text); }
+    .progress-label .pct   { font-size: 13px; color: var(--muted); }
+    .progress-track {
+      height: 8px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--green-mid), var(--hot));
+      border-radius: 99px;
+      transition: width 0.4s ease;
+      min-width: 0;
+    }
+
+    /* ── PHASE HEADERS (sticky) ── */
+    .phase-header {
+      position: sticky;
+      top: 58px;
+      z-index: 50;
+      background: var(--bg);
+      padding: 14px 0 10px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 0;
+    }
+    .phase-header-inner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .phase-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--hot);
+      background: var(--hot-dim);
+      padding: 3px 10px;
+      border-radius: 99px;
+    }
+    .phase-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .phase-range {
+      font-size: 12px;
+      color: var(--muted);
+      margin-left: auto;
+    }
+
+    /* ── WEEK SECTION ── */
+    .week-section {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin: 16px 0;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      transition: border-color 0.2s;
+    }
+    .week-section.current-week {
+      border-left: 3px solid var(--hot);
+      background: var(--surface-2);
+    }
+    .week-section.decision-gate {
+      border-left: 3px solid var(--amber);
+      background: var(--surface-2);
+    }
+    .week-section.current-week.decision-gate {
+      border-left: 3px solid var(--hot);
+    }
+    .week-header {
+      padding: 13px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+    }
+    .week-num {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--muted);
+    }
+    .week-dates {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .week-badge-current {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #0d1117;
+      background: var(--hot);
+      padding: 2px 8px;
+      border-radius: 99px;
+    }
+    .week-badge-gate {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #0d1117;
+      background: var(--amber);
+      padding: 2px 8px;
+      border-radius: 99px;
+    }
+    .week-progress {
+      margin-left: auto;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* ── CHECKLIST ITEMS ── */
+    .checklist { list-style: none; }
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 13px 18px;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+      cursor: pointer;
+    }
+    .check-item:last-child { border-bottom: none; }
+    .check-item:hover { background: rgba(255,255,255,0.025); }
+    .check-item.done { background: rgba(255,255,255,0.01); }
+    .check-item input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      min-width: 18px;
+      border: 2px solid var(--border);
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 1px;
+      transition: background 0.15s, border-color 0.15s;
+      position: relative;
+      background: transparent;
+    }
+    .check-item input[type="checkbox"]:checked {
+      background: var(--green-mid);
+      border-color: var(--green-mid);
+    }
+    .check-item input[type="checkbox"]:checked::after {
+      content: '';
+      position: absolute;
+      left: 3px;
+      top: 0px;
+      width: 8px;
+      height: 12px;
+      border: 2px solid #fff;
+      border-top: none;
+      border-left: none;
+      transform: rotate(45deg);
+    }
+    .check-item input[type="checkbox"]:focus-visible { outline: 2px solid var(--hot); outline-offset: 2px; }
+    .check-text {
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--text);
+      flex: 1;
+      user-select: none;
+      transition: color 0.2s, text-decoration 0.2s;
+    }
+    .check-item.done .check-text {
+      text-decoration: line-through;
+      color: #444;
+    }
+
+    /* Decision gate special items */
+    .gate-item {
+      padding: 13px 18px;
+      border-bottom: 1px solid var(--border);
+    }
+    .gate-item:last-child { border-bottom: none; }
+    .gate-question {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      cursor: pointer;
+    }
+    .gate-check {
+      width: 18px;
+      height: 18px;
+      min-width: 18px;
+      border: 2px solid var(--amber);
+      border-radius: 5px;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      margin-top: 1px;
+      background: transparent;
+      transition: background 0.15s, border-color 0.15s;
+      position: relative;
+    }
+    .gate-check:checked {
+      background: var(--amber);
+      border-color: var(--amber);
+    }
+    .gate-check:checked::after {
+      content: '';
+      position: absolute;
+      left: 3px;
+      top: 0px;
+      width: 8px;
+      height: 12px;
+      border: 2px solid #0d1117;
+      border-top: none;
+      border-left: none;
+      transform: rotate(45deg);
+    }
+    .gate-check:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+    .gate-text {
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.5;
+      flex: 1;
+      user-select: none;
+    }
+    .gate-note {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 8px;
+      padding: 10px 14px;
+      background: var(--amber-dim);
+      border-radius: 7px;
+      line-height: 1.6;
+    }
+
+    /* ── CONTENT ENGINE ── */
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 720px) {
+      .content-grid { grid-template-columns: 1fr; }
+    }
+    .content-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .content-card-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255,255,255,0.02);
+    }
+    .content-card-header h2 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .item-count {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .content-list { list-style: none; }
+    .content-item {
+      padding: 13px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .content-item:last-child { border-bottom: none; }
+    .content-item-body { flex: 1; min-width: 0; }
+    .content-item-title {
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.4;
+      margin-bottom: 3px;
+    }
+    .content-item-kw {
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .content-item-num {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      min-width: 22px;
+    }
+
+    .copy-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      font-family: inherit;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .copy-btn:hover { border-color: var(--hot); color: var(--hot); background: var(--hot-dim); }
+    .copy-btn.copied { border-color: var(--green-mid); color: var(--green-mid); }
+
+    .section-divider {
+      padding: 12px 20px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      color: var(--muted);
+      background: rgba(255,255,255,0.015);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .magnet-item {
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .magnet-item:last-child { border-bottom: none; }
+    .magnet-icon { font-size: 16px; flex-shrink: 0; }
+    .magnet-title { font-size: 13.5px; font-weight: 500; color: var(--text); flex: 1; line-height: 1.4; }
+
+    /* ── MOBILE RESPONSIVE ── */
+    @media (max-width: 600px) {
+      main { padding: 24px 16px 60px; }
+      .page-header h1 { font-size: 21px; }
+      .phase-header { top: 58px; }
+      .phase-range { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Lead<span>Pro</span></div>
+  <nav class="nav-links">
+    <a href="/">Dashboard</a>
+    <a href="/prospector">Prospector</a>
+    <a href="/outreach">Outreach</a>
+    <a href="/launch" class="active">Launch Plan</a>
+  </nav>
+</header>
+
+<main>
+  <div class="page-header">
+    <h1>90-Day Launch Plan</h1>
+    <p>Track every action from first beta user to $2k MRR.</p>
+  </div>
+
+  <div class="tab-nav">
+    <button class="tab-btn active" id="tab-btn-sprint" onclick="showTab('sprint')">Sprint Tracker</button>
+    <button class="tab-btn" id="tab-btn-content" onclick="showTab('content')">Content Engine</button>
+  </div>
+
+  <!-- ══════════════ SPRINT TRACKER ══════════════ -->
+  <div id="tab-sprint">
+
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span class="count" id="progress-text">0 of 0 actions complete</span>
+        <span class="pct" id="progress-pct">0%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- PHASE 1 -->
+    <div class="phase-header">
+      <div class="phase-header-inner">
+        <span class="phase-label">Phase 1</span>
+        <span class="phase-title">Foundation</span>
+        <span class="phase-range">Weeks 1–4 · Apr 14 – May 11</span>
+      </div>
+    </div>
+
+    <!-- Week 1 -->
+    <div class="week-section" id="week-1" data-week="1">
+      <div class="week-header">
+        <span class="week-num">Week 1</span>
+        <span class="week-dates">Apr 14 – Apr 20</span>
+        <span class="week-progress" id="wk-prog-1"></span>
+      </div>
+      <ul class="checklist">
+        <li class="check-item" onclick="toggleCheck('t-1-0')">
+          <input type="checkbox" id="t-1-0" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-1-0">Run Supabase SQL for <code>processed_webhook_events</code> table</label>
+        </li>
+        <li class="check-item" onclick="toggleCheck('t-1-1')">
+          <input type="checkbox" id="t-1-1" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-1-1">Add UptimeRobot free monitoring on <code>/health</code> endpoint</label>
+        </li>
+        <li class="check-item" onclick="toggleCheck('t-1-2')">
+          <input type="checkbox" id="t-1-2" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-1-2">Cold call 10 HVAC/plumbing companies in Lynchburg using /outreach scripts</label>
+        </li>
+        <li class="check-item" onclick="toggleCheck('t-1-3')">
+          <input type="checkbox" id="t-1-3" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-1-3">Record 90-second demo video: call your number, hang up, film the text-back</label>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Week 2 -->
+    <div class="week-section" id="week-2" data-week="2">
+      <div class="week-header">
+        <span class="week-num">Week 2</span>
+        <span class="week-dates">Apr 21 – Apr 27</span>
+        <span class="week-progress" id="wk-prog-2"></span>
+      </div>
+      <ul class="checklist">
+        <li class="check-item" onclick="toggleCheck('t-2-0')">
+          <input type="checkbox" id="t-2-0" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-2-0">Offer 3 contractors free 30-day trial in exchange for a feedback call</label>
+        </li>
+        <li class="check-item" onclick="toggleCheck('t-2-1')">
+          <input type="checkbox" id="t-2-1" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-2-1">Post in 3 Virginia contractor Facebook groups — genuine offer, not an ad</label>
+        </li>
+        <li class="check-item" onclick="toggleCheck('t-2-2')">
+          <input type="checkbox" id="t-2-2" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-2-2">Set up Google Analytics on index.html</label>
+        </li>
+        <li class="check-item" onclick="toggleCheck('t-2-3')">
+          <input type="checkbox" id="t-2-3" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-2-3">Run prospector on Roanoke + Charlottesville — build list of 50 leads</label>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Week 3 -->
+    <div class="week-section" id="week-3" data-week="3">
+      <div class="week-header">
+        <span class="week-num">Week 3</span>
+        <span class="week-dates">Apr 28 – May 4</span>
+        <span class="week-progress" id="wk-prog-3"></span>
+      </div>
+      <ul class="checklist">
+        <li class="check-item" onclick="toggleCheck('t-3-0')">
+          <input type="checkbox" id="t-3-0" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-3-0">Onboard first beta contractor — watch them do setup, note every friction point</label>
+        </li>
+        <li class="check-item" onclick="toggleCheck('t-3-1')">
+          <input type="checkbox" id="t-3-1" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-3-1">Fix top 3 friction points from onboarding observation</label>
+        </li>
+        <li class="check-item" onclick="toggleCheck('t-3-2')">
+          <input type="checkbox" id="t-3-2" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-3-2">Send first weekly ROI email manually to beta users</label>
+        </li>
+        <li class="check-item" onclick="toggleCheck('t-3-3')">
+          <input type="checkbox" id="t-3-3" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-3-3">Interview beta users: what almost stopped you from signing up?</label>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Week 4 — Decision Gate -->
+    <div class="week-section decision-gate" id="week-4" data-week="4">
+      <div class="week-header">
+        <span class="week-num">Week 4</span>
+        <span class="week-dates">May 5 – May 11</span>
+        <span class="week-badge-gate">Decision Gate</span>
+        <span class="week-progress" id="wk-prog-4"></span>
+      </div>
+      <ul class="checklist">
+        <li class="check-item" onclick="toggleCheck('t-4-0')">
+          <input type="checkbox" id="t-4-0" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-4-0">Add real testimonials from beta users to index.html</label>
+        </li>
+        <li class="check-item" onclick="toggleCheck('t-4-1')">
+          <input type="checkbox" id="t-4-1" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-4-1">Set up referral program: give a month, get a month — with unique links</label>
+        </li>
+        <li class="check-item" onclick="toggleCheck('t-4-2')">
+          <input type="checkbox" id="t-4-2" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-4-2">Decision Gate: 3+ active users? Yes → Phase 2. No → more calls.</label>
+        </li>
+      </ul>
+    </div>
+
+    <!-- PHASE 2 -->
+    <div class="phase-header">
+      <div class="phase-header-inner">
+        <span class="phase-label">Phase 2</span>
+        <span class="phase-title">Validation</span>
+        <span class="phase-range">Weeks 5–8 · May 12 – Jun 8</span>
+      </div>
+    </div>
+
+    <!-- Week 5 -->
+    <div class="week-section" id="week-5" data-week="5">
+      <div class="week-header">
+        <span class="week-num">Week 5</span>
+        <span class="week-dates">May 12 – May 18</span>
+        <span class="week-progress" id="wk-prog-5"></span>
+      </div>
+      <ul class="checklist">
+        <li class="check-item" onclick="toggleCheck('t-5-0')">
+          <input type="checkbox" id="t-5-0" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-5-0">Convert beta users to paid — offer founding member rate $79/mo locked forever</label>
+        </li>
+        <li class="check-item" onclick="toggleCheck('t-5-1')">
+          <input type="checkbox" id="t-5-1" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-5-1">Cold call 20 more contractors using prospector leads</label>
+        </li>
+        <li class="check-item" onclick="toggleCheck('t-5-2')">
+          <input type="checkbox" id="t-5-2" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-5-2">Switch Stripe to live mode — verify <code>sk_live_</code> keys on Render</label>
+        </li>
+        <li class="check-item" onclick="toggleCheck('t-5-3')">
+          <input type="checkbox" id="t-5-3" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-5-3">Set up email alert if server goes down</label>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Week 6 -->
+    <div class="week-section" id="week-6" data-week="6">
+      <div class="week-header">
+        <span class="week-num">Week 6</span>
+        <span class="week-dates">May 19 – May 25</span>
+        <span class="week-progress" id="wk-prog-6"></span>
+      </div>
+      <ul class="checklist">
+        <li class="check-item" onclick="toggleCheck('t-6-0')">
+          <input type="checkbox" id="t-6-0" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-6-0">Publish first blog post: "Why HVAC contractors lose 3-5 jobs a week to voicemail"</label>
+        </li>
+        <li class="check-item" onclick="toggleCheck('t-6-1')">
+          <input type="checkbox" id="t-6-1" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-6-1">Set up Google Business Profile for LeadPro</label>
+        </li>
+        <li class="check-item" onclick="toggleCheck('t-6-2')">
+          <input type="checkbox" id="t-6-2" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-6-2">Ask first paying customer for a video testimonial</label>
+        </li>
+        <li class="check-item" onclick="toggleCheck('t-6-3')">
+          <input type="checkbox" id="t-6-3" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-6-3">A/B test hero CTA: "See It Work Free" vs "Text My Number Now"</label>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Week 7 -->
+    <div class="week-section" id="week-7" data-week="7">
+      <div class="week-header">
+        <span class="week-num">Week 7</span>
+        <span class="week-dates">May 26 – Jun 1</span>
+        <span class="week-progress" id="wk-prog-7"></span>
+      </div>
+      <ul class="checklist">
+        <li class="check-item" onclick="toggleCheck('t-7-0')">
+          <input type="checkbox" id="t-7-0" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-7-0">Run prospector on 5 new cities — 250 total leads in pipeline</label>
+        </li>
+        <li class="check-item" onclick="toggleCheck('t-7-1')">
+          <input type="checkbox" id="t-7-1" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-7-1">Send cold email sequence to 50 leads using /outreach templates</label>
+        </li>
+        <li class="check-item" onclick="toggleCheck('t-7-2')">
+          <input type="checkbox" id="t-7-2" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-7-2">Check ROI email open rates — iterate subject line if below 40%</label>
+        </li>
+        <li class="check-item" onclick="toggleCheck('t-7-3')">
+          <input type="checkbox" id="t-7-3" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-7-3">Add LeadPro chat widget to index.html</label>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Week 8 — Decision Gate -->
+    <div class="week-section decision-gate" id="week-8" data-week="8">
+      <div class="week-header">
+        <span class="week-num">Week 8</span>
+        <span class="week-dates">Jun 2 – Jun 8</span>
+        <span class="week-badge-gate">Decision Gate</span>
+        <span class="week-progress" id="wk-prog-8"></span>
+      </div>
+      <ul class="checklist">
+        <li class="check-item" onclick="toggleCheck('t-8-0')">
+          <input type="checkbox" id="t-8-0" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-8-0">Collect NPS from all active users — simple one-question email</label>
+        </li>
+        <li class="check-item" onclick="toggleCheck('t-8-1')">
+          <input type="checkbox" id="t-8-1" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-8-1">Record case study video with best customer result</label>
+        </li>
+        <li class="check-item" onclick="toggleCheck('t-8-2')">
+          <input type="checkbox" id="t-8-2" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-8-2">Decision Gate: 10+ paying customers and MRR over $500? → Phase 3</label>
+        </li>
+      </ul>
+    </div>
+
+    <!-- PHASE 3 -->
+    <div class="phase-header">
+      <div class="phase-header-inner">
+        <span class="phase-label">Phase 3</span>
+        <span class="phase-title">Launch</span>
+        <span class="phase-range">Weeks 9–12 · Jun 9 – Jul 6</span>
+      </div>
+    </div>
+
+    <!-- Week 9 -->
+    <div class="week-section" id="week-9" data-week="9">
+      <div class="week-header">
+        <span class="week-num">Week 9</span>
+        <span class="week-dates">Jun 9 – Jun 15</span>
+        <span class="week-progress" id="wk-prog-9"></span>
+      </div>
+      <ul class="checklist">
+        <li class="check-item" onclick="toggleCheck('t-9-0')">
+          <input type="checkbox" id="t-9-0" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-9-0">Submit to Product Hunt — schedule for a Tuesday</label>
+        </li>
+        <li class="check-item" onclick="toggleCheck('t-9-1')">
+          <input type="checkbox" id="t-9-1" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-9-1">Post on Reddit r/Entrepreneur and r/smallbusiness — genuine story</label>
+        </li>
+        <li class="check-item" onclick="toggleCheck('t-9-2')">
+          <input type="checkbox" id="t-9-2" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-9-2">Email every trial user who didn't convert</label>
+        </li>
+        <li class="check-item" onclick="toggleCheck('t-9-3')">
+          <input type="checkbox" id="t-9-3" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-9-3">Set up affiliate program: 20% recurring for contractor referrals</label>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Week 10 -->
+    <div class="week-section" id="week-10" data-week="10">
+      <div class="week-header">
+        <span class="week-num">Week 10</span>
+        <span class="week-dates">Jun 16 – Jun 22</span>
+        <span class="week-progress" id="wk-prog-10"></span>
+      </div>
+      <ul class="checklist">
+        <li class="check-item" onclick="toggleCheck('t-10-0')">
+          <input type="checkbox" id="t-10-0" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-10-0">Publish 3 blog posts targeting: "HVAC answering service alternative", "plumber missed call solution", "contractor lead capture software"</label>
+        </li>
+        <li class="check-item" onclick="toggleCheck('t-10-1')">
+          <input type="checkbox" id="t-10-1" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-10-1">Run first Facebook ad — $20/day, self-employed HVAC/plumbing, Virginia</label>
+        </li>
+        <li class="check-item" onclick="toggleCheck('t-10-2')">
+          <input type="checkbox" id="t-10-2" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-10-2">Add exit-intent popup to index.html before they leave</label>
+        </li>
+        <li class="check-item" onclick="toggleCheck('t-10-3')">
+          <input type="checkbox" id="t-10-3" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-10-3">Partner outreach: contact 3 local HVAC supply houses about referral deal</label>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Week 11 -->
+    <div class="week-section" id="week-11" data-week="11">
+      <div class="week-header">
+        <span class="week-num">Week 11</span>
+        <span class="week-dates">Jun 23 – Jun 29</span>
+        <span class="week-progress" id="wk-prog-11"></span>
+      </div>
+      <ul class="checklist">
+        <li class="check-item" onclick="toggleCheck('t-11-0')">
+          <input type="checkbox" id="t-11-0" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-11-0">Double down on what is working</label>
+        </li>
+        <li class="check-item" onclick="toggleCheck('t-11-1')">
+          <input type="checkbox" id="t-11-1" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-11-1">Add annual plan: $970/yr Starter, $1970/yr Pro</label>
+        </li>
+        <li class="check-item" onclick="toggleCheck('t-11-2')">
+          <input type="checkbox" id="t-11-2" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-11-2">Ask top 3 customers to post in contractor Facebook groups about LeadPro</label>
+        </li>
+        <li class="check-item" onclick="toggleCheck('t-11-3')">
+          <input type="checkbox" id="t-11-3" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-11-3">Cold call every lead who opened email but did not reply</label>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Week 12 — Final Decision Gate -->
+    <div class="week-section decision-gate" id="week-12" data-week="12">
+      <div class="week-header">
+        <span class="week-num">Week 12</span>
+        <span class="week-dates">Jun 30 – Jul 6</span>
+        <span class="week-badge-gate">Launch Decision Gate</span>
+        <span class="week-progress" id="wk-prog-12"></span>
+      </div>
+      <ul class="checklist">
+        <li class="check-item" onclick="toggleCheck('t-12-0')">
+          <input type="checkbox" id="t-12-0" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-12-0">MRR over $2,000?</label>
+        </li>
+        <li class="check-item" onclick="toggleCheck('t-12-1')">
+          <input type="checkbox" id="t-12-1" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-12-1">Monthly churn under 10%?</label>
+        </li>
+        <li class="check-item" onclick="toggleCheck('t-12-2')">
+          <input type="checkbox" id="t-12-2" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-12-2">50+ leads in active outreach?</label>
+        </li>
+        <li class="check-item" onclick="toggleCheck('t-12-3')">
+          <input type="checkbox" id="t-12-3" onclick="event.stopPropagation()">
+          <label class="check-text" for="t-12-3">NPS over 40?</label>
+        </li>
+        <li class="check-item gate-item" style="cursor:default; display:block;">
+          <div class="gate-note">
+            <strong>All 4 pass:</strong> you have a real business — scale the ads.<br>
+            <strong>2–3 pass:</strong> keep iterating, do not scale yet.<br>
+            <strong>Fewer than 2:</strong> go back to Week 1 and talk to more customers.
+          </div>
+        </li>
+      </ul>
+    </div>
+
+  </div><!-- end tab-sprint -->
+
+  <!-- ══════════════ CONTENT ENGINE ══════════════ -->
+  <div id="tab-content" style="display:none">
+
+    <div class="content-grid">
+
+      <!-- Column 1: Blog Posts -->
+      <div class="content-card">
+        <div class="content-card-header">
+          <h2>Blog Post Titles</h2>
+          <span class="item-count">20 posts</span>
+        </div>
+        <ul class="content-list" id="blog-list">
+          <li class="content-item">
+            <span class="content-item-num">1</span>
+            <div class="content-item-body">
+              <div class="content-item-title">Why HVAC contractors lose $2000/week to voicemail</div>
+              <div class="content-item-kw">hvac missed calls</div>
+            </div>
+            <button class="copy-btn" onclick="copyText('Why HVAC contractors lose $2000/week to voicemail', this)">Copy</button>
+          </li>
+          <li class="content-item">
+            <span class="content-item-num">2</span>
+            <div class="content-item-body">
+              <div class="content-item-title">Best answering service for plumbers in 2026</div>
+              <div class="content-item-kw">plumber answering service</div>
+            </div>
+            <button class="copy-btn" onclick="copyText('Best answering service for plumbers in 2026', this)">Copy</button>
+          </li>
+          <li class="content-item">
+            <span class="content-item-num">3</span>
+            <div class="content-item-body">
+              <div class="content-item-title">How to never miss a lead when you're on a job</div>
+              <div class="content-item-kw">contractor lead capture</div>
+            </div>
+            <button class="copy-btn" onclick="copyText('How to never miss a lead when you\'re on a job', this)">Copy</button>
+          </li>
+          <li class="content-item">
+            <span class="content-item-num">4</span>
+            <div class="content-item-body">
+              <div class="content-item-title">HVAC lead generation: what actually works in 2026</div>
+              <div class="content-item-kw">hvac lead generation</div>
+            </div>
+            <button class="copy-btn" onclick="copyText('HVAC lead generation: what actually works in 2026', this)">Copy</button>
+          </li>
+          <li class="content-item">
+            <span class="content-item-num">5</span>
+            <div class="content-item-body">
+              <div class="content-item-title">Contractor scheduling software vs answering service</div>
+              <div class="content-item-kw">contractor scheduling</div>
+            </div>
+            <button class="copy-btn" onclick="copyText('Contractor scheduling software vs answering service', this)">Copy</button>
+          </li>
+          <li class="content-item">
+            <span class="content-item-num">6</span>
+            <div class="content-item-body">
+              <div class="content-item-title">How to get more plumbing jobs without advertising</div>
+              <div class="content-item-kw">get more plumbing jobs</div>
+            </div>
+            <button class="copy-btn" onclick="copyText('How to get more plumbing jobs without advertising', this)">Copy</button>
+          </li>
+          <li class="content-item">
+            <span class="content-item-num">7</span>
+            <div class="content-item-body">
+              <div class="content-item-title">The $450 phone call most contractors ignore</div>
+              <div class="content-item-kw">contractor missed calls</div>
+            </div>
+            <button class="copy-btn" onclick="copyText('The $450 phone call most contractors ignore', this)">Copy</button>
+          </li>
+          <li class="content-item">
+            <span class="content-item-num">8</span>
+            <div class="content-item-body">
+              <div class="content-item-title">AI receptionist for contractors: honest review</div>
+              <div class="content-item-kw">ai receptionist contractor</div>
+            </div>
+            <button class="copy-btn" onclick="copyText('AI receptionist for contractors: honest review', this)">Copy</button>
+          </li>
+          <li class="content-item">
+            <span class="content-item-num">9</span>
+            <div class="content-item-body">
+              <div class="content-item-title">How to set up missed call text-back for your business</div>
+              <div class="content-item-kw">missed call text back</div>
+            </div>
+            <button class="copy-btn" onclick="copyText('How to set up missed call text-back for your business', this)">Copy</button>
+          </li>
+          <li class="content-item">
+            <span class="content-item-num">10</span>
+            <div class="content-item-body">
+              <div class="content-item-title">Best lead capture tools for HVAC companies</div>
+              <div class="content-item-kw">hvac lead capture</div>
+            </div>
+            <button class="copy-btn" onclick="copyText('Best lead capture tools for HVAC companies', this)">Copy</button>
+          </li>
+          <li class="content-item">
+            <span class="content-item-num">11</span>
+            <div class="content-item-body">
+              <div class="content-item-title">Why contractors lose jobs to faster competitors</div>
+              <div class="content-item-kw">contractor response time</div>
+            </div>
+            <button class="copy-btn" onclick="copyText('Why contractors lose jobs to faster competitors', this)">Copy</button>
+          </li>
+          <li class="content-item">
+            <span class="content-item-num">12</span>
+            <div class="content-item-body">
+              <div class="content-item-title">How to book more estimates without hiring staff</div>
+              <div class="content-item-kw">contractor estimate booking</div>
+            </div>
+            <button class="copy-btn" onclick="copyText('How to book more estimates without hiring staff', this)">Copy</button>
+          </li>
+          <li class="content-item">
+            <span class="content-item-num">13</span>
+            <div class="content-item-body">
+              <div class="content-item-title">Jobber vs LeadPro: do you need both?</div>
+              <div class="content-item-kw">jobber alternative</div>
+            </div>
+            <button class="copy-btn" onclick="copyText('Jobber vs LeadPro: do you need both?', this)">Copy</button>
+          </li>
+          <li class="content-item">
+            <span class="content-item-num">14</span>
+            <div class="content-item-body">
+              <div class="content-item-title">HouseCall Pro alternatives for small contractors</div>
+              <div class="content-item-kw">housecall pro alternative</div>
+            </div>
+            <button class="copy-btn" onclick="copyText('HouseCall Pro alternatives for small contractors', this)">Copy</button>
+          </li>
+          <li class="content-item">
+            <span class="content-item-num">15</span>
+            <div class="content-item-body">
+              <div class="content-item-title">How to get 5-star Google reviews as a contractor</div>
+              <div class="content-item-kw">contractor google reviews</div>
+            </div>
+            <button class="copy-btn" onclick="copyText('How to get 5-star Google reviews as a contractor', this)">Copy</button>
+          </li>
+          <li class="content-item">
+            <span class="content-item-num">16</span>
+            <div class="content-item-body">
+              <div class="content-item-title">The best CRM for solo HVAC contractors in 2026</div>
+              <div class="content-item-kw">hvac crm</div>
+            </div>
+            <button class="copy-btn" onclick="copyText('The best CRM for solo HVAC contractors in 2026', this)">Copy</button>
+          </li>
+          <li class="content-item">
+            <span class="content-item-num">17</span>
+            <div class="content-item-body">
+              <div class="content-item-title">After-hours lead capture for home service businesses</div>
+              <div class="content-item-kw">after hours lead capture</div>
+            </div>
+            <button class="copy-btn" onclick="copyText('After-hours lead capture for home service businesses', this)">Copy</button>
+          </li>
+          <li class="content-item">
+            <span class="content-item-num">18</span>
+            <div class="content-item-body">
+              <div class="content-item-title">How much does a missed call cost a contractor?</div>
+              <div class="content-item-kw">cost of missed calls</div>
+            </div>
+            <button class="copy-btn" onclick="copyText('How much does a missed call cost a contractor?', this)">Copy</button>
+          </li>
+          <li class="content-item">
+            <span class="content-item-num">19</span>
+            <div class="content-item-body">
+              <div class="content-item-title">Contractor website must-haves for getting more calls</div>
+              <div class="content-item-kw">contractor website leads</div>
+            </div>
+            <button class="copy-btn" onclick="copyText('Contractor website must-haves for getting more calls', this)">Copy</button>
+          </li>
+          <li class="content-item">
+            <span class="content-item-num">20</span>
+            <div class="content-item-body">
+              <div class="content-item-title">How to compete with larger HVAC companies</div>
+              <div class="content-item-kw">hvac compete</div>
+            </div>
+            <button class="copy-btn" onclick="copyText('How to compete with larger HVAC companies', this)">Copy</button>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Column 2: YouTube + Lead Magnets -->
+      <div class="content-card">
+        <div class="section-divider">YouTube Ideas — under 3 minutes each</div>
+        <ul class="content-list">
+          <li class="content-item">
+            <span class="content-item-num">1</span>
+            <div class="content-item-body">
+              <div class="content-item-title">I called 10 HVAC companies. Only 2 answered.</div>
+            </div>
+            <button class="copy-btn" onclick="copyText('I called 10 HVAC companies. Only 2 answered.', this)">Copy</button>
+          </li>
+          <li class="content-item">
+            <span class="content-item-num">2</span>
+            <div class="content-item-body">
+              <div class="content-item-title">Watch LeadPro text back a missed call in real time</div>
+            </div>
+            <button class="copy-btn" onclick="copyText('Watch LeadPro text back a missed call in real time', this)">Copy</button>
+          </li>
+          <li class="content-item">
+            <span class="content-item-num">3</span>
+            <div class="content-item-body">
+              <div class="content-item-title">How a plumber recovered $1400 in his first week</div>
+            </div>
+            <button class="copy-btn" onclick="copyText('How a plumber recovered $1400 in his first week', this)">Copy</button>
+          </li>
+          <li class="content-item">
+            <span class="content-item-num">4</span>
+            <div class="content-item-body">
+              <div class="content-item-title">The 60-second demo that sells LeadPro every time</div>
+            </div>
+            <button class="copy-btn" onclick="copyText('The 60-second demo that sells LeadPro every time', this)">Copy</button>
+          </li>
+          <li class="content-item">
+            <span class="content-item-num">5</span>
+            <div class="content-item-body">
+              <div class="content-item-title">Why your answering service is costing you jobs</div>
+            </div>
+            <button class="copy-btn" onclick="copyText('Why your answering service is costing you jobs', this)">Copy</button>
+          </li>
+          <li class="content-item">
+            <span class="content-item-num">6</span>
+            <div class="content-item-body">
+              <div class="content-item-title">Setting up LeadPro in 10 minutes — full walkthrough</div>
+            </div>
+            <button class="copy-btn" onclick="copyText('Setting up LeadPro in 10 minutes — full walkthrough', this)">Copy</button>
+          </li>
+          <li class="content-item">
+            <span class="content-item-num">7</span>
+            <div class="content-item-body">
+              <div class="content-item-title">I mystery shopped 20 contractors. The results are brutal.</div>
+            </div>
+            <button class="copy-btn" onclick="copyText('I mystery shopped 20 contractors. The results are brutal.', this)">Copy</button>
+          </li>
+          <li class="content-item">
+            <span class="content-item-num">8</span>
+            <div class="content-item-body">
+              <div class="content-item-title">What happens when you miss 5 calls in a day</div>
+            </div>
+            <button class="copy-btn" onclick="copyText('What happens when you miss 5 calls in a day', this)">Copy</button>
+          </li>
+          <li class="content-item">
+            <span class="content-item-num">9</span>
+            <div class="content-item-body">
+              <div class="content-item-title">Chat widget vs phone vs text-back — which wins?</div>
+            </div>
+            <button class="copy-btn" onclick="copyText('Chat widget vs phone vs text-back — which wins?', this)">Copy</button>
+          </li>
+          <li class="content-item">
+            <span class="content-item-num">10</span>
+            <div class="content-item-body">
+              <div class="content-item-title">How to get more HVAC jobs without spending on ads</div>
+            </div>
+            <button class="copy-btn" onclick="copyText('How to get more HVAC jobs without spending on ads', this)">Copy</button>
+          </li>
+        </ul>
+
+        <div class="section-divider">Lead Magnets</div>
+        <ul class="content-list">
+          <li class="magnet-item">
+            <span class="magnet-icon">📊</span>
+            <span class="magnet-title">The Missed Call Calculator — Google Sheet showing annual revenue lost</span>
+            <button class="copy-btn" onclick="copyText('The Missed Call Calculator — Google Sheet showing annual revenue lost', this)">Copy</button>
+          </li>
+          <li class="magnet-item">
+            <span class="magnet-icon">✅</span>
+            <span class="magnet-title">Contractor Website Audit Checklist — 20-point PDF</span>
+            <button class="copy-btn" onclick="copyText('Contractor Website Audit Checklist — 20-point PDF', this)">Copy</button>
+          </li>
+          <li class="magnet-item">
+            <span class="magnet-icon">📞</span>
+            <span class="magnet-title">Cold Call Scripts for Contractors — the outreach playbook as PDF</span>
+            <button class="copy-btn" onclick="copyText('Cold Call Scripts for Contractors — the outreach playbook as PDF', this)">Copy</button>
+          </li>
+          <li class="magnet-item">
+            <span class="magnet-icon">⚡</span>
+            <span class="magnet-title">The 5-Minute Lead Response Guide</span>
+            <button class="copy-btn" onclick="copyText('The 5-Minute Lead Response Guide', this)">Copy</button>
+          </li>
+          <li class="magnet-item">
+            <span class="magnet-icon">❄️</span>
+            <span class="magnet-title">HVAC Slow Season Survival Guide</span>
+            <button class="copy-btn" onclick="copyText('HVAC Slow Season Survival Guide', this)">Copy</button>
+          </li>
+        </ul>
+      </div>
+
+    </div><!-- end content-grid -->
+  </div><!-- end tab-content -->
+
+</main>
+
+<script>
+  // ── TASK IDS ─────────────────────────────────────────────────────────────────
+  // All checkbox IDs across all 12 weeks
+  const ALL_TASKS = [
+    't-1-0','t-1-1','t-1-2','t-1-3',
+    't-2-0','t-2-1','t-2-2','t-2-3',
+    't-3-0','t-3-1','t-3-2','t-3-3',
+    't-4-0','t-4-1','t-4-2',
+    't-5-0','t-5-1','t-5-2','t-5-3',
+    't-6-0','t-6-1','t-6-2','t-6-3',
+    't-7-0','t-7-1','t-7-2','t-7-3',
+    't-8-0','t-8-1','t-8-2',
+    't-9-0','t-9-1','t-9-2','t-9-3',
+    't-10-0','t-10-1','t-10-2','t-10-3',
+    't-11-0','t-11-1','t-11-2','t-11-3',
+    't-12-0','t-12-1','t-12-2','t-12-3',
+  ];
+
+  const WEEK_TASKS = {
+    1:  ['t-1-0','t-1-1','t-1-2','t-1-3'],
+    2:  ['t-2-0','t-2-1','t-2-2','t-2-3'],
+    3:  ['t-3-0','t-3-1','t-3-2','t-3-3'],
+    4:  ['t-4-0','t-4-1','t-4-2'],
+    5:  ['t-5-0','t-5-1','t-5-2','t-5-3'],
+    6:  ['t-6-0','t-6-1','t-6-2','t-6-3'],
+    7:  ['t-7-0','t-7-1','t-7-2','t-7-3'],
+    8:  ['t-8-0','t-8-1','t-8-2'],
+    9:  ['t-9-0','t-9-1','t-9-2','t-9-3'],
+    10: ['t-10-0','t-10-1','t-10-2','t-10-3'],
+    11: ['t-11-0','t-11-1','t-11-2','t-11-3'],
+    12: ['t-12-0','t-12-1','t-12-2','t-12-3'],
+  };
+
+  const LS_PREFIX = 'lp_launch_';
+
+  // ── CURRENT WEEK ─────────────────────────────────────────────────────────────
+  function getCurrentWeek() {
+    const WEEK1_START = new Date('2026-04-14T00:00:00');
+    const now         = new Date();
+    const ms          = now - WEEK1_START;
+    const week        = Math.floor(ms / (7 * 24 * 60 * 60 * 1000)) + 1;
+    return Math.max(1, Math.min(12, week));
+  }
+
+  function highlightCurrentWeek() {
+    const cur = getCurrentWeek();
+    for (let w = 1; w <= 12; w++) {
+      const el = document.getElementById('week-' + w);
+      if (!el) continue;
+      el.classList.toggle('current-week', w === cur);
+      const header = el.querySelector('.week-header');
+      // Remove any existing current badge
+      const existing = header.querySelector('.week-badge-current');
+      if (existing) existing.remove();
+      if (w === cur) {
+        const badge = document.createElement('span');
+        badge.className = 'week-badge-current';
+        badge.textContent = 'Current';
+        // Insert before week-progress span
+        const prog = header.querySelector('.week-progress');
+        header.insertBefore(badge, prog);
+      }
+    }
+  }
+
+  // ── LOAD FROM LOCALSTORAGE ───────────────────────────────────────────────────
+  function loadState() {
+    ALL_TASKS.forEach(id => {
+      const cb   = document.getElementById(id);
+      const item = cb ? cb.closest('.check-item') : null;
+      if (!cb) return;
+      const saved = localStorage.getItem(LS_PREFIX + id);
+      if (saved === '1') {
+        cb.checked = true;
+        if (item) item.classList.add('done');
+      }
+    });
+  }
+
+  // ── TOGGLE CHECKBOX ──────────────────────────────────────────────────────────
+  function toggleCheck(id) {
+    const cb   = document.getElementById(id);
+    const item = cb ? cb.closest('.check-item') : null;
+    if (!cb) return;
+    cb.checked = !cb.checked;
+    if (item) item.classList.toggle('done', cb.checked);
+    localStorage.setItem(LS_PREFIX + id, cb.checked ? '1' : '0');
+    updateProgress();
+  }
+
+  // Wire native checkbox change events too (keyboard navigation etc.)
+  ALL_TASKS.forEach(id => {
+    const cb = document.getElementById(id);
+    if (!cb) return;
+    cb.addEventListener('change', () => {
+      const item = cb.closest('.check-item');
+      if (item) item.classList.toggle('done', cb.checked);
+      localStorage.setItem(LS_PREFIX + id, cb.checked ? '1' : '0');
+      updateProgress();
+    });
+  });
+
+  // ── PROGRESS ─────────────────────────────────────────────────────────────────
+  function updateProgress() {
+    const total   = ALL_TASKS.length;
+    const done    = ALL_TASKS.filter(id => {
+      const cb = document.getElementById(id);
+      return cb && cb.checked;
+    }).length;
+    const pct     = total ? Math.round((done / total) * 100) : 0;
+
+    document.getElementById('progress-text').textContent =
+      done + ' of ' + total + ' actions complete';
+    document.getElementById('progress-pct').textContent = pct + '%';
+    document.getElementById('progress-fill').style.width = pct + '%';
+
+    // Per-week progress
+    for (let w = 1; w <= 12; w++) {
+      const tasks = WEEK_TASKS[w] || [];
+      const wDone = tasks.filter(id => {
+        const cb = document.getElementById(id);
+        return cb && cb.checked;
+      }).length;
+      const progEl = document.getElementById('wk-prog-' + w);
+      if (progEl) {
+        progEl.textContent = wDone + '/' + tasks.length;
+      }
+    }
+  }
+
+  // ── TABS ─────────────────────────────────────────────────────────────────────
+  function showTab(name) {
+    ['sprint','content'].forEach(t => {
+      document.getElementById('tab-' + t).style.display = (t === name) ? '' : 'none';
+      document.getElementById('tab-btn-' + t).classList.toggle('active', t === name);
+    });
+  }
+
+  // ── COPY BUTTON ──────────────────────────────────────────────────────────────
+  function copyText(text, btn) {
+    navigator.clipboard.writeText(text).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = orig;
+        btn.classList.remove('copied');
+      }, 1800);
+    }).catch(() => {
+      // Fallback for older browsers
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity  = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'Copy';
+        btn.classList.remove('copied');
+      }, 1800);
+    });
+  }
+
+  // ── INIT ─────────────────────────────────────────────────────────────────────
+  loadState();
+  updateProgress();
+  highlightCurrentWeek();
+</script>
+
+</body>
+</html>

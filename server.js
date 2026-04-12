@@ -67,6 +67,7 @@ app.get('/app', (_, res) => {
 });
 app.get('/prospector', (_, res) => res.sendFile(path.join(__dirname, 'prospector.html')));
 app.get('/outreach',   (_, res) => res.sendFile(path.join(__dirname, 'outreach-sequences.html')));
+app.get('/launch',     (_, res) => res.sendFile(path.join(__dirname, 'launch-plan.html')));
 
 // ── ROUTE MODULES ─────────────────────────────────────────────────────────────
 
