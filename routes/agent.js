@@ -247,8 +247,8 @@ function buildAgentSystemPrompt(c) {
   const trade       = (c.trade         || '').trim() || 'home services';
   const serviceArea = (c.service_area  || '').trim() || 'your area';
   const hours       = (c.hours         || '').trim() || 'Monday–Friday 7am–6pm';
-  const services    = (c.services      || '').trim();
-  const bookingLink = (c.booking_link  || '').trim() || "we'll call you back";
+  const services    = (c.services      || '').trim() || 'general home services';
+  const bookingLink = (c.booking_link  || '').trim() || 'we will call you back shortly';
 
   return `You are ${ownerName}'s virtual assistant at ${bizName}, a ${trade} company serving ${serviceArea}.
 
@@ -297,7 +297,7 @@ router.post('/api/agent-config', catchAsync(async (req, res) => {
     .eq('id', contractorId)
     .single();
 
-  if (error || !data) return res.status(404).json({ error: 'Contractor not found' });
+  if (!data) return res.status(404).json({ error: 'Contractor not found' });
 
   res.json({ systemPrompt: buildAgentSystemPrompt(data) });
 }));
@@ -315,7 +315,7 @@ router.post('/api/test-agent', catchAsync(async (req, res) => {
     .eq('id', contractorId)
     .single();
 
-  if (error || !data) return res.status(404).json({ error: 'Contractor not found' });
+  if (!data) return res.status(404).json({ error: 'Contractor not found' });
 
   const payload = JSON.stringify({
     model:      'claude-sonnet-4-6',

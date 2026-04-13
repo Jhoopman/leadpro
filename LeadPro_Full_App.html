@@ -2636,13 +2636,15 @@ function checkMissingAgentInfo() {
 
 async function loadAgentPromptPreview() {
   const ta = document.getElementById('agent-prompt-preview');
-  if (!ta || !currentUser) return;
+  if (!ta) return;
   ta.value = 'Loading…';
   try {
+    const { data: { user } } = await sb.auth.getUser();
+    if (!user) { ta.value = 'Not signed in.'; return; }
     const res = await fetch('/api/agent-config', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contractorId: currentUser.id }),
+      body: JSON.stringify({ contractorId: user.id }),
     });
     if (!res.ok) throw new Error('Server error');
     const { systemPrompt } = await res.json();
@@ -2667,7 +2669,9 @@ async function sendAgentTestMessage(overrideText) {
   const input = document.getElementById('acp-input');
   const btn   = document.getElementById('acp-send-btn');
   const text  = overrideText !== undefined ? overrideText : (input?.value.trim() || '');
-  if (!text || !currentUser) return;
+  if (!text) return;
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) return;
   if (overrideText === undefined && input) input.value = '';
 
   _agentChatHistory.push({ role: 'user', content: text });
@@ -2680,7 +2684,7 @@ async function sendAgentTestMessage(overrideText) {
     const res = await fetch('/api/test-agent', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contractorId: currentUser.id, messages: _agentChatHistory }),
+      body: JSON.stringify({ contractorId: user.id, messages: _agentChatHistory }),
     });
     const data = await res.json();
     const reply = data?.content?.[0]?.text || data?.error || 'No response.';
