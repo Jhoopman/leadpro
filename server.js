@@ -112,6 +112,7 @@ app.use('/', require('./routes/calendar'));
 app.use('/', require('./routes/prospector'));
 app.use('/', require('./routes/contractors'));
 app.use('/', require('./routes/twilio').router);
+app.use('/', require('./routes/vapi'));
 
 // ── ERROR HANDLING ────────────────────────────────────────────────────────────
 

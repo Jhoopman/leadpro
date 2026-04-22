@@ -69,7 +69,7 @@ async function contractorByPhone(toPhone) {
   if (!toPhone) return null;
   const { data } = await supabase
     .from('contractors')
-    .select('id, business_name, forward_phone, owner_email')
+    .select('id, business_name, forward_phone, owner_email, vapi_phone_number_id, vapi_assistant_id')
     .eq('twilio_phone', toPhone)
     .maybeSingle();
   return data || null;
@@ -133,27 +133,30 @@ function extractLead(text) {
 }
 
 // ── ROUTE 1: Incoming voice call ───────────────────────────────────────────────
+// Connects to Vapi AI via SIP when vapi_phone_number_id is configured.
+// Falls back to voicemail when Vapi is not yet set up for this contractor.
 
 router.post('/twilio/voice', validateTwilio, catchAsync(async (req, res) => {
   const toPhone    = req.body.To || cfg.twilio?.phone || '';
+  const fromPhone  = req.body.From || '';
   const contractor = await contractorByPhone(toPhone);
   const bizName    = xmlEscape(contractor?.business_name || 'our office');
-  const forwardTo  = contractor?.forward_phone || process.env.TWILIO_FORWARD_PHONE || '';
 
-  let xml;
-  if (forwardTo) {
-    // Try to connect caller to contractor; fall through to voicemail on no-answer
-    xml =
-      `<Say voice="Polly.Joanna">Thanks for calling ${bizName}. Connecting you now.</Say>` +
-      `<Dial timeout="20">${xmlEscape(forwardTo)}</Dial>` +
-      `<Say voice="Polly.Joanna">No one is available right now. Please leave a message and we will call you back soon.</Say>` +
-      `<Record action="/twilio/voice/status" maxLength="120" transcribe="true" />`;
-  } else {
-    xml =
-      `<Say voice="Polly.Joanna">Thanks for calling ${bizName}. Please leave a message after the tone and we will get back to you soon.</Say>` +
-      `<Record action="/twilio/voice/status" maxLength="120" transcribe="true" />`;
+  // Route to Vapi AI when a phone number ID is configured
+  const vapiPhoneId = contractor?.vapi_phone_number_id;
+  if (vapiPhoneId) {
+    console.log(`[Vapi] inbound call from ${fromPhone} → SIP ${vapiPhoneId}@sip.vapi.ai`);
+    // SIP URI routes the call to the Vapi assistant tied to this phone number.
+    // Vapi identifies caller via call.customer.number in the end-of-call webhook.
+    const xml = `<Dial><Sip>sip:${xmlEscape(vapiPhoneId)}@sip.vapi.ai</Sip></Dial>`;
+    return res.set('Content-Type', 'text/xml').send(twiml(xml));
   }
 
+  // Fallback: voicemail (no Vapi phone number configured yet)
+  console.log(`[Twilio Voice] no Vapi phone ID for ${toPhone} — falling back to voicemail`);
+  const xml =
+    `<Say voice="Polly.Joanna">Thanks for calling ${bizName}. Please leave a message after the tone and we will get back to you soon.</Say>` +
+    `<Record action="/twilio/voice/status" maxLength="120" transcribe="true" />`;
   res.set('Content-Type', 'text/xml').send(twiml(xml));
 }));
 
