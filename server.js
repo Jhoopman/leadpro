@@ -1,6 +1,6 @@
 // server.js — LeadPro entry point
 // This file only wires things together. No business logic lives here.
-// Target: stay under 80 lines. If it grows, something is in the wrong place.
+// Target: stay under 100 lines. If it grows, something is in the wrong place.
 
 require('dotenv').config();
 const express = require('express');
@@ -24,7 +24,7 @@ app.use(express.json());
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin',  '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') { res.sendStatus(204); return; }
   next();
 });
@@ -53,15 +53,27 @@ app.get('/config', (_, res) => res.json({
 
 app.get('/health', (_, res) => res.json({ ok: true, ts: new Date().toISOString() }));
 
-// ── HTML APP ──────────────────────────────────────────────────────────────────
+// ── HTML ROUTES ───────────────────────────────────────────────────────────────
+
+// Auth page — publicly accessible (no token needed)
+app.get('/auth',    (_, res) => res.sendFile(path.join(__dirname, 'auth.html')));
+
+// Widget install guide — publicly served, JS inside handles auth redirect
+app.get('/install', (_, res) => res.sendFile(path.join(__dirname, 'install.html')));
+
+// Dashboard and other app pages — auth.html excluded from dynamic discovery
+function appHtml() {
+  return fs.readdirSync(__dirname)
+    .filter(f => f.endsWith('.html') && !['widget-chat.html', 'auth.html', 'install.html'].includes(f));
+}
 
 app.get(['/'], (_, res) => {
-  const files = fs.readdirSync(__dirname).filter(f => f.endsWith('.html') && f !== 'widget-chat.html');
+  const files = appHtml();
   if (!files.length) { res.status(404).send('No HTML found'); return; }
   res.sendFile(path.join(__dirname, files[0]));
 });
 app.get('/app', (_, res) => {
-  const files = fs.readdirSync(__dirname).filter(f => f.endsWith('.html') && f !== 'widget-chat.html');
+  const files = appHtml();
   if (!files.length) { res.status(404).send('No HTML found'); return; }
   res.sendFile(path.join(__dirname, files[0]));
 });
@@ -69,13 +81,37 @@ app.get('/prospector', (_, res) => res.sendFile(path.join(__dirname, 'prospector
 app.get('/outreach',   (_, res) => res.sendFile(path.join(__dirname, 'outreach-sequences.html')));
 app.get('/launch',     (_, res) => res.sendFile(path.join(__dirname, 'launch-plan.html')));
 
+// ── AUTH MIDDLEWARE ───────────────────────────────────────────────────────────
+// Applied BEFORE route modules so every matching request is gated.
+// /widget-api, /api/availability, /api/book-appointment intentionally left open (widget use).
+
+const { requireAuth } = require('./routes/auth');
+const { requirePlan }  = require('./routes/middleware/planGate');
+
+// Auth gates — verify Bearer token, attach req.contractor
+app.use(['/send-confirmation', '/scrape', '/create-checkout-session', '/billing-portal'], requireAuth);
+app.post('/api',             requireAuth);
+app.use('/api/agent-config', requireAuth);
+app.use('/api/test-agent',   requireAuth);
+app.post('/auth/google/disconnect', requireAuth);
+app.use('/api/prospector',   requireAuth);   // prospector wasn't previously auth-gated
+
+// Plan gates — always after requireAuth (reads req.contractor, no extra DB calls)
+app.post('/api',              requirePlan('starter'));   // /api chat proxy → Starter+
+app.use('/send-confirmation', requirePlan('starter'));
+app.use('/calendar',          requirePlan('starter'));
+app.use('/billing-portal',    requirePlan('starter'));
+app.use('/api/prospector',    requirePlan('pro'));
+
 // ── ROUTE MODULES ─────────────────────────────────────────────────────────────
 
+app.use('/', require('./routes/auth'));
 app.use('/', require('./routes/agent'));
 app.use('/', require('./routes/billing'));
 app.use('/', require('./routes/calendar'));
 app.use('/', require('./routes/prospector'));
 app.use('/', require('./routes/contractors'));
+app.use('/', require('./routes/twilio').router);
 
 // ── ERROR HANDLING ────────────────────────────────────────────────────────────
 

@@ -38,5 +38,11 @@ module.exports = {
     redirectUri:   process.env.GOOGLE_REDIRECT_URI || 'https://leadpro-1d5l.onrender.com/auth/google/callback',
   },
 
+  twilio: {
+    accountSid: process.env.TWILIO_ACCOUNT_SID  || '',
+    authToken:  process.env.TWILIO_AUTH_TOKEN   || '',
+    phone:      process.env.TWILIO_PHONE        || '+13026647594',
+  },
+
   appUrl: process.env.APP_URL || 'https://leadpro-1d5l.onrender.com',
 };
