@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Install Your Widget — LeadPro</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --green:   #2D6A4F;
+  --accent:  #74C69D;
+  --bg:      #0A0A0A;
+  --bg2:     #141414;
+  --bg3:     #111111;
+  --border:  #1f1f1f;
+  --border2: #2a2a2a;
+  --text:    #ffffff;
+  --text2:   #aaaaaa;
+  --text3:   #555555;
+  --red:     #f87171;
+  --radius:  10px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 36px 20px 80px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── HEADER ── */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 660px;
+  margin: 0 auto 36px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+.brand svg  { width: 22px; height: 22px; fill: var(--accent); flex-shrink: 0; }
+.brand-name { font-size: 17px; font-weight: 700; color: var(--text); }
+.back-link {
+  font-size: 13px;
+  color: var(--text3);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: color .15s;
+}
+.back-link:hover { color: var(--text2); }
+
+/* ── PAGE TITLE ── */
+.page-title-wrap { max-width: 660px; margin: 0 auto 28px; }
+.page-title { font-size: 23px; font-weight: 700; color: var(--text); margin-bottom: 7px; }
+.page-sub   { font-size: 13.5px; color: var(--text2); line-height: 1.65; }
+
+/* ── ERROR STATE ── */
+.auth-error {
+  display: none;
+  max-width: 660px;
+  margin: 0 auto 24px;
+  padding: 14px 18px;
+  background: rgba(248,113,113,0.07);
+  border: 0.5px solid rgba(248,113,113,0.25);
+  border-radius: var(--radius);
+  font-size: 13px;
+  color: var(--red);
+  line-height: 1.5;
+}
+.auth-error a { color: var(--red); text-decoration: underline; }
+
+/* ── STEPS LIST ── */
+.steps { max-width: 660px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+
+/* ── STEP CARD ── */
+.step-card {
+  background: var(--bg2);
+  border: 0.5px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.step-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 20px 22px 14px;
+}
+.step-num {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(45,106,79,0.18);
+  border: 0.5px solid rgba(116,198,157,0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.step-label { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+.step-sub   { font-size: 12px; color: var(--text3); line-height: 1.5; }
+.step-body  { padding: 0 22px 22px; }
+
+/* ── CODE BLOCK ── */
+.code-wrap {
+  position: relative;
+  background: #0c0c0c;
+  border: 0.5px solid var(--border2);
+  border-radius: 10px;
+  padding: 15px 52px 15px 16px;
+}
+pre.code-block {
+  font-family: 'SF Mono', 'Fira Code', ui-monospace, 'Courier New', monospace;
+  font-size: 12.5px;
+  line-height: 1.9;
+  color: #888888;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.ct  { color: #f8b4b4; }   /* tag      */
+.ca  { color: #93c5fd; }   /* attr     */
+.cv  { color: #86efac; }   /* value    */
+.cid { color: #74C69D; font-weight: 600; }  /* contractor id */
+
+.copy-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: var(--bg3);
+  border: 0.5px solid var(--border2);
+  border-radius: 7px;
+  padding: 5px 11px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text2);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .15s;
+  white-space: nowrap;
+  user-select: none;
+}
+.copy-btn:hover { background: #1e1e1e; color: var(--text); }
+.copy-btn.copied {
+  color: var(--accent);
+  border-color: rgba(116,198,157,0.35);
+  background: rgba(116,198,157,0.07);
+}
+.copy-btn.loading { opacity: 0.5; cursor: not-allowed; }
+
+/* ── HTML MOCKUP (step 2) ── */
+.html-mockup {
+  background: #0c0c0c;
+  border: 0.5px solid var(--border2);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.mockup-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: #111111;
+  border-bottom: 0.5px solid var(--border2);
+}
+.dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.dot-r { background: #ff5f57; }
+.dot-a { background: #febc2e; }
+.dot-g { background: #28c840; }
+.mockup-filename { margin-left: 8px; font-size: 11px; color: var(--text3); font-family: monospace; }
+.mockup-code {
+  padding: 14px 0;
+  font-family: 'SF Mono', 'Fira Code', ui-monospace, 'Courier New', monospace;
+  font-size: 11.5px;
+  line-height: 2;
+}
+.ml     { display: flex; align-items: center; padding: 0 16px; color: #383838; }
+.ml-1   { padding-left: 34px; }
+.ml-2   { padding-left: 52px; }
+.ml-hi  {
+  display: flex;
+  align-items: center;
+  padding: 0 16px 0 34px;
+  background: rgba(116,198,157,0.06);
+  border-left: 2px solid var(--accent);
+  position: relative;
+  color: var(--text2);
+}
+.paste-badge {
+  margin-left: auto;
+  background: rgba(116,198,157,0.14);
+  color: var(--accent);
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.dm  { color: #333333; }   /* dim */
+.dt  { color: #f8b4b4; }   /* tag */
+.da  { color: #93c5fd; }   /* attr */
+.dv  { color: #86efac; }   /* value */
+
+/* ── PLATFORM TIPS (step 2) ── */
+.platform-tips {
+  font-size: 12.5px;
+  color: var(--text3);
+  line-height: 1.75;
+}
+.platform-tips strong { color: var(--text2); font-weight: 600; }
+.platform-tips code   {
+  color: var(--accent);
+  background: rgba(116,198,157,0.09);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 11.5px;
+}
+
+/* ── LIVE PREVIEW (step 3) ── */
+.preview-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: rgba(45,106,79,0.07);
+  border: 0.5px solid rgba(116,198,157,0.18);
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin-bottom: 14px;
+}
+.preview-icon {
+  width: 38px;
+  height: 38px;
+  background: rgba(45,106,79,0.2);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.preview-icon svg { width: 18px; height: 18px; fill: var(--accent); }
+.preview-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 5px; }
+.preview-desc  { font-size: 12.5px; color: var(--text2); line-height: 1.65; }
+.preview-cta   {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 9px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+}
+.preview-cta svg { width: 13px; height: 13px; fill: currentColor; }
+
+.corner-hint {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg3);
+  border: 0.5px solid var(--border);
+  border-radius: 10px;
+  padding: 13px 16px;
+  gap: 12px;
+}
+.corner-hint-text { font-size: 12.5px; color: var(--text2); line-height: 1.5; }
+.corner-hint-text strong { color: var(--text); }
+.corner-arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--accent);
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 600;
+}
+.corner-arrow svg { width: 22px; height: 22px; fill: currentColor; }
+
+/* ── BOTTOM CTA ── */
+.bottom-cta {
+  max-width: 660px;
+  margin: 20px auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 22px;
+  background: var(--bg2);
+  border: 0.5px solid var(--border);
+  border-radius: 14px;
+}
+.cta-text h4 { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+.cta-text p  { font-size: 12px; color: var(--text3); }
+.cta-btn {
+  background: var(--green);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  flex-shrink: 0;
+  text-decoration: none;
+  display: inline-block;
+  transition: background .15s;
+}
+.cta-btn:hover { background: #245a42; }
+
+/* ── SKELETON SHIMMER ── */
+.shimmer {
+  color: transparent !important;
+  background: linear-gradient(90deg, #1a1a1a 25%, #222222 50%, #1a1a1a 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 4px;
+}
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="page-header">
+  <a class="brand" href="/app">
+    <svg viewBox="0 0 24 24"><path d="M17 8C8 10 5.9 16.17 3.82 19.83 3.36 20.63 2 20.28 2 19.37V4.5A2.5 2.5 0 014.5 2h15A2.5 2.5 0 0122 4.5v10a2.5 2.5 0 01-2.5 2.5H17V8z"/></svg>
+    <span class="brand-name">LeadPro</span>
+  </a>
+  <a class="back-link" href="/app">← Back to dashboard</a>
+</div>
+
+<!-- AUTH ERROR (shown if /auth/me fails) -->
+<div class="auth-error" id="auth-error">
+  Could not load your account details. <a href="/auth">Sign in again →</a>
+</div>
+
+<!-- PAGE CONTENT -->
+<div id="page-content">
+
+  <div class="page-title-wrap">
+    <div class="page-title">Install your chat widget</div>
+    <div class="page-sub">Add LeadPro to your website in under 2 minutes. Works on any site — WordPress, Wix, Squarespace, or plain HTML.</div>
+  </div>
+
+  <div class="steps">
+
+    <!-- ── STEP 1: Copy snippet ── -->
+    <div class="step-card">
+      <div class="step-header">
+        <div class="step-num">1</div>
+        <div>
+          <div class="step-label">Copy your snippet</div>
+          <div class="step-sub">This code is unique to your account — it links all captured leads back to your dashboard</div>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="code-wrap">
+          <pre class="code-block" id="snippet-display"><span class="shimmer">Loading your snippet…</span></pre>
+          <button class="copy-btn loading" id="copy-btn" onclick="copySnippet()" disabled>Copy</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STEP 2: Paste before </body> ── -->
+    <div class="step-card">
+      <div class="step-header">
+        <div class="step-num">2</div>
+        <div>
+          <div class="step-label">Paste it before <code style="font-size:12px;color:var(--accent);background:rgba(116,198,157,0.09);padding:2px 7px;border-radius:4px;font-family:monospace">&lt;/body&gt;</code></div>
+          <div class="step-sub">Add it to every page you want the chat button on</div>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="html-mockup">
+          <div class="mockup-bar">
+            <div class="dot dot-r"></div>
+            <div class="dot dot-a"></div>
+            <div class="dot dot-g"></div>
+            <span class="mockup-filename">index.html</span>
+          </div>
+          <div class="mockup-code">
+            <span class="ml"><span class="dm">…</span></span>
+            <span class="ml ml-1">
+              <span class="dm">&lt;</span><span class="dt">section</span>
+              <span class="da"> class</span><span class="dm">=</span><span class="dv">"footer"</span>
+              <span class="dm">&gt;…&lt;/</span><span class="dt">section</span><span class="dm">&gt;</span>
+            </span>
+            <span class="ml">&nbsp;</span>
+            <span class="ml-hi">
+              <span>
+                <span class="dm">&lt;</span><span class="dt">script</span>
+                <span class="da"> src</span><span class="dm">=</span><span class="dv">"…/widget.js"</span>
+                <span class="da"> data-contractor-id</span><span class="dm">=</span><span class="dv">"…"</span>
+                <span class="dm">&gt;&lt;/</span><span class="dt">script</span><span class="dm">&gt;</span>
+              </span>
+              <span class="paste-badge">← paste here</span>
+            </span>
+            <span class="ml">
+              <span class="dm">&lt;/</span><span class="dt">body</span><span class="dm">&gt;</span>
+            </span>
+            <span class="ml">
+              <span class="dm">&lt;/</span><span class="dt">html</span><span class="dm">&gt;</span>
+            </span>
+          </div>
+        </div>
+        <p class="platform-tips">
+          <strong>WordPress:</strong> go to <strong>Appearance → Theme Editor → footer.php</strong> and paste just before <code>&lt;/body&gt;</code>.<br>
+          <strong>Wix / Squarespace:</strong> use <strong>Settings → Custom Code</strong> (or <strong>Header &amp; Footer</strong>) and set placement to <strong>End of body</strong>.<br>
+          <strong>Webflow:</strong> paste into <strong>Project Settings → Custom Code → Footer Code</strong>.
+        </p>
+      </div>
+    </div>
+
+    <!-- ── STEP 3: Test it ── -->
+    <div class="step-card">
+      <div class="step-header">
+        <div class="step-num">3</div>
+        <div>
+          <div class="step-label">Test it</div>
+          <div class="step-sub">Your widget is live on this page right now — try it before you install</div>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="preview-card">
+          <div class="preview-icon">
+            <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+          </div>
+          <div>
+            <div class="preview-title">Widget loaded and ready</div>
+            <div class="preview-desc">
+              The green chat button in the bottom-right corner is your actual widget. Click it to run through the full conversation your visitors will experience — any leads captured here show up live in your dashboard.
+            </div>
+            <div class="preview-cta">
+              <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              Click the button in the corner to test
+            </div>
+          </div>
+        </div>
+        <div class="corner-hint">
+          <div class="corner-hint-text">
+            <strong>Nothing showing up?</strong> Make sure your browser isn't blocking scripts, then reload this page. The widget button appears after a brief pop-in animation.
+          </div>
+          <div class="corner-arrow">
+            <svg viewBox="0 0 24 24"><path d="M20 20H4v-2h12.59L4 5.41 5.41 4 18 16.59V4h2z"/></svg>
+            <span>down here</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /.steps -->
+
+  <!-- Bottom CTA -->
+  <div class="bottom-cta">
+    <div class="cta-text">
+      <h4>Widget installed?</h4>
+      <p>Head to your dashboard to start managing leads and bookings</p>
+    </div>
+    <a class="cta-btn" href="/app">Go to dashboard →</a>
+  </div>
+
+</div><!-- /#page-content -->
+
+<script>
+(function () {
+  'use strict';
+
+  var BASE  = 'https://leadpro-1d5l.onrender.com';
+  var contractorId = null;
+
+  // ── Auth guard ──
+  var token = localStorage.getItem('leadpro_token');
+  if (!token) {
+    window.location.replace('/auth');
+    return;
+  }
+
+  // ── Boot ──
+  init();
+
+  async function init() {
+    try {
+      var res = await fetch('/auth/me', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+
+      if (res.status === 401 || res.status === 403) {
+        localStorage.removeItem('leadpro_token');
+        localStorage.removeItem('leadpro_refresh_token');
+        window.location.replace('/auth');
+        return;
+      }
+
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+
+      var data = await res.json();
+      contractorId = data.contractor && data.contractor.id;
+
+      if (!contractorId) throw new Error('No contractor ID in response');
+
+      renderSnippet(contractorId);
+      enableCopyBtn();
+      loadWidget(contractorId);
+
+    } catch (e) {
+      console.error('[LeadPro install]', e);
+      document.getElementById('auth-error').style.display = 'block';
+    }
+  }
+
+  // ── Render syntax-highlighted snippet ──
+  function renderSnippet(id) {
+    var el = document.getElementById('snippet-display');
+    // Use textContent for the ID to prevent XSS, then build HTML around it
+    var safeId = document.createTextNode(id).textContent;  // noop but signals intent
+    el.innerHTML =
+      '<span class="ct">&lt;script</span>' +
+      ' <span class="ca">src</span>=<span class="cv">"' + BASE + '/widget.js"</span>\n' +
+      '  <span class="ca">data-contractor-id</span>=<span class="cv">"</span><span class="cid">' + escHtml(id) + '</span><span class="cv">"</span>' +
+      '<span class="ct">&gt;&lt;/script&gt;</span>';
+  }
+
+  // ── Enable copy button once ID is loaded ──
+  function enableCopyBtn() {
+    var btn = document.getElementById('copy-btn');
+    btn.disabled = false;
+    btn.classList.remove('loading');
+  }
+
+  // ── Copy snippet to clipboard ──
+  window.copySnippet = function () {
+    if (!contractorId) return;
+    var text = snippetPlainText(contractorId);
+    var btn  = document.getElementById('copy-btn');
+
+    function showCopied() {
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(function () {
+        btn.textContent = 'Copy';
+        btn.classList.remove('copied');
+      }, 2200);
+    }
+
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(showCopied).catch(fallbackCopy);
+    } else {
+      fallbackCopy();
+    }
+
+    function fallbackCopy() {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.cssText = 'position:fixed;top:-999px;left:-999px;opacity:0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand('copy');
+        showCopied();
+      } catch (_) {
+        btn.textContent = 'Failed — copy manually';
+        setTimeout(function () { btn.textContent = 'Copy'; }, 2500);
+      } finally {
+        document.body.removeChild(ta);
+      }
+    }
+  };
+
+  // ── Inject widget.js onto this page so the contractor can test it live ──
+  function loadWidget(id) {
+    var s = document.createElement('script');
+    s.src  = BASE + '/widget.js';
+    s.async = true;
+    s.setAttribute('data-contractor-id', id);
+    s.onerror = function () {
+      console.warn('[LeadPro install] Widget script failed to load — check network / CORS.');
+    };
+    document.body.appendChild(s);
+  }
+
+  // ── Helpers ──
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g,  '&amp;')
+      .replace(/</g,  '&lt;')
+      .replace(/>/g,  '&gt;')
+      .replace(/"/g,  '&quot;')
+      .replace(/'/g,  '&#39;');
+  }
+
+  function snippetPlainText(id) {
+    return '<script src="' + BASE + '/widget.js"\n  data-contractor-id="' + id + '"><\/script>';
+  }
+
+}());
+</script>
+</body>
+</html>

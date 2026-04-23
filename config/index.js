@@ -25,11 +25,14 @@ module.exports = {
   fromEmail:          'LeadPro <onboarding@resend.dev>',
 
   stripe: {
-    secretKey:      process.env.STRIPE_SECRET_KEY || '',
-    webhookSecret:  process.env.STRIPE_WEBHOOK_SECRET || '',
-    starterPriceId: process.env.STRIPE_STARTER_PRICE_ID || '',
-    proPriceId:     process.env.STRIPE_PRO_PRICE_ID || '',
+    secretKey:       process.env.STRIPE_SECRET_KEY || '',
+    webhookSecret:   process.env.STRIPE_WEBHOOK_SECRET || '',
+    starterPriceId:  process.env.STRIPE_STARTER_PRICE_ID || '',
+    proPriceId:      process.env.STRIPE_PRO_PRICE_ID || '',
+    setupFeePriceId: process.env.STRIPE_SETUP_FEE_PRICE_ID || '',
   },
+
+  alertPhone: process.env.ALERT_PHONE || '',
 
   google: {
     placesApiKey:  process.env.GOOGLE_PLACES_API_KEY || '',

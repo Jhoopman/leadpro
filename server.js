@@ -56,7 +56,9 @@ app.get('/health', (_, res) => res.json({ ok: true, ts: new Date().toISOString()
 // ── HTML ROUTES ───────────────────────────────────────────────────────────────
 
 // Auth page — publicly accessible (no token needed)
-app.get('/auth',    (_, res) => res.sendFile(path.join(__dirname, 'auth.html')));
+app.get('/auth',   (_, res) => res.sendFile(path.join(__dirname, 'auth.html')));
+// Signup page — serves auth.html; JS detects /signup path and opens the signup tab
+app.get('/signup', (_, res) => res.sendFile(path.join(__dirname, 'auth.html')));
 
 // Widget install guide — publicly served, JS inside handles auth redirect
 app.get('/install', (_, res) => res.sendFile(path.join(__dirname, 'install.html')));

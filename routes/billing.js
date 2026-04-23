@@ -19,6 +19,7 @@ const cfg      = require('../config');
 
 // POST /create-checkout-session
 router.post('/create-checkout-session', catchAsync(async (req, res) => {
+  if (!req.contractor) return res.status(401).json({ error: 'Please sign in first' });
   if (!cfg.stripe.secretKey) return res.status(503).json({ error: 'Billing not configured' });
 
   const { plan, contractorId, successUrl, cancelUrl } = req.body;
@@ -26,6 +27,10 @@ router.post('/create-checkout-session', catchAsync(async (req, res) => {
 
   const priceId = plan === 'pro' ? cfg.stripe.proPriceId : cfg.stripe.starterPriceId;
   if (!priceId) return res.status(503).json({ error: `Price ID not configured for plan: ${plan}` });
+
+  const setupFeeLineItem = cfg.stripe.setupFeePriceId
+    ? [{ price: cfg.stripe.setupFeePriceId, quantity: 1 }]
+    : [];
 
   const { data: rows, error: dbErr } = await supabase
     .from('contractors')
@@ -52,6 +57,7 @@ router.post('/create-checkout-session', catchAsync(async (req, res) => {
   const session = await stripe.createCheckoutSession({
     customerId,
     priceId,
+    extraLineItems: setupFeeLineItem,
     successUrl: successUrl || `${cfg.appUrl}/app?billing=success`,
     cancelUrl:  cancelUrl  || `${cfg.appUrl}/app`,
     metadata:   { contractor_id: contractorId, plan },
@@ -110,6 +116,7 @@ router.post('/stripe-webhook', async (req, res) => {
             stripe_subscription_id: session.subscription,
             plan,
             plan_status: 'active',
+            status:      'onboarding',
           }).eq('id', contractorId);
           console.log('[stripe-webhook] Subscription activated — contractor:', contractorId, 'plan:', plan);
         }

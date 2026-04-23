@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>LeadPro — Sign In</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --green:      #2D6A4F;
+  --green-text: #74C69D;
+  --bg:         #0A0A0A;
+  --bg2:        #141414;
+  --bg3:        #111111;
+  --border:     #1f1f1f;
+  --text:       #ffffff;
+  --text2:      #aaaaaa;
+  --text3:      #555555;
+  --red:        #f87171;
+  --radius:     10px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.auth-wrap {
+  width: 100%;
+  max-width: 380px;
+}
+
+/* ── Brand ── */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+.brand svg { width: 26px; height: 26px; fill: var(--green-text); flex-shrink: 0; }
+.brand-name { font-size: 20px; font-weight: 700; color: var(--text); }
+.brand-sub   { font-size: 12px; color: var(--text3); margin-top: 1px; text-align: center; }
+
+/* ── Card ── */
+.card {
+  background: var(--bg2);
+  border: 0.5px solid var(--border);
+  border-radius: 14px;
+  padding: 28px 24px 24px;
+}
+
+/* ── Tabs ── */
+.tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--bg3);
+  border-radius: 8px;
+  padding: 4px;
+  margin-bottom: 24px;
+  border: 0.5px solid var(--border);
+}
+.tab {
+  flex: 1;
+  text-align: center;
+  padding: 7px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--text3);
+  transition: all .15s;
+  border: none;
+  background: none;
+  font-family: inherit;
+}
+.tab.active { background: #1f1f1f; color: var(--text); }
+.tab:hover:not(.active) { color: var(--text2); }
+
+/* ── Fields ── */
+.field { margin-bottom: 14px; }
+.field label {
+  display: block;
+  font-size: 12px;
+  color: var(--text2);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+.field input {
+  width: 100%;
+  background: var(--bg3);
+  border: 0.5px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+  color: var(--text);
+  font-family: inherit;
+  outline: none;
+  transition: border-color .15s;
+}
+.field input:focus { border-color: var(--green); }
+.field input::placeholder { color: var(--text3); }
+
+/* ── Submit button ── */
+.submit-btn {
+  width: 100%;
+  background: var(--green);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 11px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  margin-top: 4px;
+  transition: background .15s, opacity .15s;
+}
+.submit-btn:hover:not(:disabled) { background: #245c44; }
+.submit-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* ── Messages ── */
+.error-msg {
+  color: var(--red);
+  font-size: 12.5px;
+  margin-top: 12px;
+  min-height: 18px;
+  line-height: 1.4;
+}
+.success-msg {
+  color: var(--green-text);
+  font-size: 12.5px;
+  margin-top: 12px;
+  line-height: 1.4;
+}
+
+/* ── Footer ── */
+.auth-footer {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 11.5px;
+  color: var(--text3);
+  line-height: 1.6;
+}
+.auth-footer a { color: var(--text3); text-decoration: underline; }
+
+/* ── Trial badge ── */
+.trial-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(45,106,79,0.12);
+  border: 0.5px solid rgba(116,198,157,0.25);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 20px;
+  font-size: 12px;
+  color: var(--green-text);
+}
+.trial-badge svg { width: 14px; height: 14px; fill: var(--green-text); flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<div class="auth-wrap">
+  <div class="brand">
+    <svg viewBox="0 0 24 24"><path d="M17 8C8 10 5.9 16.17 3.82 19.83 3.36 20.63 2 20.28 2 19.37V4.5A2.5 2.5 0 014.5 2h15A2.5 2.5 0 0122 4.5v10a2.5 2.5 0 01-2.5 2.5H17V8z"/></svg>
+    <div>
+      <div class="brand-name">LeadPro</div>
+      <div class="brand-sub">AI scheduling for contractors</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="tabs">
+      <button class="tab active" id="tab-signin" onclick="showTab('signin')">Sign in</button>
+      <button class="tab"        id="tab-signup" onclick="showTab('signup')">Create account</button>
+    </div>
+
+    <!-- SIGN IN -->
+    <div id="form-signin">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="si-email" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="si-pass" placeholder="Your password" autocomplete="current-password"
+               onkeydown="if(event.key==='Enter') submitSignIn()">
+      </div>
+      <button class="submit-btn" id="si-btn" onclick="submitSignIn()">Sign in</button>
+      <div class="error-msg" id="si-err"></div>
+    </div>
+
+    <!-- SIGN UP -->
+    <div id="form-signup" style="display:none">
+      <div class="trial-badge">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+        14-day free trial — no credit card required
+      </div>
+      <div class="field">
+        <label>Business name</label>
+        <input type="text" id="su-biz" placeholder="Green Lawn Co.">
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="su-email" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="field">
+        <label>Password (min 6 characters)</label>
+        <input type="password" id="su-pass" placeholder="Create a password" autocomplete="new-password"
+               onkeydown="if(event.key==='Enter') submitSignUp()">
+      </div>
+      <button class="submit-btn" id="su-btn" onclick="submitSignUp()">Create account</button>
+      <div class="error-msg" id="su-err"></div>
+    </div>
+  </div>
+
+  <div class="auth-footer">
+    By using LeadPro you agree to our
+    <a href="/terms.html" target="_blank">Terms</a> &amp;
+    <a href="/privacy.html" target="_blank">Privacy Policy</a>
+  </div>
+</div>
+
+<script>
+// ── TAB TOGGLE ────────────────────────────────────────────────────────────────
+
+function showTab(tab) {
+  document.getElementById('form-signin').style.display = tab === 'signin' ? '' : 'none';
+  document.getElementById('form-signup').style.display = tab === 'signup' ? '' : 'none';
+  document.getElementById('tab-signin').classList.toggle('active', tab === 'signin');
+  document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
+  // Clear any stale errors when switching tabs
+  document.getElementById('si-err').textContent = '';
+  document.getElementById('su-err').textContent = '';
+}
+
+// ── SIGN IN ───────────────────────────────────────────────────────────────────
+
+async function submitSignIn() {
+  const email  = document.getElementById('si-email').value.trim();
+  const pass   = document.getElementById('si-pass').value;
+  const errEl  = document.getElementById('si-err');
+  const btn    = document.getElementById('si-btn');
+
+  errEl.textContent = '';
+
+  if (!email || !pass) {
+    errEl.textContent = 'Please enter your email and password';
+    return;
+  }
+
+  btn.textContent = 'Signing in…';
+  btn.disabled    = true;
+
+  try {
+    const res  = await fetch('/auth/login', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ email, password: pass }),
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      errEl.textContent = data.error || 'Sign in failed';
+      btn.textContent   = 'Sign in';
+      btn.disabled      = false;
+      return;
+    }
+
+    storeSession(data);
+    window.location.replace('/app');
+
+  } catch (e) {
+    errEl.textContent = 'Connection error — please try again';
+    btn.textContent   = 'Sign in';
+    btn.disabled      = false;
+  }
+}
+
+// ── SIGN UP ───────────────────────────────────────────────────────────────────
+
+async function submitSignUp() {
+  const biz   = document.getElementById('su-biz').value.trim();
+  const email = document.getElementById('su-email').value.trim();
+  const pass  = document.getElementById('su-pass').value;
+  const errEl = document.getElementById('su-err');
+  const btn   = document.getElementById('su-btn');
+
+  errEl.textContent = '';
+
+  if (!biz || !email || !pass) {
+    errEl.textContent = 'All fields are required';
+    return;
+  }
+  if (!/\S+@\S+\.\S+/.test(email)) {
+    errEl.textContent = 'Please enter a valid email address';
+    return;
+  }
+  if (pass.length < 6) {
+    errEl.textContent = 'Password must be at least 6 characters';
+    return;
+  }
+
+  btn.textContent = 'Creating account…';
+  btn.disabled    = true;
+
+  try {
+    const res  = await fetch('/auth/signup', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ email, password: pass, business_name: biz }),
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      errEl.textContent = data.error || 'Could not create account';
+      btn.textContent   = 'Create account';
+      btn.disabled      = false;
+      return;
+    }
+
+    storeSession(data);
+
+    // If a plan was passed (e.g. from pricing page), go to Stripe checkout now
+    const plan = new URLSearchParams(window.location.search).get('plan');
+    if (plan === 'starter' || plan === 'pro') {
+      btn.textContent = 'Redirecting to checkout…';
+      await startCheckoutWithToken(plan, data.access_token, data.contractor?.id);
+      return;
+    }
+
+    window.location.replace('/app');
+
+  } catch (e) {
+    errEl.textContent = 'Connection error — please try again';
+    btn.textContent   = 'Create account';
+    btn.disabled      = false;
+  }
+}
+
+// ── CHECKOUT REDIRECT ─────────────────────────────────────────────────────────
+
+async function startCheckoutWithToken(plan, token, contractorId) {
+  try {
+    // Resolve contractorId: prefer explicit arg, fall back to localStorage (already-logged-in path)
+    const cid = contractorId || localStorage.getItem('leadpro_contractor_id');
+    if (!cid) { window.location.replace('/app'); return; }
+
+    const res  = await fetch('/create-checkout-session', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body:    JSON.stringify({ plan, contractorId: cid }),
+    });
+    const data = await res.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      window.location.replace('/app');
+    }
+  } catch (_) {
+    window.location.replace('/app');
+  }
+}
+
+// ── SESSION STORAGE ───────────────────────────────────────────────────────────
+
+function storeSession(data) {
+  localStorage.setItem('leadpro_token',         data.access_token);
+  localStorage.setItem('leadpro_refresh_token', data.refresh_token || '');
+  if (data.expires_at) {
+    localStorage.setItem('leadpro_expires_at', String(data.expires_at));
+  }
+  if (data.contractor?.id) {
+    localStorage.setItem('leadpro_contractor_id', data.contractor.id);
+  }
+}
+
+// ── INIT: honour ?tab=signup or /signup path, redirect if already logged in ──
+
+(function init() {
+  // Already have a valid-looking token → skip to app
+  if (localStorage.getItem('leadpro_token')) {
+    // If a plan param is present, go straight to checkout
+    const plan = new URLSearchParams(window.location.search).get('plan');
+    if (plan) {
+      startCheckoutWithToken(plan, localStorage.getItem('leadpro_token'));
+    } else {
+      window.location.replace('/app');
+    }
+    return;
+  }
+  const params = new URLSearchParams(window.location.search);
+  const tab    = params.get('tab');
+  // /signup path or ?tab=signup both open the create-account form
+  if (tab === 'signup' || window.location.pathname === '/signup') showTab('signup');
+})();
+</script>
+</body>
+</html>

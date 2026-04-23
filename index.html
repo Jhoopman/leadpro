@@ -1209,6 +1209,23 @@
     }
     .demo-btn:hover { background: #3a7a5f; transform: translateY(-1px); }
     .demo-btn:disabled { opacity: 0.6; cursor: default; transform: none; }
+    .demo-hint { font-size: 0.78rem; color: rgba(255,255,255,0.45); margin-top: 8px; }
+    .btn-hero-outline {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      color: rgba(255,255,255,0.85);
+      text-decoration: none;
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 14px 26px;
+      border-radius: 11px;
+      border: 1.5px solid rgba(255,255,255,0.25);
+      transition: all 0.2s;
+    }
+    .btn-hero-outline:hover { border-color: rgba(255,255,255,0.55); background: rgba(255,255,255,0.06); transform: translateY(-2px); }
+    .setup-fee-note { font-size: 0.78rem; color: rgba(255,255,255,0.4); margin-top: 6px; margin-bottom: 4px; line-height: 1.5; }
     .demo-confirm {
       color: #74C69D;
       font-size: 0.88rem;
@@ -1313,7 +1330,7 @@
     </ul>
     <div class="nav-cta">
       <a class="btn-ghost" href="https://app.useleadpro.net">Log in</a>
-      <a class="btn-primary" href="https://app.useleadpro.net">
+      <a class="btn-primary" href="https://app.useleadpro.net/signup">
         Start free trial
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
       </a>
@@ -1332,7 +1349,7 @@
   <a href="#pricing" onclick="document.getElementById('mobileMenu').classList.remove('open')">Pricing</a>
   <a href="#faq" onclick="document.getElementById('mobileMenu').classList.remove('open')">FAQ</a>
   <a href="#contact" onclick="document.getElementById('mobileMenu').classList.remove('open')">Contact</a>
-  <a href="https://app.useleadpro.net" style="color: var(--green); margin-top: 12px;">Start free trial →</a>
+  <a href="https://app.useleadpro.net/signup" style="color: var(--green); margin-top: 12px;">Start free trial →</a>
 </div>
 
 <!-- HERO -->
@@ -1357,10 +1374,11 @@
     <h1 id="heroHeadline" class="reveal reveal-d1">Stop Losing Jobs<br/>to <em>Voicemail</em></h1>
     <p class="hero-sub reveal reveal-d2">LeadPro texts your missed calls back in 60 seconds and books the appointment — while you're still on the job.</p>
     <div class="hero-actions reveal reveal-d3">
-      <a class="btn-hero" href="https://app.useleadpro.net">
+      <a class="btn-hero" href="https://app.useleadpro.net/signup">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         See It Work Free
       </a>
+      <a class="btn-hero-outline" href="https://app.useleadpro.net?demo=true">View Live Demo</a>
       <a class="hero-link" href="#how">
         See how it works
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
@@ -1372,8 +1390,9 @@
     <div class="hero-demo reveal reveal-d4">
       <div class="demo-input-row">
         <input type="tel" id="demoPhone" class="demo-input" placeholder="Enter your cell number" maxlength="20" />
-        <button class="demo-btn" id="demoBtn" onclick="startDemo()">Call me right now</button>
+        <a href="tel:+13026647594" class="demo-btn">Call me right now</a>
       </div>
+      <p class="demo-hint">Hear the AI answer live — +1 (302) 664-7594</p>
       <p class="demo-confirm" id="demoConfirm"></p>
       <div class="demo-countdown-wrap" id="demoCountdownWrap" style="display:none">
         <div class="demo-countdown-bar-track"><div class="demo-countdown-bar" id="demoBar"></div></div>
@@ -1676,6 +1695,13 @@
         <div class="feature-title">Live in 10 minutes</div>
         <div class="feature-desc">Forward your number. Add your business name. Done. No developers. No contracts. No 90-day setup.</div>
       </div>
+      <div class="feature-card reveal reveal-d5" style="transition-delay:0.2s">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.09 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+        </div>
+        <div class="feature-title">AI Voice Agent</div>
+        <div class="feature-desc">Your AI receptionist answers every call 24/7, qualifies the lead, and books the appointment — even at 2am on a Sunday.</div>
+      </div>
     </div>
   </div>
 </section>
@@ -1697,7 +1723,7 @@
           <span class="period">&nbsp;/ month</span>
         </div>
         <p class="pricing-desc">Missed-call text-back so no lead goes cold.</p>
-        <a class="pricing-cta" href="https://app.useleadpro.net" style="background:#1f1f1f;color:#74C69D;border:1px solid #2D6A4F;">Start Free — No Card</a>
+        <a class="pricing-cta" href="https://app.useleadpro.net/signup" style="background:#1f1f1f;color:#74C69D;border:1px solid #2D6A4F;">Start Free — No Card</a>
         <ul class="pricing-features">
           <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> Missed-call text-back</li>
           <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> Unlimited texts</li>
@@ -1714,8 +1740,9 @@
           <span class="amount">97</span>
           <span class="period">&nbsp;/ month</span>
         </div>
+        <p class="setup-fee-note">+ $97 one-time setup fee<br>Includes done-for-you AI configuration by our team.</p>
         <p class="pricing-desc">Everything you need to turn missed calls into booked jobs.</p>
-        <a class="pricing-cta" href="https://app.useleadpro.net">Start 14-Day Trial</a>
+        <a class="pricing-cta" href="https://app.useleadpro.net/signup?plan=starter">Start 14-Day Trial</a>
         <ul class="pricing-features">
           <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> Everything in Free</li>
           <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> Booking link in every text</li>
@@ -1732,8 +1759,9 @@
           <span class="amount">197</span>
           <span class="period">&nbsp;/ month</span>
         </div>
+        <p class="setup-fee-note">+ $97 one-time setup fee<br>Includes done-for-you AI configuration by our team.</p>
         <p class="pricing-desc">For contractors ready to scale with an AI agent that answers live calls.</p>
-        <a class="pricing-cta" href="https://app.useleadpro.net">Start 14-Day Trial</a>
+        <a class="pricing-cta" href="https://app.useleadpro.net/signup?plan=pro">Start 14-Day Trial</a>
         <ul class="pricing-features">
           <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> Everything in Starter</li>
           <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> AI phone agent (answers live calls)</li>
@@ -1902,7 +1930,7 @@ document.getElementById('contactForm').addEventListener('submit', async function
     <h2>Your next job is calling.<br/>Make sure you answer.</h2>
     <p>Start free for 14 days. No credit card. Cancel anytime. One booked job pays for months of LeadPro.</p>
     <div class="final-cta-actions">
-      <a class="btn-cta-white" href="https://app.useleadpro.net">
+      <a class="btn-cta-white" href="https://app.useleadpro.net/signup">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.09 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
         Start free trial
       </a>

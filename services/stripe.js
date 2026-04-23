@@ -89,11 +89,12 @@ async function createCustomer({ description, metadata }) {
   return customer;
 }
 
-async function createCheckoutSession({ customerId, priceId, successUrl, cancelUrl, metadata }) {
+async function createCheckoutSession({ customerId, priceId, extraLineItems = [], successUrl, cancelUrl, metadata }) {
+  const lineItems = [{ price: priceId, quantity: 1 }, ...extraLineItems];
   const session = await request('POST', 'checkout/sessions', {
     customer:   customerId,
     mode:       'subscription',
-    line_items: [{ price: priceId, quantity: 1 }],
+    line_items: lineItems,
     success_url: successUrl,
     cancel_url:  cancelUrl,
     metadata,

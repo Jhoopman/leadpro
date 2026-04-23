@@ -118,6 +118,7 @@ nav { flex: 1; padding: 8px 0; }
 .a-green { background: #74C69D; }
 .a-green::after { content:''; position:absolute; inset:-3px; border-radius:50%; background: rgba(116,198,157,0.25); animation: dot-pulse 2s ease-in-out infinite; }
 @keyframes dot-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0;transform:scale(2)} }
+@keyframes spin { to { transform: rotate(360deg); } }
 .a-amber { background: #fbbf24; }
 .a-blue { background: #60a5fa; }
 .act-text { font-size: 12px; line-height: 1.5; color: #aaaaaa; }
@@ -365,6 +366,36 @@ nav { flex: 1; padding: 8px 0; }
 .snippet { background: #111111; border: 0.5px solid #1f1f1f; border-radius: var(--radius); padding: 10px 12px; font-family: 'Courier New', monospace; font-size: 11px; color: #74C69D; line-height: 1.6; position: relative; word-break: break-all; }
 .snippet .cc { position: absolute; top: 7px; right: 7px; font-size: 10px; background: #141414; border: 0.5px solid #2a2a2a; padding: 2px 8px; border-radius: 5px; cursor: pointer; color: #aaaaaa; font-family: inherit; }
 
+/* PAYWALL BANNER — shown on 403 trial_expired / subscription_inactive */
+#paywall-banner { display: none; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 20px; background: #1a1200; border-bottom: 1px solid #3d2e00; flex-shrink: 0; }
+#paywall-banner.show { display: flex; }
+#paywall-banner.inactive { background: #1a0a0a; border-bottom-color: #3d1010; }
+.pb-msg { font-size: 13px; color: #e8c97a; flex: 1; }
+.pb-msg.inactive { color: #e87a7a; }
+.pb-upgrade { background: #2D6A4F; color: #ffffff; border: none; border-radius: 7px; padding: 7px 16px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; white-space: nowrap; flex-shrink: 0; }
+.pb-upgrade:hover { background: #245a42; }
+
+/* TRIAL COUNTDOWN — shown in dashboard topbar when plan_status = 'trial' */
+.trial-pill { display: none; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 20px; font-size: 12px; font-weight: 500; background: rgba(116,198,157,0.12); color: #74C69D; border: 0.5px solid rgba(116,198,157,0.25); }
+.trial-pill.show { display: inline-flex; }
+.trial-pill.amber { background: rgba(251,191,36,0.12); color: #fbbf24; border-color: rgba(251,191,36,0.3); }
+.trial-pill.red   { background: rgba(248,113,113,0.12); color: #f87171; border-color: rgba(248,113,113,0.3); }
+.trial-pill svg { width: 12px; height: 12px; fill: currentColor; flex-shrink: 0; }
+
+/* UPGRADE MODAL — shown on 403 upgrade_required */
+#upgrade-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 9000; align-items: center; justify-content: center; }
+#upgrade-modal.show { display: flex; }
+#upgrade-modal-box { background: #141414; border: 0.5px solid #2a2a2a; border-radius: 16px; padding: 32px 28px; width: 400px; max-width: calc(100vw - 32px); text-align: center; box-shadow: 0 24px 60px rgba(0,0,0,0.5); }
+.um-icon { width: 48px; height: 48px; background: rgba(45,106,79,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; }
+.um-icon svg { width: 22px; height: 22px; fill: #74C69D; }
+.um-title { font-size: 17px; font-weight: 700; color: #ffffff; margin-bottom: 8px; }
+.um-sub { font-size: 13px; color: #aaaaaa; margin-bottom: 22px; line-height: 1.6; }
+.um-actions { display: flex; gap: 10px; justify-content: center; }
+.um-btn-primary { background: #2D6A4F; color: #fff; border: none; border-radius: 8px; padding: 10px 22px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
+.um-btn-primary:hover { background: #245a42; }
+.um-btn-secondary { background: none; color: #aaaaaa; border: 0.5px solid #2a2a2a; border-radius: 8px; padding: 10px 22px; font-size: 13px; cursor: pointer; font-family: inherit; }
+.um-btn-secondary:hover { color: #ffffff; border-color: #444444; }
+
 /* PAYWALL OVERLAY */
 #paywall-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 8000; display: none; align-items: center; justify-content: center; }
 #paywall-overlay.show { display: flex; }
@@ -398,6 +429,28 @@ nav { flex: 1; padding: 8px 0; }
 .p-answered { background: rgba(45,106,79,0.15); color: #74C69D; }
 .p-missed { background: rgba(248,113,113,0.12); color: #f87171; }
 .p-lead { background: rgba(45,106,79,0.2); color: #74C69D; }
+.p-phone { background: rgba(74,222,128,0.12); color: #4ade80; }
+.p-chat  { background: rgba(96,165,250,0.12); color: #60a5fa; }
+/* Demo banner */
+#demo-banner { display: none; align-items: center; gap: 12px; background: rgba(251,191,36,0.12); border: 0.5px solid rgba(251,191,36,0.35); border-radius: var(--radius); padding: 10px 16px; margin: 12px 26px 0; font-size: 13px; color: #fbbf24; flex-wrap: wrap; }
+#demo-banner a { color: #fbbf24; font-weight: 600; text-decoration: underline; margin-left: 4px; }
+#demo-banner .db-dismiss { margin-left: auto; background: none; border: none; color: #fbbf24; cursor: pointer; font-size: 16px; line-height: 1; padding: 0 2px; font-family: inherit; }
+/* Onboarding screen */
+#s-onboarding .ob-checklist { list-style: none; margin: 0 0 24px; }
+#s-onboarding .ob-checklist li { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; font-size: 14px; color: #aaaaaa; cursor: pointer; transition: background .15s; }
+#s-onboarding .ob-checklist li:hover { background: #1a1a1a; }
+#s-onboarding .ob-checklist li.done { color: #74C69D; }
+#s-onboarding .ob-checklist li .ob-check { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #333; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all .15s; }
+#s-onboarding .ob-checklist li.done .ob-check { background: #2D6A4F; border-color: #2D6A4F; }
+#s-onboarding .ob-checklist li.done .ob-check::after { content: '✓'; font-size: 11px; color: #fff; }
+#s-onboarding .ob-checklist li.auto .ob-check { background: #2D6A4F; border-color: #2D6A4F; }
+#s-onboarding .ob-checklist li.auto .ob-check::after { content: '✓'; font-size: 11px; color: #fff; }
+#s-onboarding .ob-progress-bar { height: 4px; background: #1f1f1f; border-radius: 99px; overflow: hidden; margin-bottom: 28px; }
+#s-onboarding .ob-progress-fill { height: 100%; background: #74C69D; border-radius: 99px; transition: width .4s ease; }
+#s-onboarding .ob-celebrate { text-align: center; padding: 40px 20px; }
+/* Vapi banner success state */
+#vapi-banner.vapi-live { background: rgba(45,106,79,0.12); border-color: #74C69D; }
+#vapi-banner .vb-live-text { font-size: 13px; color: #74C69D; font-weight: 500; }
 .calls-table-row { cursor: pointer; }
 .calls-table-row:hover td { background: #161616; }
 
@@ -454,33 +507,129 @@ nav { flex: 1; padding: 8px 0; }
 .bnav-badge { position: absolute; top: 7px; right: calc(50% - 14px); background: #74C69D; color: #0A0A0A; font-size: 9px; font-weight: 700; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 .bnav-item-wrap { position: relative; flex: 1; display: flex; }
 
+/* ── MOBILE LEAD CARDS ── */
+.mobile-leads-list { display: none; }
+.lead-mob-card { padding: 14px 16px; border-bottom: 0.5px solid #1a1a1a; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.lead-mob-card:last-child { border-bottom: none; }
+.lead-mob-card:active { background: #161616; }
+.lead-mob-card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 8px; gap: 10px; }
+.lmc-name-group { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1; }
+.lmc-text { min-width: 0; }
+.lmc-name { font-size: 15px; font-weight: 600; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lmc-addr { font-size: 12px; color: #555; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lmc-meta { display: flex; align-items: center; margin-bottom: 10px; gap: 6px; }
+.lmc-service { font-size: 13px; color: #aaaaaa; flex: 1; }
+.lmc-time { font-size: 12px; color: #555; white-space: nowrap; }
+.lmc-contact-row { display: none; padding-top: 10px; border-top: 0.5px solid #1a1a1a; margin-top: 4px; gap: 16px; flex-wrap: wrap; }
+.lmc-contact-row.expanded { display: flex; }
+.lmc-contact-link { display: inline-flex; align-items: center; gap: 7px; font-size: 14px; color: #74C69D; text-decoration: none; font-weight: 500; min-height: 44px; padding: 4px 0; }
+.lmc-actions { display: flex; gap: 8px; margin-top: 10px; }
+.lmc-actions .lmc-btn { flex: 1; text-align: center; min-height: 44px; font-size: 13px; font-family: inherit; border-radius: 8px; cursor: pointer; font-weight: 500; border: 0.5px solid #2a2a2a; background: none; color: #aaaaaa; }
+.lmc-actions .lmc-btn.primary { background: #2D6A4F; color: #ffffff; border-color: #2D6A4F; }
+.lmc-actions .lmc-btn:active { opacity: 0.75; }
+
 /* MOBILE RESPONSIVE */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
+  /* ── Layout ── */
   #app { flex-direction: column; }
   #sidebar { display: none; }
   #bottom-nav { display: block; }
-  #main { padding-bottom: calc(56px + env(safe-area-inset-bottom)); }
-  .metrics { grid-template-columns: 1fr 1fr; }
-  .dash-mid-row { grid-template-columns: 1fr; }
+  #main { padding-bottom: calc(56px + env(safe-area-inset-bottom)); overflow-x: hidden; -webkit-overflow-scrolling: touch; }
+  .screen { padding: 14px; }
   .two-col { grid-template-columns: 1fr; }
-  .screen { padding: 14px 14px; }
-  /* Touch-friendly tap targets */
-  .btn-sm { min-height: 36px; padding: 8px 12px; }
-  .btn-sm.primary { min-height: 36px; }
-  .field input, .field select, .field textarea { font-size: 16px; } /* Prevent iOS zoom on focus */
-  .auth-field input { font-size: 16px; }
+
+  /* ── 1. Stat cards: full-width single column ── */
+  .metrics { grid-template-columns: 1fr; }
+  .metric .mv { font-size: 30px; }
+  .metric { padding: 18px 18px 15px; }
+
+  /* ── 2. Charts: stacked full-width ── */
+  .dash-mid-row { grid-template-columns: 1fr; }
+  .chart-wrap { height: 190px; }
+  .chart-wrap-sm { height: 190px; }
+  .chart-card canvas { max-width: 100%; }
+
+  /* ── 3. Leads: hide table, show mobile cards ── */
+  #s-leads .tbl { display: none; }
+  #s-leads .card { overflow-x: visible; }
+  .mobile-leads-list { display: block; }
+
+  /* ── 4. Topbar ── */
+  .topbar { flex-wrap: wrap; gap: 8px; align-items: flex-start; }
+  .topbar h1 { font-size: 17px; }
+  .topbar .sub { font-size: 12px; }
+
+  /* ── 5. Tap targets (iOS min 44px) ── */
+  .btn-sm { min-height: 44px; padding: 10px 14px; font-size: 13px; }
+  .btn-sm.primary { min-height: 44px; }
+  .btn-cancel { min-height: 44px; padding: 10px 18px; font-size: 14px; border-radius: 8px; }
+  .btn-save { min-height: 44px; padding: 10px 20px; font-size: 14px; }
+  .field input, .field select, .field textarea { min-height: 44px; font-size: 16px; padding: 10px 12px; }
+  .field select { padding-right: 28px; }
+  .auth-field input { font-size: 16px; min-height: 44px; }
+  .auth-submit { min-height: 44px; }
   #user-input { font-size: 16px; }
-  /* Smooth scroll */
-  #main { -webkit-overflow-scrolling: touch; }
+  .s-connect-btn { min-height: 44px; padding: 10px 18px; font-size: 13px; display: inline-flex; align-items: center; }
+  .set-input, .s-input { min-height: 44px; font-size: 16px; }
+  .set-textarea, .s-textarea { font-size: 15px; }
+  .set-btn-primary, .set-btn-secondary { min-height: 44px; }
+  .s-save-btn { min-height: 44px; }
+  .ob-btn-primary, .ob-btn-secondary { min-height: 44px; }
+  #pwa-install-btn { min-height: 44px; }
+  #pwa-dismiss-btn { min-width: 44px; min-height: 44px; }
+  .cdp-close { min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; }
+  .cal-nav button { min-height: 44px; padding: 8px 14px; }
+  .panel-action { min-height: 44px; display: inline-flex; align-items: center; }
+  .nav-item { min-height: 44px; }
+
+  /* ── 6. Modals: slide up from bottom edge ── */
+  #book-overlay { align-items: flex-end; }
+  #book-modal { width: 100% !important; max-width: 100%; border-radius: 20px 20px 0 0; padding: 20px 16px; max-height: 92vh; overflow-y: auto; margin: 0; }
+  #event-overlay { align-items: flex-end; }
+  #event-modal { width: 100% !important; max-width: 100%; border-radius: 20px 20px 0 0; padding: 20px 16px; margin: 0; }
+  #upgrade-modal-box { padding: 24px 18px; }
+  #paywall-box { padding: 26px 20px; width: calc(100vw - 24px); }
+  .pw-plans { grid-template-columns: 1fr; gap: 10px; }
+  .um-actions { flex-direction: column; gap: 8px; }
+  .um-btn-primary, .um-btn-secondary { min-height: 44px; width: 100%; }
+  #auth-box { padding: 24px 18px; }
+  #onboard-box { padding: 24px 18px; }
+
+  /* ── Typography (min 15px body) ── */
+  body { font-size: 15px; }
+  .act-text { font-size: 13px; }
   .feed-scroll { -webkit-overflow-scrolling: touch; }
-  /* Topbar adjustments */
-  .topbar { flex-wrap: wrap; gap: 10px; }
-  /* Table scroll on mobile */
-  .card { overflow-x: auto; }
+  .lname { font-size: 15px; }
+  .appt-info .an { font-size: 14px; }
+
+  /* ── Calendar cells smaller on mobile ── */
+  .cal-cell { min-height: 52px; padding: 5px 4px; }
+  .cal-event { font-size: 9px; padding: 1px 3px; }
+  .cal-month-label { font-size: 14px; min-width: 110px; }
+
+  /* ── SMS toast above bottom nav ── */
+  #sms-toast { bottom: calc(70px + env(safe-area-inset-bottom)); right: 12px; left: 12px; max-width: none; }
+
+  /* ── Settings ── */
+  .set-wrap { max-width: 100%; }
+  .s-upgrade-row, .set-upgrade-row { flex-direction: column; }
+
+  /* ── Vapi banner ── */
+  #vapi-banner { flex-direction: column; }
+  #vapi-banner input { width: 100%; min-height: 44px; }
+  .vb-btn { width: 100%; min-height: 44px; }
+
+  /* ── ROI hero ── */
+  .roi-hero { gap: 16px; }
+
+  /* ── Call detail panel: full width on mobile ── */
+  #call-detail-panel { width: 100%; right: -100%; }
+  #call-detail-panel.open { right: 0; }
 }
 @media (max-width: 480px) {
-  .metrics { grid-template-columns: 1fr 1fr; }
   .metric .mv { font-size: 28px; }
+  .topbar h1 { font-size: 16px; }
+  .screen { padding: 12px; }
 }
 
 /* ROI HERO CARD */
@@ -621,12 +770,6 @@ nav { flex: 1; padding: 8px 0; }
       </button>
     </div>
     <div class="bnav-item-wrap">
-      <button class="bnav-item" id="bnav-calls" onclick="showScreen('calls',this);syncBottomNav('calls')">
-        <svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02L6.6 10.8z"/></svg>
-        Calls
-      </button>
-    </div>
-    <div class="bnav-item-wrap">
       <button class="bnav-item" id="bnav-calendar" onclick="showScreen('calendar',this);syncBottomNav('calendar')">
         <svg viewBox="0 0 24 24"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
         Calendar
@@ -728,6 +871,18 @@ nav { flex: 1; padding: 8px 0; }
 <!-- MAIN -->
 <div id="main">
 
+<!-- DEMO BANNER: shown in ?demo=true mode -->
+<div id="demo-banner">
+  👀 You're viewing a demo —<a href="https://useleadpro.net/#pricing">Start Free Trial</a>
+  <button class="db-dismiss" onclick="this.parentElement.style.display='none'" title="Dismiss">×</button>
+</div>
+
+<!-- PAYWALL BANNER: shown when a 403 trial_expired / subscription_inactive is received -->
+<div id="paywall-banner">
+  <div class="pb-msg" id="pb-msg-text">Your free trial has ended. Upgrade to keep your leads coming in.</div>
+  <button class="pb-upgrade" onclick="window.location.href='/pricing'">Upgrade Now</button>
+</div>
+
 <!-- ── DASHBOARD ── -->
 <div id="s-dashboard" class="screen active">
   <div class="topbar">
@@ -736,7 +891,13 @@ nav { flex: 1; padding: 8px 0; }
       <h1>Dashboard</h1>
       <div class="sub" id="dash-date">Loading...</div>
     </div>
-    <button class="btn-sm primary" onclick="openBookModal()">+ Book appointment</button>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="trial-pill" id="trial-pill">
+        <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>
+        <span id="trial-pill-text">14 days left in trial</span>
+      </div>
+      <button class="btn-sm primary" onclick="openBookModal()">+ Book appointment</button>
+    </div>
   </div>
 
   <!-- ROI HERO CARD -->
@@ -835,7 +996,8 @@ nav { flex: 1; padding: 8px 0; }
     </div>
   </div>
   <div class="card">
-    <table class="tbl"><thead><tr><th>Customer</th><th>Service</th><th>Phone</th><th>Requested</th><th>Status</th><th></th></tr></thead><tbody id="leads-body"></tbody></table>
+    <table class="tbl"><thead><tr><th>Customer</th><th>Service</th><th>Phone</th><th>Requested</th><th>Status</th><th>Source</th><th></th></tr></thead><tbody id="leads-body"></tbody></table>
+    <div class="mobile-leads-list" id="mobile-leads-list"></div>
   </div>
 </div>
 
@@ -843,13 +1005,13 @@ nav { flex: 1; padding: 8px 0; }
 <div id="s-calls" class="screen">
   <div class="topbar"><div><h1>Phone calls</h1><div class="sub">AI voice calls answered by your Vapi assistant</div></div></div>
 
-  <!-- Vapi connect banner (hidden once configured) -->
-  <div id="vapi-banner" style="display:none">
-    <svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02L6.6 10.8z"/></svg>
-    <div class="vb-text"><strong>Connect your Vapi phone number</strong> to start capturing leads from AI-powered phone calls automatically.</div>
-    <input type="text" id="vapi-phone-input" placeholder="Phone number: +15405550192">
-    <input type="text" id="vapi-assistant-input" placeholder="Vapi assistant ID">
-    <button class="vb-btn" onclick="saveVapiConfig()">Connect</button>
+  <!-- Vapi banner: success when live, connect form when not configured -->
+  <div id="vapi-banner" class="vapi-live">
+    <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+    <span class="vb-live-text">✅ AI Voice Agent active — +1 (302) 664-7594 is live and answering calls 24/7</span>
+    <!-- hidden inputs kept for saveVapiConfig() compatibility -->
+    <input type="hidden" id="vapi-phone-input">
+    <input type="hidden" id="vapi-assistant-input">
   </div>
 
   <!-- Stats row -->
@@ -899,6 +1061,48 @@ nav { flex: 1; padding: 8px 0; }
       <div class="cal-header-cell">Wed</div><div class="cal-header-cell">Thu</div><div class="cal-header-cell">Fri</div><div class="cal-header-cell">Sat</div>
     </div>
     <div class="cal-grid" id="cal-grid"></div>
+  </div>
+</div>
+
+<!-- ── ONBOARDING ── -->
+<div id="s-onboarding" class="screen">
+  <div class="topbar"><div><h1>Let's get you live 🚀</h1><div class="sub">Complete these steps to activate your AI agent</div></div></div>
+  <div class="card" style="max-width:580px;padding:24px 20px">
+    <!-- progress bar -->
+    <div id="ob2-progress-bar" class="ob-progress-bar"><div class="ob-progress-fill" id="ob2-progress-fill" style="width:20%"></div></div>
+    <!-- celebrate state (hidden until done) -->
+    <div id="ob2-celebrate" class="ob-celebrate" style="display:none">
+      <div style="font-size:48px;margin-bottom:12px">🎉</div>
+      <div style="font-size:22px;font-weight:700;color:#ffffff;margin-bottom:8px">You're live!</div>
+      <div style="font-size:14px;color:#666666;line-height:1.7;margin-bottom:24px">Your AI is answering calls at<br><strong style="color:#74C69D">+1 (302) 664-7594</strong></div>
+      <button class="set-btn-primary" onclick="ob2Finish()">Go to Dashboard</button>
+    </div>
+    <!-- checklist -->
+    <ul class="ob-checklist" id="ob2-checklist">
+      <li class="auto" data-step="0">
+        <div class="ob-check"></div>
+        <span>Account created</span>
+      </li>
+      <li data-step="1" onclick="ob2Step(1)">
+        <div class="ob-check"></div>
+        <span>Add your website URL</span>
+        <span style="margin-left:auto;font-size:11px;color:#444">→ Settings</span>
+      </li>
+      <li data-step="2" onclick="ob2Step(2)">
+        <div class="ob-check"></div>
+        <span>Set your business hours</span>
+        <span style="margin-left:auto;font-size:11px;color:#444">→ Settings</span>
+      </li>
+      <li data-step="3" onclick="ob2Step(3)">
+        <div class="ob-check"></div>
+        <span>Add your notification phone number</span>
+        <span style="margin-left:auto;font-size:11px;color:#444">→ Settings</span>
+      </li>
+      <li data-step="4">
+        <div class="ob-check"></div>
+        <a href="tel:+13026647594" style="color:inherit;text-decoration:none">Call your AI agent <span style="color:#74C69D">+1 (302) 664-7594</span></a>
+      </li>
+    </ul>
   </div>
 </div>
 
@@ -1379,6 +1583,8 @@ nav { flex: 1; padding: 8px 0; }
 </div>
 
 <script>
+const DEMO_MODE = new URLSearchParams(window.location.search).get('demo') === 'true';
+
 // ── STATE ──
 let bizName = '';
 let chatHistory = [], chatStarted = false, capturedLead = null;
@@ -1387,11 +1593,12 @@ let calYear = _now.getFullYear(), calMonth = _now.getMonth();
 let selectedEventIdx = null;
 
 const leads = [
-  { name:'Terri Walsh', addr:'417 Boxwood Ln, Lynchburg', service:'Pest control', phone:'(540) 555-0183', requested:'Today, 10:14am', status:'new' },
-  { name:'Derek Huang', addr:'82 Ridgecrest Dr, Forest VA', service:'Lawn care', phone:'(434) 555-0271', requested:'Today, 8:47am', status:'new' },
-  { name:'Sandra Okonkwo', addr:'209 Maple Ave, Lynchburg', service:'Tree trimming', phone:'(540) 555-0104', requested:'Mar 14, 3:22pm', status:'followup' },
-  { name:'Mike Travers', addr:'55 Sunridge Ct, Bedford VA', service:'Landscaping design', phone:'(540) 555-0346', requested:'Mar 13, 11:05am', status:'scheduled' },
-  { name:'Pam Delgado', addr:'1108 Heritage Blvd, Amherst', service:'Lawn care', phone:'(434) 555-0088', requested:'Mar 12, 2:38pm', status:'done' },
+  { name:'Terri Walsh', addr:'417 Boxwood Ln, Lynchburg', service:'Pest control', phone:'(540) 555-0183', requested:'Today, 10:14am', status:'new', source:'chat' },
+  { name:'Derek Huang', addr:'82 Ridgecrest Dr, Forest VA', service:'Lawn care', phone:'(434) 555-0271', requested:'Today, 8:47am', status:'new', source:'chat' },
+  { name:'Sandra Okonkwo', addr:'209 Maple Ave, Lynchburg', service:'Tree trimming', phone:'(540) 555-0104', requested:'Mar 14, 3:22pm', status:'followup', source:'phone' },
+  { name:'Mike Travers', addr:'55 Sunridge Ct, Bedford VA', service:'Landscaping design', phone:'(540) 555-0346', requested:'Mar 13, 11:05am', status:'scheduled', source:'chat' },
+  { name:'Pam Delgado', addr:'1108 Heritage Blvd, Amherst', service:'Lawn care', phone:'(434) 555-0088', requested:'Mar 12, 2:38pm', status:'done', source:'chat' },
+  { name:'James Ritchie', addr:'312 Timberlake Rd, Lynchburg', service:'Roof inspection', phone:'(434) 555-0317', requested:'Today, 7:30am', status:'new', source:'phone' },
 ];
 
 let appointments = [
@@ -1420,7 +1627,8 @@ function showScreen(id, el) {
   if (el) el.classList.add('active');
   if (id==='dashboard') { renderDashLeads(); renderDashAppts(); renderFeed(); updateMetrics(); setTimeout(renderCharts, 50); loadRoiCard(); }
   if (id==='leads') renderLeadsTable();
-  if (id==='calls') { renderCallsTable(); checkVapiBanner(); }
+  if (id==='calls') { checkVapiBanner(); if (!DEMO_MODE) { loadVapiCallsFromApi(); } else { renderCallsTable(); } }
+  if (id==='onboarding') ob2Render();
   if (id==='calendar') renderCalendar();
   if (id==='chatbot' && !chatStarted) startChat();
 }
@@ -1469,6 +1677,11 @@ function renderFeed() {
 }
 
 // ── LEADS TABLE ──
+function sourceTag(src) {
+  if (src === 'phone' || src === 'vapi') return '<span class="pill p-phone">📞 Phone</span>';
+  return '<span class="pill p-chat">💬 Chat</span>';
+}
+
 function renderLeadsTable() {
   const f = document.getElementById('filter-status')?.value || '';
   const data = f ? leads.filter(l=>l.status===f) : leads;
@@ -1477,16 +1690,52 @@ function renderLeadsTable() {
     <td>${l.service}</td><td>${l.phone}</td>
     <td style="font-size:12px;color:var(--text3)">${l.requested}</td>
     <td><span class="pill ${SL[l.status]}">${ST[l.status]}</span></td>
+    <td>${sourceTag(l.source)}</td>
     <td>
       <button class="btn-sm primary" onclick="schedLead(${leads.indexOf(l)})">Schedule</button>
       <button class="btn-sm" onclick="doneLead(${leads.indexOf(l)})">Done</button>
     </td>
   </tr>`; }).join('');
+  renderMobileLeads(data);
   updateMetrics();
+}
+function renderMobileLeads(data) {
+  const el = document.getElementById('mobile-leads-list');
+  if (!el) return;
+  if (!data.length) { el.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>No leads found</div>'; return; }
+  el.innerHTML = data.map((l) => {
+    const idx = leads.indexOf(l);
+    const [bg, fg] = avatarColors(l.name);
+    const phoneHref = l.phone ? 'tel:' + l.phone.replace(/\D/g,'') : '#';
+    return `<div class="lead-mob-card" onclick="toggleLeadCard(this)">
+      <div class="lead-mob-card-top">
+        <div class="lmc-name-group">
+          <div style="width:32px;height:32px;border-radius:50%;background:${bg};color:${fg};font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">${initials(l.name)}</div>
+          <div class="lmc-text"><div class="lmc-name">${l.name}</div><div class="lmc-addr">${l.addr||''}</div></div>
+        </div>
+        <span class="pill ${SL[l.status]}">${ST[l.status]}</span>
+      </div>
+      <div class="lmc-meta">
+        <span class="lmc-service">${l.service}</span>
+        <span class="lmc-time">${l.requested}</span>
+      </div>
+      <div class="lmc-contact-row">
+        ${l.phone ? `<a href="${phoneHref}" class="lmc-contact-link" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02L6.6 10.8z"/></svg>${l.phone}</a>` : ''}
+      </div>
+      <div class="lmc-actions">
+        <button class="lmc-btn primary" onclick="event.stopPropagation();schedLead(${idx})">Schedule</button>
+        <button class="lmc-btn" onclick="event.stopPropagation();doneLead(${idx})">Done</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function toggleLeadCard(el) {
+  const row = el.querySelector('.lmc-contact-row');
+  if (row) row.classList.toggle('expanded');
 }
 function schedLead(i) {
   leads[i].status = 'scheduled';
-  if (sb && currentUser && leads[i].id) sb.from('leads').update({ status: 'scheduled' }).eq('id', leads[i].id);
+  if (!DEMO_MODE && sb && currentUser && leads[i].id) sb.from('leads').update({ status: 'scheduled' }).eq('id', leads[i].id);
   // Pre-fill booking modal with lead info
   document.getElementById('bk-name').value = leads[i].name;
   document.getElementById('bk-phone').value = leads[i].phone;
@@ -1498,7 +1747,7 @@ function schedLead(i) {
 }
 function doneLead(i) {
   leads[i].status = 'done';
-  if (sb && currentUser && leads[i].id) sb.from('leads').update({ status: 'done' }).eq('id', leads[i].id);
+  if (!DEMO_MODE && sb && currentUser && leads[i].id) sb.from('leads').update({ status: 'done' }).eq('id', leads[i].id);
   renderLeadsTable();
 }
 
@@ -1557,7 +1806,7 @@ async function saveBooking() {
   appointments.push(appt);
   appointments.sort((a, b) => a.date.localeCompare(b.date));
   feed.unshift({ color: 'a-blue', text: `Appointment booked: ${name} — ${appt.service}`, time: 'Just now' });
-  if (sb && currentUser) {
+  if (!DEMO_MODE && sb && currentUser) {
     const { data } = await sb.from('appointments').insert({
       contractor_id: currentUser.id,
       name: appt.name,
@@ -1654,7 +1903,7 @@ async function callClaude() {
   showTyping(true);
   try {
     const payload = { model:'claude-sonnet-4-6', max_tokens:500, system: getSystemPrompt(), messages: chatHistory };
-    const res = await fetch('https://leadpro-1d5l.onrender.com/api', {
+    const res = await authFetch('/api', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -1794,7 +2043,7 @@ async function scrapeWebsite() {
   btn.textContent = 'Scraping…'; btn.disabled = true;
   showScrapeStatus('Fetching page and extracting profile…');
   try {
-    const res = await fetch('/scrape', {
+    const res = await authFetch('/scrape', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url })
     });
@@ -1984,21 +2233,118 @@ let sb = null;
 let currentUser = null;
 let contractorProfile = null;
 
+// authFetch — wraps fetch() with the stored JWT.
+// On 403, automatically inspects the error type and triggers the correct paywall UI.
+// Returns the original Response so callers can still read the body normally.
+async function authFetch(url, opts) {
+  opts = opts || {};
+  const token = localStorage.getItem('leadpro_token');
+  const headers = Object.assign({}, opts.headers || {});
+  if (token) headers['Authorization'] = 'Bearer ' + token;
+  const res = await fetch(url, Object.assign({}, opts, { headers }));
+  if (res.status === 403) {
+    const body = await res.clone().json().catch(() => ({}));
+    handlePaywallError(body);
+  }
+  return res;
+}
+
+// Dispatch to the right UI based on the error type returned by planGate
+function handlePaywallError(body) {
+  const t = body && body.error;
+  if (t === 'trial_expired') {
+    showPaywallBanner('trial_expired');
+  } else if (t === 'subscription_inactive') {
+    showPaywallBanner('subscription_inactive');
+  } else if (t === 'upgrade_required') {
+    showUpgradeModal();
+  }
+}
+
+// Top-of-dashboard banner for trial_expired / subscription_inactive
+function showPaywallBanner(type) {
+  const banner  = document.getElementById('paywall-banner');
+  const msgEl   = document.getElementById('pb-msg-text');
+  if (!banner || !msgEl) return;
+  if (type === 'subscription_inactive') {
+    banner.classList.add('inactive');
+    msgEl.classList.add('inactive');
+    msgEl.textContent = 'Your subscription is no longer active. Reactivate to keep using LeadPro.';
+  } else {
+    banner.classList.remove('inactive');
+    msgEl.classList.remove('inactive');
+    msgEl.textContent = 'Your free trial has ended. Upgrade to keep your leads coming in.';
+  }
+  banner.classList.add('show');
+}
+
+// Inline modal for pro-only features
+function showUpgradeModal() {
+  const modal = document.getElementById('upgrade-modal');
+  if (modal) modal.classList.add('show');
+}
+
+function closeUpgradeModal() {
+  const modal = document.getElementById('upgrade-modal');
+  if (modal) modal.classList.remove('show');
+}
+
+// Trial countdown pill in the dashboard header
+function renderTrialCountdown() {
+  const pill = document.getElementById('trial-pill');
+  const text = document.getElementById('trial-pill-text');
+  if (!pill || !text || !contractorProfile) return;
+
+  if (contractorProfile.plan_status !== 'trial' || !contractorProfile.trial_ends_at) {
+    pill.classList.remove('show');
+    return;
+  }
+
+  const msLeft   = new Date(contractorProfile.trial_ends_at) - new Date();
+  const daysLeft = Math.max(0, Math.ceil(msLeft / 86400000));
+
+  if (daysLeft === 0) {
+    pill.classList.remove('show');   // trial expired — banner handles this case
+    return;
+  }
+
+  text.textContent = daysLeft === 1 ? '1 day left in trial' : `${daysLeft} days left in trial`;
+
+  pill.classList.remove('amber', 'red');
+  if (daysLeft <= 1) {
+    pill.classList.add('red');
+  } else if (daysLeft <= 3) {
+    pill.classList.add('amber');
+  }
+  pill.classList.add('show');
+}
+
 async function initSupabase() {
+  if (DEMO_MODE) { runAppWithDemoData(); return; }
+  const token = localStorage.getItem('leadpro_token');
+  if (!token) { window.location.replace('/auth'); return; }
   try {
-    const cfg = await fetch('/config').then(r => r.json());
-    if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) { runAppWithDemoData(); return; }
-    sb = supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
-    const { data: { session } } = await sb.auth.getSession();
-    if (session) { currentUser = session.user; await afterLogin(); }
-    else { showAuthScreen('signin'); }
-    sb.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session) { currentUser = session.user; await afterLogin(); }
-      else if (event === 'SIGNED_OUT') { currentUser = null; contractorProfile = null; showAuthScreen('signin'); }
+    const cfgData = await fetch('/config').then(r => r.json());
+    if (!cfgData.supabaseUrl || !cfgData.supabaseAnonKey) { runAppWithDemoData(); return; }
+    // Init Supabase client with the stored JWT so direct DB queries are authenticated
+    sb = supabase.createClient(cfgData.supabaseUrl, cfgData.supabaseAnonKey, {
+      global: { headers: { Authorization: 'Bearer ' + token } }
     });
+    // Verify the token is still valid and load the user record
+    const meRes = await authFetch('/auth/me');
+    if (!meRes.ok) {
+      localStorage.removeItem('leadpro_token');
+      localStorage.removeItem('leadpro_refresh_token');
+      window.location.replace('/auth');
+      return;
+    }
+    const { user } = await meRes.json();
+    currentUser = user;
+    await afterLogin();
   } catch (e) {
-    console.warn('Supabase unavailable, running with demo data:', e.message);
-    runAppWithDemoData();
+    console.warn('Auth init failed:', e.message);
+    localStorage.removeItem('leadpro_token');
+    window.location.replace('/auth');
   }
 }
 
@@ -2015,52 +2361,21 @@ function switchAuthTab(tab) {
   document.getElementById('auth-tab-signup').classList.toggle('active', tab === 'signup');
 }
 
-async function signIn() {
-  const email = document.getElementById('signin-email').value.trim();
-  const pass = document.getElementById('signin-pass').value;
-  const errEl = document.getElementById('signin-error');
-  const btn = document.getElementById('signin-btn');
-  if (!sb) { errEl.textContent = 'Auth not initialized — check server config'; return; }
-  if (!email || !pass) { errEl.textContent = 'Please enter email and password'; return; }
-  btn.textContent = 'Signing in…'; btn.disabled = true; errEl.textContent = '';
-  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
-  btn.textContent = 'Sign in'; btn.disabled = false;
-  if (error) errEl.textContent = error.message;
-}
+function signIn() { window.location.href = '/auth'; }
 
-async function signUp() {
-  const email = document.getElementById('signup-email').value.trim();
-  const pass = document.getElementById('signup-pass').value;
-  const biz = document.getElementById('signup-biz').value.trim();
-  const errEl = document.getElementById('signup-error');
-  const successEl = document.getElementById('signup-success');
-  const btn = document.getElementById('signup-btn');
-  if (!sb) { errEl.textContent = 'Auth not initialized — check server config'; return; }
-  if (!email || !pass || !biz) { errEl.textContent = 'All fields are required'; return; }
-  if (pass.length < 6) { errEl.textContent = 'Password must be at least 6 characters'; return; }
-  btn.textContent = 'Creating account…'; btn.disabled = true; errEl.textContent = ''; successEl.style.display = 'none';
-  const { data, error } = await sb.auth.signUp({ email, password: pass });
-  btn.textContent = 'Create account'; btn.disabled = false;
-  if (error) { errEl.textContent = error.message; return; }
-  if (data.user) {
-    // Use server endpoint (service key) so the insert succeeds even when
-    // email confirmation is pending and auth.uid() is null (RLS would block the anon key).
-    await fetch('/ensure-contractor', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: data.user.id, businessName: biz })
-    });
-  }
-  successEl.style.display = 'block';
-}
+function signUp() { window.location.href = '/auth?tab=signup'; }
 
 async function signOut() {
-  if (sb) await sb.auth.signOut();
+  await authFetch('/auth/logout', { method: 'POST' }).catch(() => {});
+  localStorage.removeItem('leadpro_token');
+  localStorage.removeItem('leadpro_refresh_token');
+  localStorage.removeItem('leadpro_expires_at');
+  window.location.replace('/auth');
 }
 
 async function afterLogin() {
-  // Ensure the contractor row exists (may be missing if signup RLS blocked the insert).
-  await fetch('/ensure-contractor', {
+  // Ensure the contractor row exists (safety net for accounts created before this auth flow).
+  await authFetch('/ensure-contractor', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ userId: currentUser.id, businessName: currentUser.email?.split('@')[0] || '' })
@@ -2072,7 +2387,12 @@ async function afterLogin() {
   renderSidebarUser();
   renderWidgetCode();
   setupRealtime();
-  // Show onboarding wizard for contractors who haven't completed it yet
+  // Show new 5-step onboarding screen when contractor status is 'onboarding'
+  if (contractorProfile && contractorProfile.status === 'onboarding') {
+    showOnboardingScreen();
+    return;
+  }
+  // Show legacy setup wizard for accounts that haven't completed basic setup
   if (contractorProfile && !contractorProfile.onboarding_done) {
     showOnboarding();
   }
@@ -2110,6 +2430,7 @@ async function loadContractorProfile() {
     }
   }
   checkPaywall();
+  renderTrialCountdown();
   renderBillingSection();
   renderGoogleCalendarSection();
   loadTextbackSettings();
@@ -2131,7 +2452,7 @@ function connectGoogleCalendar() {
 
 async function disconnectGoogleCalendar() {
   if (!currentUser || !confirm('Disconnect Google Calendar? The AI chatbot will stop booking appointments automatically.')) return;
-  const res = await fetch('https://leadpro-1d5l.onrender.com/auth/google/disconnect', {
+  const res = await authFetch('/auth/google/disconnect', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ contractor_id: currentUser.id })
@@ -2152,7 +2473,7 @@ async function loadData() {
     leads.length = 0;
     leadsData.forEach(l => leads.push({
       id: l.id, name: l.name, addr: l.address, service: l.service,
-      phone: l.phone || '—', notes: l.notes,
+      phone: l.phone || '—', notes: l.notes, source: l.source || null,
       requested: new Date(l.requested_at).toLocaleString('en-US', { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' }),
       status: l.status
     }));
@@ -2298,8 +2619,18 @@ function copyEmbedCode(btn) {
 
 function runAppWithDemoData() {
   hideAuthScreen();
+  // Show demo banner
+  const demoBanner = document.getElementById('demo-banner');
+  if (demoBanner) demoBanner.style.display = 'flex';
+  // Hide Settings nav item in demo mode
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.textContent.trim().startsWith('Settings')) n.style.display = 'none';
+  });
+  // Hide bottom nav settings button too
+  const bnavSettings = document.getElementById('bnav-settings');
+  if (bnavSettings) bnavSettings.closest('.bnav-item-wrap').style.display = 'none';
   document.getElementById('sidebar-user-initials').textContent = 'JM';
-  document.getElementById('sidebar-user-biz').textContent = 'LeadPro';
+  document.getElementById('sidebar-user-biz').textContent = 'Demo Account';
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
   const welcomeEl = document.getElementById('dash-welcome');
@@ -2316,12 +2647,41 @@ let callsData = [...DEMO_CALLS];
 let selectedCallIdx = null;
 
 function checkVapiBanner() {
-  const configured = contractorProfile?.vapi_phone;
-  document.getElementById('vapi-banner').style.display = configured ? 'none' : 'flex';
-  if (configured) {
+  // Banner always shows success state — update hidden inputs for saveVapiConfig compat
+  const banner = document.getElementById('vapi-banner');
+  if (banner) banner.style.display = 'flex';
+  if (contractorProfile?.vapi_phone) {
     document.getElementById('vapi-phone-input').value = contractorProfile.vapi_phone;
     document.getElementById('vapi-assistant-input').value = contractorProfile.vapi_assistant_id || '';
   }
+}
+
+async function loadVapiCallsFromApi() {
+  const tbody = document.getElementById('calls-body');
+  if (tbody) tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:28px 14px;color:var(--text3);font-size:13px">
+    <span style="display:inline-block;width:16px;height:16px;border:2px solid #333;border-top-color:#74C69D;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px"></span>Loading calls…
+  </td></tr>`;
+  try {
+    const res = await authFetch('/api/vapi/calls');
+    if (!res.ok) throw new Error('fetch failed');
+    const raw = await res.json();
+    const list = Array.isArray(raw) ? raw : (raw.results || raw.calls || []);
+    if (list.length) {
+      callsData = list.map(c => ({
+        caller_phone:     c.customer?.number || c.caller_phone || '—',
+        started_at:       c.startedAt || c.started_at || new Date().toISOString(),
+        duration_seconds: c.duration || c.duration_seconds || 0,
+        status:           c.status === 'ended' ? 'answered' : (c.status || 'answered'),
+        transcript:       c.artifact?.transcript || c.transcript || '',
+        lead_data:        c.analysis?.structuredData || c.lead_data || null,
+      }));
+    } else {
+      callsData = [...DEMO_CALLS];
+    }
+  } catch {
+    callsData = [...DEMO_CALLS];
+  }
+  renderCallsTable();
 }
 
 function fmtDuration(secs) {
@@ -2499,7 +2859,7 @@ function renderBillingSection() {
 async function startCheckout(plan) {
   if (!currentUser) { alert('Please sign in first'); return; }
   try {
-    const res = await fetch('https://leadpro-1d5l.onrender.com/create-checkout-session', {
+    const res = await authFetch('/create-checkout-session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ plan, contractorId: currentUser.id })
@@ -2515,7 +2875,7 @@ async function startCheckout(plan) {
 async function openBillingPortal() {
   if (!currentUser) { alert('Please sign in first'); return; }
   try {
-    const res = await fetch('https://leadpro-1d5l.onrender.com/billing-portal?contractorId=' + currentUser.id);
+    const res = await authFetch('/billing-portal?contractorId=' + currentUser.id);
     const data = await res.json();
     if (data.url) { window.open(data.url, '_blank'); }
     else alert('Billing portal error: ' + (data.error || 'No billing account found'));
@@ -2639,12 +2999,11 @@ async function loadAgentPromptPreview() {
   if (!ta) return;
   ta.value = 'Loading…';
   try {
-    const { data: { user } } = await sb.auth.getUser();
-    if (!user) { ta.value = 'Not signed in.'; return; }
-    const res = await fetch('/api/agent-config', {
+    if (!currentUser) { ta.value = 'Not signed in.'; return; }
+    const res = await authFetch('/api/agent-config', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contractorId: user.id }),
+      body: JSON.stringify({ contractorId: currentUser.id }),
     });
     if (!res.ok) throw new Error('Server error');
     const { systemPrompt } = await res.json();
@@ -2670,8 +3029,7 @@ async function sendAgentTestMessage(overrideText) {
   const btn   = document.getElementById('acp-send-btn');
   const text  = overrideText !== undefined ? overrideText : (input?.value.trim() || '');
   if (!text) return;
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) return;
+  if (!currentUser) return;
   if (overrideText === undefined && input) input.value = '';
 
   _agentChatHistory.push({ role: 'user', content: text });
@@ -2681,10 +3039,10 @@ async function sendAgentTestMessage(overrideText) {
   const thinking = _appendAgentBubble('agent thinking', 'Typing…');
 
   try {
-    const res = await fetch('/api/test-agent', {
+    const res = await authFetch('/api/test-agent', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contractorId: user.id, messages: _agentChatHistory }),
+      body: JSON.stringify({ contractorId: currentUser.id, messages: _agentChatHistory }),
     });
     const data = await res.json();
     const reply = data?.content?.[0]?.text || data?.error || 'No response.';
@@ -2773,10 +3131,80 @@ function obDismiss() {
   showScreen('dashboard', document.querySelector('.nav-item'));
 }
 
+// ── ONBOARDING CHECKLIST (new 5-step screen) ──
+const OB2_KEY = 'lp_ob2_steps';
+
+function ob2GetSteps() {
+  try { return JSON.parse(localStorage.getItem(OB2_KEY)) || [true, false, false, false, false]; }
+  catch { return [true, false, false, false, false]; }
+}
+
+function ob2SaveSteps(steps) {
+  localStorage.setItem(OB2_KEY, JSON.stringify(steps));
+}
+
+function ob2Render() {
+  const steps = ob2GetSteps();
+  const items = document.querySelectorAll('#ob2-checklist li');
+  items.forEach((li, i) => {
+    li.classList.toggle('done', !!steps[i]);
+    li.classList.toggle('auto', i === 0); // step 0 always auto-checked
+  });
+  const done = steps.filter(Boolean).length;
+  const pct = Math.round(done / steps.length * 100);
+  const fill = document.getElementById('ob2-progress-fill');
+  if (fill) fill.style.width = pct + '%';
+  if (done === steps.length) {
+    document.getElementById('ob2-checklist').style.display = 'none';
+    document.getElementById('ob2-celebrate').style.display = '';
+  }
+}
+
+function ob2Step(n) {
+  if (n === 1 || n === 2 || n === 3) {
+    const steps = ob2GetSteps();
+    steps[n] = true;
+    ob2SaveSteps(steps);
+    ob2Render();
+    showScreen('settings', document.querySelector('[onclick*="settings"]'));
+  }
+}
+
+async function ob2Finish() {
+  try {
+    await authFetch('/api/onboarding/complete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contractor_id: currentUser?.id }),
+    });
+    if (contractorProfile) { contractorProfile.status = 'active'; contractorProfile.onboarding_done = true; }
+  } catch {}
+  showScreen('dashboard', document.querySelector('.nav-item'));
+}
+
+function showOnboardingScreen() {
+  if (DEMO_MODE) return;
+  const steps = ob2GetSteps();
+  steps[0] = true;
+  ob2SaveSteps(steps);
+  ob2Render();
+  showScreen('onboarding', null);
+}
+
+// Mark a checklist step complete (callable from settings saves)
+function ob2MarkStep(n) {
+  const steps = ob2GetSteps();
+  steps[n] = true;
+  ob2SaveSteps(steps);
+  ob2Render();
+}
+
 // ── INIT ──
 document.getElementById('dash-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
 updateSmsCharCount(); // seed char count from default template text
 localStorage.removeItem('lp_api_key');
+// AUTH GUARD — hard redirect before any app code runs (skipped in demo mode)
+if (!DEMO_MODE && !localStorage.getItem('leadpro_token')) { window.location.replace('/auth'); }
 document.getElementById('book-overlay').addEventListener('click', e=>{ if(e.target===document.getElementById('book-overlay')) closeBookModal(); });
 document.getElementById('event-overlay').addEventListener('click', e=>{ if(e.target===document.getElementById('event-overlay')) closeEventModal(); });
 // Clear redirect params and handle OAuth callbacks
@@ -2879,5 +3307,20 @@ function updateBnavBadge() {
 const _origUpdateMetrics = updateMetrics;
 updateMetrics = function() { _origUpdateMetrics(); updateBnavBadge(); };
 </script>
+
+<!-- UPGRADE MODAL: shown on 403 upgrade_required (pro-only feature) -->
+<div id="upgrade-modal">
+  <div id="upgrade-modal-box">
+    <div class="um-icon">
+      <svg viewBox="0 0 24 24"><path d="M19 11H7.83l4.88-4.88c.39-.39.39-1.03 0-1.42-.39-.39-1.02-.39-1.41 0l-6.59 6.59c-.39.39-.39 1.02 0 1.41l6.59 6.59c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L7.83 13H19c.55 0 1-.45 1-1s-.45-1-1-1zm-7-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+    </div>
+    <div class="um-title">Pro plan required</div>
+    <div class="um-sub">This feature is Pro only. Upgrade to unlock AI prospecting, advanced outreach, and more.</div>
+    <div class="um-actions">
+      <button class="um-btn-secondary" onclick="closeUpgradeModal()">Maybe later</button>
+      <button class="um-btn-primary" onclick="window.location.href='/pricing'">Upgrade to Pro</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
