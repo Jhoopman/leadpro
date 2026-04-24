@@ -53,8 +53,9 @@ app.get('/config', (_, res) => res.json({
 
 app.get('/health', (_, res) => res.json({ ok: true, ts: new Date().toISOString() }));
 
-// GET /api/health/db — tests the Supabase connection and returns table inventory.
-// Useful for diagnosing DB issues directly from the browser or curl.
+// GET /api/health/db — tests Supabase auth + PostgREST + contractors table.
+// Hit from browser: https://app.useleadpro.net/api/health/db
+// Returns 200 + { ok:true } on success, 503 + error details on failure.
 app.get('/api/health/db', async (_, res) => {
   const supabase = require('./services/supabase');
   const results  = {};
