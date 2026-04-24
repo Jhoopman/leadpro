@@ -66,8 +66,9 @@ router.post('/auth/signup', authLimit, catchAsync(async (req, res) => {
   });
 
   if (insertErr) {
+    console.error('[auth/signup] contractors insert failed:', insertErr.message, { code: insertErr.code, details: insertErr.details });
     // Roll back auth user so the account is not left in a broken state
-    await supabase.auth.admin.deleteUser(user.id).catch(() => {});
+    await supabase.auth.admin.deleteUser(user.id).catch(e => console.error('[auth/signup] deleteUser rollback failed:', e.message));
     return res.status(500).json({ error: 'Account setup failed — please try again' });
   }
 
@@ -78,6 +79,7 @@ router.post('/auth/signup', authLimit, catchAsync(async (req, res) => {
   });
 
   if (sessionErr || !session) {
+    console.error('[auth/signup] session creation failed after account creation:', sessionErr?.message);
     return res.status(500).json({ error: 'Account created — please sign in to continue' });
   }
 

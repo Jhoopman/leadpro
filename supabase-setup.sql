@@ -102,6 +102,9 @@ ALTER TABLE contractors ADD COLUMN IF NOT EXISTS plan                   text DEF
 ALTER TABLE contractors ADD COLUMN IF NOT EXISTS plan_status            text DEFAULT 'trial';
 ALTER TABLE contractors ADD COLUMN IF NOT EXISTS trial_ends_at          timestamptz;
 
+-- Email column (used by auth/signup insert):
+ALTER TABLE contractors ADD COLUMN IF NOT EXISTS email text DEFAULT '';
+
 -- Google Calendar integration:
 ALTER TABLE contractors ADD COLUMN IF NOT EXISTS google_access_token  text;
 ALTER TABLE contractors ADD COLUMN IF NOT EXISTS google_refresh_token text;

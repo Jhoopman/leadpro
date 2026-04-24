@@ -47,5 +47,5 @@ module.exports = {
     phone:      process.env.TWILIO_PHONE        || '+13026647594',
   },
 
-  appUrl: process.env.APP_URL || 'https://leadpro-1d5l.onrender.com',
+  appUrl: process.env.APP_URL || 'https://app.useleadpro.net',
 };

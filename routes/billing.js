@@ -72,17 +72,24 @@ router.post('/create-checkout-session', catchAsync(async (req, res) => {
 // express.raw() is applied in server.js for this route so req.rawBody is available.
 router.post('/stripe-webhook', async (req, res) => {
   const sig = req.headers['stripe-signature'];
-  if (!sig || !req.rawBody) return res.status(400).json({ error: 'Missing signature or raw body' });
+  // express.raw() stores the raw Buffer in req.body (not req.rawBody)
+  if (!sig || !req.body) return res.status(400).json({ error: 'Missing signature or raw body' });
   if (!cfg.stripe.webhookSecret) return res.status(503).json({ error: 'Webhook secret not configured' });
 
   try {
-    stripe.verifyWebhookSignature(req.rawBody.toString(), sig);
+    stripe.verifyWebhookSignature(req.body.toString(), sig);
   } catch (e) {
     console.warn('[stripe-webhook] Rejected:', e.message);
     return res.status(400).json({ error: 'Invalid signature' });
   }
 
-  const event = req.body;
+  let event;
+  try {
+    event = JSON.parse(req.body.toString());
+  } catch (e) {
+    console.error('[stripe-webhook] Failed to parse event body:', e.message);
+    return res.status(400).json({ error: 'Invalid JSON body' });
+  }
 
   // ── IDEMPOTENCY GUARD ──
   // Stripe retries events for up to 72 hours. Storing the event ID prevents
@@ -116,7 +123,6 @@ router.post('/stripe-webhook', async (req, res) => {
             stripe_subscription_id: session.subscription,
             plan,
             plan_status: 'active',
-            status:      'onboarding',
           }).eq('id', contractorId);
           console.log('[stripe-webhook] Subscription activated — contractor:', contractorId, 'plan:', plan);
         }

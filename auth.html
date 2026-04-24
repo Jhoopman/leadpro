@@ -280,6 +280,7 @@ async function submitSignIn() {
     window.location.replace('/app');
 
   } catch (e) {
+    console.error('[auth/signin] fetch error:', e);
     errEl.textContent = 'Connection error — please try again';
     btn.textContent   = 'Sign in';
     btn.disabled      = false;
@@ -341,6 +342,7 @@ async function submitSignUp() {
     window.location.replace('/app');
 
   } catch (e) {
+    console.error('[auth/signup] fetch error:', e);
     errEl.textContent = 'Connection error — please try again';
     btn.textContent   = 'Create account';
     btn.disabled      = false;
@@ -366,7 +368,8 @@ async function startCheckoutWithToken(plan, token, contractorId) {
     } else {
       window.location.replace('/app');
     }
-  } catch (_) {
+  } catch (e) {
+    console.error('[auth/checkout] fetch error:', e);
     window.location.replace('/app');
   }
 }
