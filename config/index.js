@@ -2,11 +2,18 @@
 // Single source of truth for all environment variables.
 // Import this everywhere — never read process.env directly in route files.
 
-const required = ['ANTHROPIC_API_KEY', 'SUPABASE_URL', 'SUPABASE_SERVICE_KEY'];
+// Accept both naming conventions — Render often uses SUPABASE_SERVICE_ROLE_KEY
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
-for (const key of required) {
-  if (!process.env[key]) {
-    console.error(`\n❌  Missing required env var: ${key}\n`);
+const required = [
+  ['ANTHROPIC_API_KEY',  process.env.ANTHROPIC_API_KEY],
+  ['SUPABASE_URL',       process.env.SUPABASE_URL],
+  ['SUPABASE_SERVICE_KEY or SUPABASE_SERVICE_ROLE_KEY', supabaseServiceKey],
+];
+
+for (const [name, value] of required) {
+  if (!value) {
+    console.error(`\n❌  Missing required env var: ${name}\n`);
     process.exit(1);
   }
 }
@@ -17,7 +24,7 @@ module.exports = {
   anthropicApiKey:    process.env.ANTHROPIC_API_KEY,
 
   supabaseUrl:        process.env.SUPABASE_URL,
-  supabaseServiceKey: process.env.SUPABASE_SERVICE_KEY,
+  supabaseServiceKey,
   supabaseAnonKey:    process.env.SUPABASE_ANON_KEY || '',
 
   resendApiKey:       process.env.RESEND_API_KEY || '',

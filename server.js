@@ -53,6 +53,59 @@ app.get('/config', (_, res) => res.json({
 
 app.get('/health', (_, res) => res.json({ ok: true, ts: new Date().toISOString() }));
 
+// GET /api/health/db — tests the Supabase connection and returns table inventory.
+// Useful for diagnosing DB issues directly from the browser or curl.
+app.get('/api/health/db', async (_, res) => {
+  const supabase = require('./services/supabase');
+  const results  = {};
+
+  // 1. Ping auth — verifies the service key works against GoTrue
+  try {
+    const { data, error } = await supabase.auth.admin.listUsers({ page: 1, perPage: 1 });
+    results.auth = error ? { ok: false, error: error.message } : { ok: true, user_count_sample: data?.users?.length };
+  } catch (e) {
+    results.auth = { ok: false, error: e.message };
+  }
+
+  // 2. List public tables — verifies PostgREST + service key reach the DB
+  try {
+    const { data, error } = await supabase
+      .from('information_schema.tables')
+      .select('table_name')
+      .eq('table_schema', 'public')
+      .order('table_name');
+
+    if (error) throw new Error(error.message);
+    results.tables = { ok: true, names: data.map(r => r.table_name) };
+  } catch (e) {
+    // Fallback: direct RPC if information_schema is blocked by RLS
+    try {
+      const { data, error: e2 } = await supabase.rpc('get_public_tables').catch(() => ({ data: null, error: e }));
+      results.tables = e2
+        ? { ok: false, error: e.message }
+        : { ok: true, names: data };
+    } catch (_) {
+      results.tables = { ok: false, error: e.message };
+    }
+  }
+
+  // 3. Spot-check the contractors table columns
+  try {
+    const { data, error } = await supabase
+      .from('contractors')
+      .select('id, email, business_name, plan, plan_status')
+      .limit(1);
+    results.contractors = error
+      ? { ok: false, error: error.message }
+      : { ok: true, sample_row_count: data.length };
+  } catch (e) {
+    results.contractors = { ok: false, error: e.message };
+  }
+
+  const allOk = Object.values(results).every(r => r.ok);
+  res.status(allOk ? 200 : 503).json({ ok: allOk, ts: new Date().toISOString(), ...results });
+});
+
 // ── HTML ROUTES ───────────────────────────────────────────────────────────────
 
 // Auth page — publicly accessible (no token needed)
