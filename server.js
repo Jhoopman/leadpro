@@ -85,22 +85,9 @@ app.get('/signup', (_, res) => res.sendFile(path.join(__dirname, 'auth.html')));
 // Widget install guide — publicly served, JS inside handles auth redirect
 app.get('/install', (_, res) => res.sendFile(path.join(__dirname, 'install.html')));
 
-// Dashboard and other app pages — auth.html excluded from dynamic discovery
-function appHtml() {
-  return fs.readdirSync(__dirname)
-    .filter(f => f.endsWith('.html') && !['widget-chat.html', 'auth.html', 'install.html'].includes(f));
-}
-
-app.get(['/'], (_, res) => {
-  const files = appHtml();
-  if (!files.length) { res.status(404).send('No HTML found'); return; }
-  res.sendFile(path.join(__dirname, files[0]));
-});
-app.get('/app', (_, res) => {
-  const files = appHtml();
-  if (!files.length) { res.status(404).send('No HTML found'); return; }
-  res.sendFile(path.join(__dirname, files[0]));
-});
+// Dashboard — both / and /app serve the main PWA dashboard.
+// Named explicitly so readdir order on Linux never picks the wrong file.
+app.get(['/', '/app'], (_, res) => res.sendFile(path.join(__dirname, 'LeadPro_Full_App.html')));
 app.get('/prospector', (_, res) => res.sendFile(path.join(__dirname, 'prospector.html')));
 app.get('/outreach',   (_, res) => res.sendFile(path.join(__dirname, 'outreach-sequences.html')));
 app.get('/launch',     (_, res) => res.sendFile(path.join(__dirname, 'launch-plan.html')));

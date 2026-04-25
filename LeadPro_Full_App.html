@@ -2323,29 +2323,53 @@ async function initSupabase() {
   if (DEMO_MODE) { runAppWithDemoData(); return; }
   const token = localStorage.getItem('leadpro_token');
   if (!token) { window.location.replace('/auth'); return; }
+
+  // ── Step 1: verify token with the server (real auth failure → go to /auth) ──
+  let meData;
   try {
     const cfgData = await fetch('/config').then(r => r.json());
     if (!cfgData.supabaseUrl || !cfgData.supabaseAnonKey) { runAppWithDemoData(); return; }
-    // Init Supabase client with the stored JWT so direct DB queries are authenticated
     sb = supabase.createClient(cfgData.supabaseUrl, cfgData.supabaseAnonKey, {
       global: { headers: { Authorization: 'Bearer ' + token } }
     });
-    // Verify the token is still valid and load the user record
     const meRes = await authFetch('/auth/me');
     if (!meRes.ok) {
+      console.warn('[auth] /auth/me returned', meRes.status, '— clearing session');
       localStorage.removeItem('leadpro_token');
       localStorage.removeItem('leadpro_refresh_token');
       window.location.replace('/auth');
       return;
     }
-    const { user } = await meRes.json();
-    currentUser = user;
+    meData = await meRes.json();
+  } catch (e) {
+    // Network error hitting /config or /auth/me — don't wipe the session,
+    // just show a retry banner so the user isn't logged out on a bad connection.
+    console.error('[auth] network error during init:', e.message);
+    showInitError('Connection error — please refresh the page.');
+    return;
+  }
+
+  // ── Step 2: load dashboard data (JS errors here must NOT log the user out) ──
+  currentUser = meData.user;
+  try {
     await afterLogin();
   } catch (e) {
-    console.warn('Auth init failed:', e.message);
-    localStorage.removeItem('leadpro_token');
-    window.location.replace('/auth');
+    console.error('[auth] afterLogin error (session kept):', e.message, e.stack);
+    showInitError('Failed to load dashboard data — please refresh.');
   }
+}
+
+function showInitError(msg) {
+  // Show an in-page error instead of silently redirecting to /auth.
+  // This preserves the session so a refresh fixes transient errors.
+  const el = document.getElementById('init-error-banner');
+  if (el) { el.textContent = msg; el.style.display = 'block'; return; }
+  // Fallback: inject a simple banner at the top of <body>
+  const div = document.createElement('div');
+  div.id = 'init-error-banner';
+  div.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#7f1d1d;color:#fca5a5;padding:12px 20px;font-size:13px;z-index:99999;text-align:center;';
+  div.textContent = msg;
+  document.body.prepend(div);
 }
 
 function showAuthScreen(tab) {

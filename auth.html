@@ -277,6 +277,7 @@ async function submitSignIn() {
     }
 
     storeSession(data);
+    btn.textContent = 'Redirecting…';
     window.location.replace('/app');
 
   } catch (e) {
@@ -339,6 +340,7 @@ async function submitSignUp() {
       return;
     }
 
+    btn.textContent = 'Redirecting…';
     window.location.replace('/app');
 
   } catch (e) {
