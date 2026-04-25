@@ -36,14 +36,16 @@ router.post('/auth/signup', authLimit, catchAsync(async (req, res) => {
 
   const cleanEmail = email.toLowerCase().trim();
 
-  // ── Create auth user (email_confirm: true skips confirmation email) ──
-  const { data: { user }, error: createErr } = await supabase.auth.admin.createUser({
+  // ── Step 1: Create auth user ──
+  console.log('[auth/signup] step 1 — createUser', { email: cleanEmail });
+  const { data: authData, error: createErr } = await supabase.auth.admin.createUser({
     email:         cleanEmail,
     password,
     email_confirm: true,
   });
 
   if (createErr) {
+    console.error('[auth/signup] step 1 FAILED — createUser:', createErr.message, { status: createErr.status });
     const msg = createErr.message || '';
     if (msg.includes('already registered') || msg.includes('already exists') || msg.includes('duplicate')) {
       return res.status(409).json({ error: 'An account with this email already exists. Please sign in.' });
@@ -51,11 +53,17 @@ router.post('/auth/signup', authLimit, catchAsync(async (req, res) => {
     return res.status(400).json({ error: msg || 'Could not create account' });
   }
 
-  // ── Create contractors row ──
+  const user = authData?.user;
+  if (!user?.id) {
+    console.error('[auth/signup] step 1 FAILED — createUser returned no user:', JSON.stringify(authData));
+    return res.status(500).json({ error: 'Could not create account — please try again' });
+  }
+  console.log('[auth/signup] step 1 OK — user created', { userId: user.id });
+
+  // ── Step 2: Create contractors row ──
   const trialEndsAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
   const widgetId    = 'lp_' + Math.random().toString(36).substr(2, 8);
-
-  const { error: insertErr } = await supabase.from('contractors').insert({
+  const contractorPayload = {
     id:            user.id,
     email:         cleanEmail,
     business_name: business_name.trim(),
@@ -63,25 +71,42 @@ router.post('/auth/signup', authLimit, catchAsync(async (req, res) => {
     plan_status:   'trial',
     trial_ends_at: trialEndsAt,
     widget_id:     widgetId,
-  });
+  };
+  console.log('[auth/signup] step 2 — inserting contractor row', contractorPayload);
+
+  const { error: insertErr } = await supabase.from('contractors').insert(contractorPayload);
 
   if (insertErr) {
-    console.error('[auth/signup] contractors insert failed:', insertErr.message, { code: insertErr.code, details: insertErr.details });
-    // Roll back auth user so the account is not left in a broken state
-    await supabase.auth.admin.deleteUser(user.id).catch(e => console.error('[auth/signup] deleteUser rollback failed:', e.message));
-    return res.status(500).json({ error: 'Account setup failed — please try again' });
+    console.error('[auth/signup] step 2 FAILED — contractors insert:', JSON.stringify({
+      message: insertErr.message,
+      code:    insertErr.code,
+      details: insertErr.details,
+      hint:    insertErr.hint,
+    }));
+    await supabase.auth.admin.deleteUser(user.id).catch(e =>
+      console.error('[auth/signup] rollback deleteUser failed:', e.message)
+    );
+    return res.status(500).json({
+      error:        'Account setup failed — please try again',
+      _debug_code:  insertErr.code,
+      _debug_msg:   insertErr.message,
+      _debug_hint:  insertErr.hint,
+    });
   }
+  console.log('[auth/signup] step 2 OK — contractor row inserted');
 
-  // ── Issue session ──
+  // ── Step 3: Issue session ──
+  console.log('[auth/signup] step 3 — signInWithPassword');
   const { data: { session }, error: sessionErr } = await supabase.auth.signInWithPassword({
     email: cleanEmail,
     password,
   });
 
   if (sessionErr || !session) {
-    console.error('[auth/signup] session creation failed after account creation:', sessionErr?.message);
+    console.error('[auth/signup] step 3 FAILED — signInWithPassword:', sessionErr?.message);
     return res.status(500).json({ error: 'Account created — please sign in to continue' });
   }
+  console.log('[auth/signup] step 3 OK — session issued');
 
   const { data: contractor } = await supabase
     .from('contractors')
