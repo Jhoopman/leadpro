@@ -1660,8 +1660,10 @@ function renderDashLeads() {
     }</tbody>`;
 }
 function renderDashAppts() {
+  const el = document.getElementById('dash-appts');
+  if (!el) return;
   const sorted = [...appointments].sort((a,b)=>a.date.localeCompare(b.date));
-  document.getElementById('dash-appts').innerHTML = sorted.slice(0,4).map(a => {
+  el.innerHTML = sorted.slice(0,4).map(a => {
     const d = new Date(a.date+'T12:00:00');
     return `<div class="appt">
       <div class="appt-date"><div class="dd">${d.getDate()}</div><div class="dm">${d.toLocaleString('default',{month:'short'}).toUpperCase()}</div></div>
@@ -2163,6 +2165,7 @@ function renderCharts() {
     leads.filter(l=>l.status==='done').length || 1
   ];
   const ctx2 = document.getElementById('status-chart');
+  if (!ctx2) return;
   if (window._statusChart) window._statusChart.destroy();
   window._statusChart = new Chart(ctx2, {
     type: 'doughnut',

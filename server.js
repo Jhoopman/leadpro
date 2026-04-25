@@ -54,9 +54,9 @@ app.get('/config', (_, res) => res.json({
 app.get('/health', (_, res) => res.json({ ok: true, ts: new Date().toISOString() }));
 
 // GET /api/health/db — verifies PostgREST can read the three core tables.
+// Pass Authorization: Bearer <token> to also verify the caller has a contractors row.
 // Hit from browser: https://app.useleadpro.net/api/health/db
-// Returns 200 + { ok:true } on success, 503 + error details on failure.
-app.get('/api/health/db', async (_, res) => {
+app.get('/api/health/db', async (req, res) => {
   const supabase = require('./services/supabase');
   const results  = {};
 
@@ -65,9 +65,28 @@ app.get('/api/health/db', async (_, res) => {
       const { data, error } = await supabase.from(table).select('id').limit(1);
       results[table] = error
         ? { ok: false, error: error.message }
-        : { ok: true, sample_row_count: data.length };
+        : { ok: true, row_count: data.length };
     } catch (e) {
       results[table] = { ok: false, error: e.message };
+    }
+  }
+
+  // If a token is supplied, also verify the caller has a contractors row
+  const token = (req.headers.authorization || '').replace('Bearer ', '').trim();
+  if (token) {
+    try {
+      const { data: { user }, error: authErr } = await supabase.auth.getUser(token);
+      if (authErr || !user) {
+        results.caller = { ok: false, error: 'token invalid or expired' };
+      } else {
+        const { data: row } = await supabase
+          .from('contractors').select('id, email, plan, plan_status').eq('id', user.id).single();
+        results.caller = row
+          ? { ok: true, id: row.id, email: row.email, plan: row.plan, plan_status: row.plan_status }
+          : { ok: false, error: 'no contractors row for this user' };
+      }
+    } catch (e) {
+      results.caller = { ok: false, error: e.message };
     }
   }
 
