@@ -55,14 +55,28 @@ router.post('/create-checkout-session', checkoutLimit, catchAsync(async (req, re
     await supabase.from('contractors').update({ stripe_customer_id: customerId }).eq('id', contractorId);
   }
 
-  const session = await stripe.createCheckoutSession({
-    customerId,
-    priceId,
-    extraLineItems: setupFeeLineItem,
-    successUrl: successUrl || `${cfg.appUrl}/app?billing=success`,
-    cancelUrl:  cancelUrl  || `${cfg.appUrl}/app`,
-    metadata:   { contractor_id: contractorId, plan },
-  });
+  let session;
+  try {
+    session = await stripe.createCheckoutSession({
+      customerId,
+      priceId,
+      extraLineItems: setupFeeLineItem,
+      successUrl: successUrl || `${cfg.appUrl}/app?billing=success`,
+      cancelUrl:  cancelUrl  || `${cfg.appUrl}/app`,
+      metadata:   { contractor_id: contractorId, plan },
+    });
+  } catch (stripeErr) {
+    console.error(
+      '[checkout] Stripe error — contractor:', contractorId,
+      '| plan:', plan,
+      '| priceId:', priceId,
+      '| key_prefix:', cfg.stripe.secretKey.slice(0, 8),
+      '| error:', stripeErr.message
+    );
+    return res.status(502).json({
+      error: "Couldn't start checkout. Our team has been notified — please try again in a few minutes or email support@useleadpro.net.",
+    });
+  }
 
   res.json({ url: session.url });
 }));
@@ -203,5 +217,58 @@ router.get('/billing-portal', catchAsync(async (req, res) => {
 
   res.json({ url: portal.url });
 }));
+
+// ── STRIPE CONFIG DIAGNOSTIC ──────────────────────────────────────────────────
+// GET /api/admin/stripe-config?token=DIAGNOSTIC_TOKEN
+// Returns which Stripe mode (live/test) the server key is for, and whether each
+// configured price ID actually exists in that account. Hit this first whenever
+// checkout fails — eliminates the "wrong mode / wrong account" guess instantly.
+
+router.get('/api/admin/stripe-config', async (req, res) => {
+  const expected = cfg.diagnosticToken;
+  if (!expected) {
+    return res.status(503).json({ error: 'DIAGNOSTIC_TOKEN env var not set on server' });
+  }
+  if (!req.query.token || req.query.token !== expected) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const key  = cfg.stripe.secretKey;
+  const mode = key.startsWith('sk_live_') ? 'live'
+             : key.startsWith('sk_test_') ? 'test'
+             : 'unknown (key missing or malformed)';
+
+  async function validatePrice(id, label) {
+    if (!id) {
+      return { id: null, valid: false, error: `${label} price ID not configured (env var empty)` };
+    }
+    try {
+      const result = await stripe.request('GET', `prices/${encodeURIComponent(id)}`, null);
+      if (result.error) {
+        return { id, valid: false, error: result.error.message };
+      }
+      return {
+        id,
+        valid:    true,
+        amount:   result.unit_amount,           // cents — $97 = 9700
+        currency: result.currency,
+        nickname: result.nickname   || null,
+        active:   result.active,
+      };
+    } catch (e) {
+      return { id, valid: false, error: e.message };
+    }
+  }
+
+  const [starter, pro] = await Promise.all([
+    validatePrice(cfg.stripe.starterPriceId, 'STRIPE_STARTER_PRICE_ID'),
+    validatePrice(cfg.stripe.proPriceId,     'STRIPE_PRO_PRICE_ID'),
+  ]);
+
+  const allOk = starter.valid && pro.valid;
+  console.log('[stripe-config-diag] mode:', mode, '| starter valid:', starter.valid, '| pro valid:', pro.valid);
+
+  res.status(allOk ? 200 : 500).json({ mode, starter, pro });
+});
 
 module.exports = router;

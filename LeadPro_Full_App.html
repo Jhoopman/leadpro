@@ -1271,6 +1271,7 @@ nav { flex: 1; padding: 8px 0; }
         </button>
       </div>
 
+    <div id="checkout-error-msg" style="display:none;margin:12px 20px 4px;padding:10px 14px;background:rgba(127,29,29,0.25);border:0.5px solid #f87171;border-radius:8px;font-size:12.5px;color:#fca5a5;line-height:1.5"></div>
     </div><!-- /billing-section -->
 
     <!-- ══════════ ADVANCED ══════════ -->
@@ -2900,8 +2901,27 @@ function renderBillingSection() {
   }
 }
 
+function showCheckoutError(msg) {
+  // Prefer an inline error element over alert(); fall back if DOM not ready.
+  const el = document.getElementById('checkout-error-msg');
+  if (el) {
+    el.textContent = msg;
+    el.style.display = 'block';
+    setTimeout(() => { el.style.display = 'none'; }, 8000);
+  } else {
+    // Last resort — this branch should never fire in production
+    console.error('[checkout]', msg);
+    const d = document.createElement('div');
+    d.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#7f1d1d;color:#fca5a5;padding:14px 20px;border-radius:10px;font-size:13px;z-index:99999;max-width:90vw;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,0.4)';
+    d.textContent = msg;
+    document.body.appendChild(d);
+    setTimeout(() => d.remove(), 8000);
+  }
+}
+
 async function startCheckout(plan) {
   if (!currentUser) { alert('Please sign in first'); return; }
+  const SUPPORT_MSG = "Couldn't start checkout. Our team has been notified — please try again in a few minutes or email support@useleadpro.net.";
   try {
     const res = await authFetch('/create-checkout-session', {
       method: 'POST',
@@ -2909,10 +2929,15 @@ async function startCheckout(plan) {
       body: JSON.stringify({ plan, contractorId: currentUser.id })
     });
     const data = await res.json();
-    if (data.url) { window.location.href = data.url; }
-    else alert('Could not start checkout: ' + (data.error || 'Unknown error'));
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      console.error('[checkout] server error:', data.error);
+      showCheckoutError(SUPPORT_MSG);
+    }
   } catch(e) {
-    alert('Connection error — please try again');
+    console.error('[checkout] network error:', e.message);
+    showCheckoutError('Connection error — please check your internet and try again.');
   }
 }
 

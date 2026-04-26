@@ -39,6 +39,9 @@ module.exports = {
     setupFeePriceId: process.env.STRIPE_SETUP_FEE_PRICE_ID || '',
   },
 
+  // Admin diagnostic token — set on Render, never commit a real value
+  diagnosticToken: process.env.DIAGNOSTIC_TOKEN || '',
+
   alertPhone: process.env.ALERT_PHONE || '',
 
   google: {
