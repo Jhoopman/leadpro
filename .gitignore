@@ -3,6 +3,7 @@ node_modules/
 package-lock.json
 .env
 .env.*
+!.env.example
 
 # local artifacts
 server.js.backup.js

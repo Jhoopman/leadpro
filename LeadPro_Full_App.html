@@ -1232,7 +1232,7 @@ nav { flex: 1; padding: 8px 0; }
         <label class="set-field-label">Add to your website</label>
         <div style="font-size:12px;color:#555;margin-bottom:8px">Paste before &lt;/body&gt; on any page</div>
         <div class="s-code-block" id="widget-embed-code" style="position:relative">
-          <code style="font-family:'Courier New',monospace;font-size:11px;color:#74C69D;line-height:1.6;word-break:break-all;display:block">&lt;script src="https://leadpro-1d5l.onrender.com/widget.js" data-id="<span id="widget-id-span" style="color:#ffffff">loading...</span>"&gt;&lt;/script&gt;</code>
+          <code style="font-family:'Courier New',monospace;font-size:11px;color:#74C69D;line-height:1.6;word-break:break-all;display:block">&lt;script src="https://app.useleadpro.net/widget.js" data-id="<span id="widget-id-span" style="color:#ffffff">loading...</span>"&gt;&lt;/script&gt;</code>
           <button class="cc" onclick="copyEmbedCode(this)" style="position:absolute;top:8px;right:8px;font-size:10px;background:#1f1f1f;border:0.5px solid #2a2a2a;padding:3px 10px;border-radius:6px;cursor:pointer;color:#aaaaaa;font-family:inherit">Copy</button>
         </div>
       </div>
@@ -2491,7 +2491,7 @@ function renderGoogleCalendarSection() {
 
 function connectGoogleCalendar() {
   if (!currentUser) return;
-  window.location.href = 'https://leadpro-1d5l.onrender.com/auth/google?contractor_id=' + currentUser.id;
+  window.location.href = '/auth/google?contractor_id=' + currentUser.id;
 }
 
 async function disconnectGoogleCalendar() {
@@ -2655,7 +2655,7 @@ function renderWidgetCode() {
 
 function copyEmbedCode(btn) {
   const wid = contractorProfile?.widget_id || 'lp_xxxxxxxx';
-  const code = `<script src="https://leadpro-1d5l.onrender.com/widget.js" data-id="${wid}"><\/script>`;
+  const code = `<script src="https://app.useleadpro.net/widget.js" data-id="${wid}"><\/script>`;
   navigator.clipboard.writeText(code).catch(() => {});
   btn.textContent = 'Copied!';
   setTimeout(() => btn.textContent = 'Copy', 1800);

@@ -229,7 +229,7 @@ html,body{height:100%;width:100%;overflow:hidden;
       <div class="lc-name" id="lc-biz-name">Scheduling Assistant</div>
       <div class="lc-status"><div class="lc-dot"></div>Online — replies instantly</div>
     </div>
-    <a id="lc-powered" href="https://leadpro-1d5l.onrender.com" target="_blank" rel="noopener">by LeadPro</a>
+    <a id="lc-powered" href="https://app.useleadpro.net" target="_blank" rel="noopener">by LeadPro</a>
   </div>
 
   <!-- Error banner -->
@@ -268,7 +268,9 @@ html,body{height:100%;width:100%;overflow:hidden;
 <script>
 'use strict';
 
-var BASE       = 'https://leadpro-1d5l.onrender.com';
+// This page is always loaded in an iframe from the LeadPro server,
+// so window.location.origin is whichever host serves LeadPro.
+var BASE       = window.location.origin;
 var params     = new URLSearchParams(window.location.search);
 var WIDGET_ID  = params.get('id') || '';
 

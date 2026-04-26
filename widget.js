@@ -1,5 +1,5 @@
 /* LeadPro embeddable chat widget
- * Usage: <script src="https://leadpro-1d5l.onrender.com/widget.js" data-id="WIDGET_ID"></script>
+ * Usage: <script src="https://app.useleadpro.net/widget.js" data-id="WIDGET_ID"></script>
  * All CSS is scoped under #lp-btn and #lp-panel — no host-page conflicts.
  */
 (function () {
@@ -15,7 +15,10 @@
     return s[s.length - 1];
   })();
   var WIDGET_ID = (script.getAttribute('data-id') || '').trim();
-  var BASE = 'https://leadpro-1d5l.onrender.com';
+  // Derive host from wherever this script was loaded from.
+  // Moving the deployment = one-line change here, nothing else breaks.
+  var LEADPRO_HOST = (script.src || '').replace(/\/widget\.js.*$/, '') || 'https://app.useleadpro.net';
+  var BASE = LEADPRO_HOST;
   var CHAT_URL = BASE + '/widget-chat.html?id=' + encodeURIComponent(WIDGET_ID);
 
   // ── Inject scoped CSS ──
