@@ -104,9 +104,10 @@ app.get('/signup', (_, res) => res.sendFile(path.join(__dirname, 'auth.html')));
 // Widget install guide — publicly served, JS inside handles auth redirect
 app.get('/install', (_, res) => res.sendFile(path.join(__dirname, 'install.html')));
 
-// Dashboard — both / and /app serve the main PWA dashboard.
-// Named explicitly so readdir order on Linux never picks the wrong file.
-app.get(['/', '/app'], (_, res) => res.sendFile(path.join(__dirname, 'LeadPro_Full_App.html')));
+// Marketing landing page
+app.get('/',    (_, res) => res.sendFile(path.join(__dirname, 'index.html')));
+// PWA dashboard
+app.get('/app', (_, res) => res.sendFile(path.join(__dirname, 'LeadPro_Full_App.html')));
 app.get('/prospector', (_, res) => res.sendFile(path.join(__dirname, 'prospector.html')));
 app.get('/outreach',   (_, res) => res.sendFile(path.join(__dirname, 'outreach-sequences.html')));
 app.get('/launch',     (_, res) => res.sendFile(path.join(__dirname, 'launch-plan.html')));

@@ -55,15 +55,24 @@ function createLimiter({ maxRequests, windowMs, message = 'Too many requests —
 // ── PREBUILT LIMITERS ────────────────────────────────────────────────────────
 
 // Widget chat: public-facing, hits Claude API — protect aggressively
-const widgetLimit = createLimiter({ maxRequests: 30,  windowMs: 60_000 });
+const widgetLimit = createLimiter({ maxRequests: 30, windowMs: 60_000 });
 
-// General API: authenticated routes
-const apiLimit    = createLimiter({ maxRequests: 120, windowMs: 60_000 });
+// Dashboard AI proxy — authenticated but still Claude-backed
+const apiLimit    = createLimiter({ maxRequests: 30, windowMs: 60_000 });
+
+// Stripe checkout: prevent duplicate charge attempts
+const checkoutLimit = createLimiter({ maxRequests: 10, windowMs: 60_000 });
+
+// Website scraper: heavy network I/O
+const scrapeLimit = createLimiter({ maxRequests: 5, windowMs: 60_000 });
 
 // Prospector: expensive (Google Places + web scraping), limit tightly
 const prospectorLimit = createLimiter({ maxRequests: 10, windowMs: 60_000 });
 
 // Auth endpoints: prevent brute force
-const authLimit   = createLimiter({ maxRequests: 10,  windowMs: 60_000 });
+const authLimit   = createLimiter({ maxRequests: 10, windowMs: 60_000 });
 
-module.exports = { createLimiter, widgetLimit, apiLimit, prospectorLimit, authLimit };
+// Public contractor lookup (widget bootstrap)
+const contractorLookupLimit = createLimiter({ maxRequests: 60, windowMs: 60_000 });
+
+module.exports = { createLimiter, widgetLimit, apiLimit, checkoutLimit, scrapeLimit, prospectorLimit, authLimit, contractorLookupLimit };

@@ -193,7 +193,7 @@
     }
     .hero-title {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(52px, 8vw, 88px);
+      font-size: clamp(2rem, 8vw, 88px);
       letter-spacing: 0.02em;
       line-height: 0.95;
       color: #ffffff;
@@ -1088,7 +1088,9 @@
     /* ── Typography Upgrades ── */
     .section-title { font-size: clamp(2.2rem, 4.5vw, 3.4rem) !important; }
     .section-tag { letter-spacing: 0.09em !important; font-size: 0.71rem !important; }
-    .hero h1 { font-size: clamp(3.2rem, 7.5vw, 5.4rem) !important; }
+    /* min lowered from 3.2rem → 1.8rem so the headline scales on phones without
+       needing to override in every breakpoint */
+    .hero h1 { font-size: clamp(1.8rem, 7.5vw, 5.4rem) !important; word-break: break-word; overflow-wrap: break-word; }
     .final-cta h2 { font-size: clamp(2.4rem, 5.5vw, 3.8rem) !important; }
 
     /* ── Reduced Motion ── */

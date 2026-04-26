@@ -13,12 +13,13 @@ const router   = express.Router();
 const supabase = require('../services/supabase');
 const stripe   = require('../services/stripe');
 const { catchAsync } = require('../middleware/errorHandler');
+const { checkoutLimit } = require('../middleware/rateLimit');
 const cfg      = require('../config');
 
 // ── CHECKOUT ──────────────────────────────────────────────────────────────────
 
 // POST /create-checkout-session
-router.post('/create-checkout-session', catchAsync(async (req, res) => {
+router.post('/create-checkout-session', checkoutLimit, catchAsync(async (req, res) => {
   if (!req.contractor) return res.status(401).json({ error: 'Please sign in first' });
   if (!cfg.stripe.secretKey) return res.status(503).json({ error: 'Billing not configured' });
 

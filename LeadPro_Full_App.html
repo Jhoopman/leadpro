@@ -944,6 +944,10 @@ nav { flex: 1; padding: 8px 0; }
       </div>
       <div class="chart-card-sub">Daily lead volume from chatbot &amp; phone</div>
       <div class="chart-wrap"><canvas id="leads-chart"></canvas></div>
+      <div style="margin-top:18px;border-top:0.5px solid #1f1f1f;padding-top:14px">
+        <div style="font-size:12px;font-weight:600;color:#ffffff;margin-bottom:10px">Lead status breakdown</div>
+        <div style="height:150px;position:relative"><canvas id="status-chart"></canvas></div>
+      </div>
     </div>
     <div class="feed-card">
       <div class="panel-header"><span class="panel-title">Activity feed</span></div>
@@ -957,6 +961,14 @@ nav { flex: 1; padding: 8px 0; }
       <button class="panel-action" onclick="showScreen('leads',document.querySelectorAll('.nav-item')[2])">View all →</button>
     </div>
     <table class="tbl" id="dash-leads-tbl"></table>
+  </div>
+
+  <div class="card">
+    <div class="panel-header">
+      <span class="panel-title">Upcoming appointments</span>
+      <button class="panel-action" onclick="showScreen('calendar',document.querySelectorAll('.nav-item')[3])">View all →</button>
+    </div>
+    <div id="dash-appts" style="min-height:44px"></div>
   </div>
 </div>
 
@@ -1583,7 +1595,8 @@ nav { flex: 1; padding: 8px 0; }
 </div>
 
 <script>
-const DEMO_MODE = new URLSearchParams(window.location.search).get('demo') === 'true';
+const DEMO_MODE    = new URLSearchParams(window.location.search).get('demo') === 'true';
+const CLAUDE_MODEL = 'claude-sonnet-4-6';
 
 // ── STATE ──
 let bizName = '';
@@ -1635,7 +1648,7 @@ function showScreen(id, el) {
 
 // ── METRICS ──
 function updateMetrics() {
-  document.getElementById('m-leads').textContent = leads.filter(l=>l.status==='new').length + 5;
+  document.getElementById('m-leads').textContent = leads.filter(l=>l.status==='new').length;
   document.getElementById('m-appts').textContent = appointments.length;
   document.getElementById('m-followups').textContent = leads.filter(l=>l.status==='followup').length;
   document.getElementById('leads-badge').textContent = leads.filter(l=>l.status==='new').length;
@@ -1649,7 +1662,9 @@ function updateMetrics() {
 
 // ── DASHBOARD RENDERS ──
 function renderDashLeads() {
-  document.getElementById('dash-leads-tbl').innerHTML =
+  const tbl = document.getElementById('dash-leads-tbl');
+  if (!tbl) return;
+  tbl.innerHTML =
     `<thead><tr><th>Customer</th><th>Service</th><th>Received</th><th>Status</th></tr></thead><tbody>${
       leads.slice(0,4).map(l=>{ const [bg,fg]=avatarColors(l.name); return `<tr>
         <td><div style="display:flex;align-items:center;gap:9px"><div style="width:28px;height:28px;border-radius:50%;background:${bg};color:${fg};font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">${initials(l.name)}</div><div><div class="lname">${l.name}</div><div class="laddr">${l.addr}</div></div></div></td>
@@ -1662,14 +1677,16 @@ function renderDashLeads() {
 function renderDashAppts() {
   const el = document.getElementById('dash-appts');
   if (!el) return;
-  const sorted = [...appointments].sort((a,b)=>a.date.localeCompare(b.date));
+  const sorted = [...appointments]
+    .filter(a => a.date)
+    .sort((a,b)=>(a.date||'').localeCompare(b.date||''));
   el.innerHTML = sorted.slice(0,4).map(a => {
-    const d = new Date(a.date+'T12:00:00');
+    const d = new Date((a.date||'1970-01-01')+'T12:00:00');
     return `<div class="appt">
       <div class="appt-date"><div class="dd">${d.getDate()}</div><div class="dm">${d.toLocaleString('default',{month:'short'}).toUpperCase()}</div></div>
-      <div class="appt-info"><div class="an">${a.name}</div><div class="ad">${a.service}</div><div class="at">${fmt12(a.time)} · ${a.addr.split(',')[0]}</div></div>
+      <div class="appt-info"><div class="an">${a.name||'—'}</div><div class="ad">${a.service||'—'}</div><div class="at">${fmt12(a.time)} · ${(a.addr||'').split(',')[0]||'—'}</div></div>
     </div>`;
-  }).join('');
+  }).join('') || '<div style="padding:14px 16px;font-size:12px;color:var(--text3)">No upcoming appointments</div>';
 }
 function renderFeed() {
   const el = document.getElementById('dash-feed');
@@ -1857,7 +1874,7 @@ function extractLeadJson(raw) {
   let depth = 0;
   for (let i = start; i < raw.length; i++) {
     if (raw[i] === '{') depth++;
-    else if (raw[i] === '}') { depth--; if (depth === 0) { try { return JSON.parse(raw.slice(start, i + 1)); } catch(e) { return null; } } }
+    else if (raw[i] === '}') { depth--; if (depth === 0) { try { return JSON.parse(raw.slice(start, i + 1)); } catch(e) { console.warn('lead extract failed', e); return null; } } }
   }
   return null;
 }
@@ -1904,7 +1921,7 @@ function resetChat() {
 async function callClaude() {
   showTyping(true);
   try {
-    const payload = { model:'claude-sonnet-4-6', max_tokens:500, system: getSystemPrompt(), messages: chatHistory };
+    const payload = { model: CLAUDE_MODEL, max_tokens:500, system: getSystemPrompt(), messages: chatHistory };
     const res = await authFetch('/api', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

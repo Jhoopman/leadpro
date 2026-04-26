@@ -7,6 +7,7 @@ const supabase = require('../services/supabase');
 const email    = require('../services/email');
 const cfg      = require('../config');
 const { catchAsync } = require('../middleware/errorHandler');
+const { contractorLookupLimit } = require('../middleware/rateLimit');
 
 // Thin Twilio SMS helper (avoids importing the full twilio route)
 function sendSms(to, body) {
@@ -32,7 +33,7 @@ function sendSms(to, body) {
 }
 
 // GET /contractor/:id — widget fetches contractor profile by widget_id
-router.get('/contractor/:id', catchAsync(async (req, res) => {
+router.get('/contractor/:id', contractorLookupLimit, catchAsync(async (req, res) => {
   const { data, error } = await supabase
     .from('contractors')
     .select('id, business_name, services, google_connected')

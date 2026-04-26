@@ -14,12 +14,13 @@ const claude    = require('../services/claude');
 const email     = require('../services/email');
 const { formatSlotsForPrompt } = require('../services/calendar');
 const { catchAsync }           = require('../middleware/errorHandler');
-const { widgetLimit, apiLimit } = require('../middleware/rateLimit');
+const { widgetLimit, apiLimit, scrapeLimit } = require('../middleware/rateLimit');
 const cfg       = require('../config');
 
 const MARKETING_WIDGET_ID = 'lp_rdzvuqld';
+const CLAUDE_MODEL        = process.env.CLAUDE_MODEL || CLAUDE_MODEL;
 
-const MARKETING_SYSTEM_PROMPT = `You are a sales assistant for LeadPro, AI lead generation software for contractors. Never ask for addresses, zip codes, or schedule appointments. You sell software. Answer pricing questions: Starter $49/month, Pro $149/month, 14 day free trial no credit card. Collect name, email, phone number only. Direct them to app.useleadpro.net to start their free trial. Keep responses clean and professional. No emojis. No bold markdown formatting. Write in plain conversational sentences like a real person texting, not a marketing bot. Keep responses short — 3-4 sentences max per reply.`;
+const MARKETING_SYSTEM_PROMPT = `You are a sales assistant for LeadPro, AI lead generation software for contractors. Never ask for addresses, zip codes, or schedule appointments. You sell software. Answer pricing questions: Starter $97/month, Pro $197/month, 14 day free trial no credit card. Collect name, email, phone number only. Direct them to app.useleadpro.net to start their free trial. Keep responses clean and professional. No emojis. No bold markdown formatting. Write in plain conversational sentences like a real person texting, not a marketing bot. Keep responses short — 3-4 sentences max per reply.`;
 
 // ── HELPERS ──────────────────────────────────────────────────────────────────
 
@@ -82,7 +83,7 @@ router.post('/widget-api', widgetLimit, (req, res) => {
   // LeadPro marketing widget or undefined/empty widgetId → use marketing prompt
   if (!widgetId || widgetId === MARKETING_WIDGET_ID) {
     const pd = JSON.stringify({
-      model:      'claude-sonnet-4-6',
+      model:      CLAUDE_MODEL,
       max_tokens: 500,
       system:     MARKETING_SYSTEM_PROMPT,
       messages,
@@ -161,7 +162,7 @@ When you have: name, phone, address, service, and preferred time —
 output this ONCE at the very end of your final message:
 LEAD_DATA:{"name":"...","phone":"...","email":"","address":"...","service":"...","datetime":"..."}`;
 
-  const pd = JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 500, system: systemPrompt, messages });
+  const pd = JSON.stringify({ model: CLAUDE_MODEL, max_tokens: 500, system: systemPrompt, messages });
   proxyToAnthropic(pd, res);
 });
 
@@ -172,7 +173,7 @@ router.post('/api', apiLimit, (req, res) => {
 });
 
 // POST /scrape — scrape contractor website during onboarding
-router.post('/scrape', catchAsync(async (req, res) => {
+router.post('/scrape', scrapeLimit, catchAsync(async (req, res) => {
   const { url } = req.body;
   if (!url) return res.status(400).json({ error: 'No URL provided' });
 
@@ -318,7 +319,7 @@ router.post('/api/test-agent', catchAsync(async (req, res) => {
   if (!data) return res.status(404).json({ error: 'Contractor not found' });
 
   const payload = JSON.stringify({
-    model:      'claude-sonnet-4-6',
+    model:      CLAUDE_MODEL,
     max_tokens: 300,
     system:     buildAgentSystemPrompt(data),
     messages,
@@ -448,7 +449,7 @@ Rules:
 - Keep total length under 40 words`;
 
   const payload = JSON.stringify({
-    model:      'claude-sonnet-4-6',
+    model:      CLAUDE_MODEL,
     max_tokens: 200,
     messages:   [{ role: 'user', content: prompt }],
   });
