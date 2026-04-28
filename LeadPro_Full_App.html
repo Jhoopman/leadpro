@@ -2936,7 +2936,7 @@ async function startCheckout(plan) {
       window.location.href = data.url;
     } else {
       console.error('[checkout] server error:', data.error);
-      showCheckoutError(SUPPORT_MSG);
+      showCheckoutError(data.error || SUPPORT_MSG);
     }
   } catch(e) {
     console.error('[checkout] network error:', e.message);

@@ -74,7 +74,7 @@ router.post('/create-checkout-session', checkoutLimit, catchAsync(async (req, re
       '| error:', stripeErr.message
     );
     return res.status(502).json({
-      error: "Couldn't start checkout. Our team has been notified — please try again in a few minutes or email support@useleadpro.net.",
+      error: `Checkout failed: ${stripeErr.message}`,
     });
   }
 
