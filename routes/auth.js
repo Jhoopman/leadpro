@@ -77,23 +77,12 @@ router.post('/auth/signup', authLimit, catchAsync(async (req, res) => {
   const { error: insertErr } = await supabase.from('contractors').insert(contractorPayload);
 
   if (insertErr) {
-    console.error('[auth/signup] step 2 FAILED — contractors insert:', JSON.stringify({
-      message: insertErr.message,
-      code:    insertErr.code,
-      details: insertErr.details,
-      hint:    insertErr.hint,
-    }));
-    await supabase.auth.admin.deleteUser(user.id).catch(e =>
-      console.error('[auth/signup] rollback deleteUser failed:', e.message)
-    );
-    return res.status(500).json({
-      error:        'Account setup failed — please try again',
-      _debug_code:  insertErr.code,
-      _debug_msg:   insertErr.message,
-      _debug_hint:  insertErr.hint,
-    });
+    // Soft-fail: user gets their auth account; contractor row can be fixed manually.
+    console.error('[signup] contractor provision failed:', insertErr.message,
+      { code: insertErr.code, hint: insertErr.hint });
+  } else {
+    console.log('[auth/signup] step 2 OK — contractor row inserted');
   }
-  console.log('[auth/signup] step 2 OK — contractor row inserted');
 
   // ── Step 3: Issue session ──
   console.log('[auth/signup] step 3 — signInWithPassword');
@@ -110,7 +99,7 @@ router.post('/auth/signup', authLimit, catchAsync(async (req, res) => {
 
   const { data: contractor } = await supabase
     .from('contractors')
-    .select('id, business_name, plan, plan_status, trial_ends_at')
+    .select('id, business_name, plan, plan_status, trial_ends_at, widget_id')
     .eq('id', user.id)
     .single();
 
@@ -119,6 +108,7 @@ router.post('/auth/signup', authLimit, catchAsync(async (req, res) => {
     refresh_token: session.refresh_token,
     expires_at:    session.expires_at,
     contractor,
+    widget_id:     contractor?.widget_id || widgetId,
   });
 }));
 
@@ -197,6 +187,27 @@ router.get('/auth/me', catchAsync(async (req, res) => {
     .single();
 
   res.json({ user, contractor });
+}));
+
+// ── MY CONTRACTOR ─────────────────────────────────────────────────────────────
+// GET /my-contractor — fetch the authenticated user's contractor row.
+// Lightweight alternative to /auth/me when only the contractor record is needed.
+
+router.get('/my-contractor', catchAsync(async (req, res) => {
+  const token = tokenFrom(req);
+  if (!token) return res.status(401).json({ error: 'No token provided' });
+
+  const { data: { user }, error: authErr } = await supabase.auth.getUser(token);
+  if (authErr || !user) return res.status(401).json({ error: 'Invalid or expired token' });
+
+  const { data, error } = await supabase
+    .from('contractors')
+    .select('widget_id, business_name, plan, plan_status')
+    .eq('id', user.id)
+    .single();
+
+  if (error || !data) return res.status(404).json({ error: 'Contractor not found' });
+  res.json(data);
 }));
 
 // ── REQUIRE AUTH MIDDLEWARE ───────────────────────────────────────────────────

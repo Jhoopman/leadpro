@@ -219,7 +219,8 @@ body {
                onkeydown="if(event.key==='Enter') submitSignUp()">
       </div>
       <button class="submit-btn" id="su-btn" onclick="submitSignUp()">Create account</button>
-      <div class="error-msg" id="su-err"></div>
+      <div class="error-msg"   id="su-err"></div>
+      <div class="success-msg" id="su-ok"  style="display:none"></div>
     </div>
   </div>
 
@@ -340,8 +341,16 @@ async function submitSignUp() {
       return;
     }
 
+    const wid  = data.widget_id || data.contractor?.widget_id;
+    const okEl = document.getElementById('su-ok');
+    if (okEl) {
+      okEl.textContent   = wid
+        ? `Account created! Your widget ID is: ${wid} — redirecting to your dashboard…`
+        : 'Account created! Redirecting…';
+      okEl.style.display = 'block';
+    }
     btn.textContent = 'Redirecting…';
-    window.location.replace('/app');
+    setTimeout(() => window.location.replace('/app'), 1200);
 
   } catch (e) {
     console.error('[auth/signup] fetch error:', e);
@@ -386,6 +395,10 @@ function storeSession(data) {
   }
   if (data.contractor?.id) {
     localStorage.setItem('leadpro_contractor_id', data.contractor.id);
+  }
+  const wid = data.widget_id || data.contractor?.widget_id;
+  if (wid) {
+    localStorage.setItem('leadpro_widget_id', wid);
   }
 }
 

@@ -2448,6 +2448,9 @@ async function loadContractorProfile() {
   const { data } = await sb.from('contractors').select('*').eq('id', currentUser.id).single();
   contractorProfile = data;
   if (contractorProfile) {
+    if (contractorProfile.widget_id) {
+      localStorage.setItem('leadpro_widget_id', contractorProfile.widget_id);
+    }
     bizName = contractorProfile.business_name || bizName;
     document.getElementById('biz-name').value = bizName;
     const titleEl = document.getElementById('chat-widget-title');
