@@ -565,15 +565,53 @@ safePostToParent('lp:ready');
 (function init() {
   if (!WIDGET_ID) { return startChat(); }
 
-  fetch(BASE + '/contractor/' + encodeURIComponent(WIDGET_ID))
-    .then(function(r) { return r.ok ? r.json() : null; })
-    .then(function(data) {
-      if (data && data.business_name) {
-        contractor = data;
-        el('lc-biz-name').textContent = data.business_name + ' — Scheduling';
+  var defaults = {
+    business_name:    'LeadPro',
+    tagline:          'AI Scheduling Assistant',
+    primary_color:    '#74C69D',
+    logo_url:         null,
+    services:         '',
+    id:               null,
+    google_connected: false,
+  };
+
+  function applyContractor(data) {
+    contractor = {
+      business_name:    (data && data.business_name)    || defaults.business_name,
+      tagline:          (data && data.tagline)          || defaults.tagline,
+      primary_color:    (data && data.primary_color)    || defaults.primary_color,
+      logo_url:         (data && data.logo_url)         || defaults.logo_url,
+      services:         (data && data.services)         || defaults.services,
+      id:               (data && data.id)               || defaults.id,
+      google_connected: !!(data && data.google_connected),
+    };
+
+    el('lc-biz-name').textContent = contractor.business_name + ' — Scheduling';
+
+    // Apply brand color to the CSS custom property used by header, buttons, and accents
+    document.documentElement.style.setProperty('--green', contractor.primary_color);
+
+    // Swap avatar SVG for contractor logo if provided
+    if (contractor.logo_url) {
+      var av = document.querySelector('.lc-av');
+      if (av) {
+        var img = document.createElement('img');
+        img.src   = contractor.logo_url;
+        img.alt   = '';
+        img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%;';
+        av.innerHTML = '';
+        av.appendChild(img);
       }
+    }
+  }
+
+  fetch(BASE + '/contractor/' + encodeURIComponent(WIDGET_ID))
+    .then(function(r) { return r.ok ? r.json() : Promise.reject(r.status); })
+    .then(applyContractor)
+    .catch(function(err) {
+      console.warn('[LeadPro widget] Could not load contractor config — using defaults', err);
+      applyContractor(null);
     })
-    .catch(function(){})
     .then(loadAvailability)
     .then(startChat);
 })();

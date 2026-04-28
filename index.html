@@ -1392,7 +1392,7 @@
     <div class="hero-demo reveal reveal-d4">
       <div class="demo-input-row">
         <input type="tel" id="demoPhone" class="demo-input" placeholder="Enter your cell number" maxlength="20" />
-        <a href="tel:+13026647594" class="demo-btn">Call me right now</a>
+        <button type="button" id="demoBtn" class="demo-btn" onclick="startDemo()">See It Work Free</button>
       </div>
       <p class="demo-hint">Hear the AI answer live — +1 (302) 664-7594</p>
       <p class="demo-confirm" id="demoConfirm"></p>
@@ -1861,7 +1861,7 @@
           <div style="font-size:1.1rem; font-weight:700; color: var(--green); margin-bottom:8px;">Message sent!</div>
           <div style="font-size:0.9rem; color: var(--muted);">Thanks! I'll be in touch within 24 hours.</div>
         </div>
-        <form id="contactForm" action="YOUR_URL" method="POST">
+        <form id="contactForm" action="/contact" method="POST">
           <input type="hidden" name="_subject" value="New LeadPro inquiry" />
           <div class="form-row">
             <div class="form-group">
@@ -1891,6 +1891,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
             Send message
           </button>
+          <p id="formError" style="display:none; color:#e55; font-size:0.85rem; margin-top:10px;"></p>
         </form>
       </div>
     </div>
@@ -1905,23 +1906,34 @@ document.getElementById('contactForm').addEventListener('submit', async function
   btn.disabled = true;
   btn.textContent = 'Sending…';
   try {
-    const res = await fetch(form.action, {
+    const res = await fetch('/contact', {
       method: 'POST',
-      body: new FormData(form),
-      headers: { 'Accept': 'application/json' }
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        name:     document.getElementById('contactName').value,
+        business: document.getElementById('contactBusiness').value,
+        phone:    document.getElementById('contactPhone').value,
+        email:    document.getElementById('contactEmail').value,
+        message:  document.getElementById('contactMessage').value,
+      }),
     });
     if (res.ok) {
       form.style.display = 'none';
       document.getElementById('formSuccess').style.display = 'block';
     } else {
+      const d = await res.json().catch(() => ({}));
       btn.disabled = false;
       btn.textContent = 'Send message';
-      alert('Something went wrong. Please email us directly at hello@useleadpro.net');
+      const errEl = document.getElementById('formError');
+      errEl.textContent = d.error || 'Something went wrong — please try again or email hello@useleadpro.net';
+      errEl.style.display = 'block';
     }
   } catch {
     btn.disabled = false;
     btn.textContent = 'Send message';
-    alert('Something went wrong. Please email us directly at hello@useleadpro.net');
+    const errEl = document.getElementById('formError');
+    errEl.textContent = 'Connection error — please try again or email hello@useleadpro.net';
+    errEl.style.display = 'block';
   }
 });
 </script>
@@ -2215,44 +2227,67 @@ document.getElementById('contactForm').addEventListener('submit', async function
 
 <script>
 function startDemo() {
-  var phone = document.getElementById('demoPhone').value.trim();
-  if (!phone) { document.getElementById('demoPhone').focus(); return; }
+  var raw = document.getElementById('demoPhone').value.trim();
+  var confirm = document.getElementById('demoConfirm');
+
+  if (!raw) { document.getElementById('demoPhone').focus(); return; }
+
+  var digits = raw.replace(/\D/g, '');
+  if (digits.length < 10) {
+    confirm.textContent = 'Please enter a valid 10-digit phone number.';
+    return;
+  }
+
+  // Normalize to E.164 — assume US (+1) if 10 digits, otherwise prepend +
+  var e164 = (digits.length === 10) ? '+1' + digits : '+' + digits;
 
   var btn = document.getElementById('demoBtn');
   btn.disabled = true;
-  btn.textContent = 'Calling…';
+  btn.textContent = 'Calling you now...';
+  confirm.textContent = '';
 
-  // Fire POST (best effort — UI proceeds regardless)
   fetch('/demo-call', {
-    method: 'POST',
+    method:  'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ phone: phone })
-  }).catch(function(){});
+    body:    JSON.stringify({ phone: e164 }),
+  })
+    .then(function(r) {
+      return r.json().then(function(d) { return { ok: r.ok, data: d }; });
+    })
+    .then(function(result) {
+      if (result.ok) {
+        confirm.textContent = '📞 Calling you in about 30 seconds!';
 
-  // Show confirmation immediately
-  document.getElementById('demoConfirm').textContent =
-    '✓ Calling your number now. Hang up. Watch for a text within 60 seconds.';
+        var wrap  = document.getElementById('demoCountdownWrap');
+        var bar   = document.getElementById('demoBar');
+        var lbl   = document.getElementById('demoCountdownLabel');
+        var total = (result.data && result.data.eta_seconds) || 30;
+        var remaining = total;
 
-  // Show and start countdown
-  var wrap = document.getElementById('demoCountdownWrap');
-  var bar  = document.getElementById('demoBar');
-  var lbl  = document.getElementById('demoCountdownLabel');
-  wrap.style.display = 'flex';
+        wrap.style.display = 'flex';
+        lbl.textContent = remaining;
 
-  var total = 60;
-  var remaining = total;
-
-  // Kick off first tick after 1s so the bar is visible at 100% briefly
-  var timer = setInterval(function() {
-    remaining--;
-    lbl.textContent = remaining;
-    bar.style.width = (remaining / total * 100) + '%';
-    if (remaining <= 0) {
-      clearInterval(timer);
-      document.getElementById('demoAfter').textContent =
-        'That text is exactly what your missed callers receive.';
-    }
-  }, 1000);
+        var timer = setInterval(function() {
+          remaining--;
+          lbl.textContent = remaining;
+          bar.style.width = (remaining / total * 100) + '%';
+          if (remaining <= 0) {
+            clearInterval(timer);
+            document.getElementById('demoAfter').textContent =
+              'That text is exactly what your missed callers receive.';
+          }
+        }, 1000);
+      } else {
+        confirm.textContent = (result.data && result.data.error) || 'Something went wrong — please try again.';
+        btn.disabled = false;
+        btn.textContent = 'See It Work Free';
+      }
+    })
+    .catch(function() {
+      confirm.textContent = 'Connection error — please try again.';
+      btn.disabled = false;
+      btn.textContent = 'See It Work Free';
+    });
 }
 
 // Allow Enter key in the phone input

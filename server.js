@@ -136,6 +136,8 @@ app.use('/api/prospector',    requirePlan('pro'));
 
 // ── ROUTE MODULES ─────────────────────────────────────────────────────────────
 
+app.use('/', require('./routes/contact'));
+app.use('/', require('./routes/demo'));
 app.use('/', require('./routes/auth'));
 app.use('/', require('./routes/agent'));
 app.use('/', require('./routes/billing'));
