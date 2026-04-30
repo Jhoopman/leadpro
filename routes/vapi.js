@@ -16,6 +16,7 @@ const https    = require('https');
 const supabase = require('../services/supabase');
 const claude   = require('../services/claude');
 const email    = require('../services/email');
+const { sendContractorSms } = require('./twilio');
 const { catchAsync } = require('../middleware/errorHandler');
 
 const VAPI_API_KEY = process.env.VAPI_API_KEY;
@@ -175,6 +176,10 @@ router.post('/webhooks/vapi/end-of-call', (req, res) => {
           'Vapi Voice',
           transcript
         ).catch(e => console.error('[Vapi] alert email error:', e.message));
+      }
+      if (contractorId) {
+        sendContractorSms(contractorId, `LeadPro: New lead — ${lead.name || 'Unknown'}, ${lead.service || 'service inquiry'}. Phone ${lead.phone || callerPhone}.`)
+          .catch(e => console.error('[Vapi] alert SMS error:', e.message));
       }
 
     } catch (err) {
