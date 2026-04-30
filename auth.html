@@ -214,11 +214,29 @@ body {
         <input type="email" id="su-email" placeholder="you@example.com" autocomplete="email">
       </div>
       <div class="field">
+        <label>Mobile number for lead alerts</label>
+        <input type="tel" id="su-mobile" placeholder="+1 (540) 555-0192" autocomplete="tel"
+               oninput="validateSignupForm()" onblur="normalizeMobile()">
+      </div>
+      <div class="field">
         <label>Password (min 6 characters)</label>
         <input type="password" id="su-pass" placeholder="Create a password" autocomplete="new-password"
+               oninput="validateSignupForm()"
                onkeydown="if(event.key==='Enter') submitSignUp()">
       </div>
-      <button class="submit-btn" id="su-btn" onclick="submitSignUp()">Create account</button>
+      <div style="margin-bottom:14px">
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer">
+          <input type="checkbox" id="sms-consent" onchange="validateSignupForm()"
+                 style="margin-top:2px;flex-shrink:0;accent-color:#2D6A4F">
+          <span style="font-size:12px;color:#aaaaaa;line-height:1.5">I agree to receive SMS alerts from LeadPro about new leads, bookings, and account activity. Message and data rates may apply. Message frequency varies. Reply HELP for help, STOP to cancel.</span>
+        </label>
+      </div>
+      <div style="text-align:center;margin-bottom:12px;font-size:11px;color:#555555">
+        <a href="/privacy" target="_blank" rel="noopener" style="color:#555555">Privacy Policy</a>
+        &nbsp;·&nbsp;
+        <a href="/terms" target="_blank" rel="noopener" style="color:#555555">Terms</a>
+      </div>
+      <button class="submit-btn" id="su-btn" onclick="submitSignUp()" disabled>Create account</button>
       <div class="error-msg"   id="su-err"></div>
       <div class="success-msg" id="su-ok"  style="display:none"></div>
     </div>
@@ -232,6 +250,33 @@ body {
 </div>
 
 <script>
+// ── MOBILE NORMALISATION + SIGNUP VALIDATION ──────────────────────────────────
+
+function normalizeMobile() {
+  const el    = document.getElementById('su-mobile');
+  const raw   = el.value;
+  const digits = raw.replace(/\D/g, '');
+  if (digits.length === 10) {
+    el.value = '+1' + digits;
+  } else if (digits.length === 11 && digits[0] === '1') {
+    el.value = '+' + digits;
+  } else if (raw.startsWith('+') && digits.length >= 10) {
+    el.value = '+' + digits;
+  }
+  validateSignupForm();
+}
+
+function isValidE164(val) {
+  return /^\+1\d{10}$/.test(val);
+}
+
+function validateSignupForm() {
+  const mobile  = (document.getElementById('su-mobile')?.value  || '').trim();
+  const consent = document.getElementById('sms-consent')?.checked;
+  const btn     = document.getElementById('su-btn');
+  if (btn) btn.disabled = !(isValidE164(mobile) && consent);
+}
+
 // ── TAB TOGGLE ────────────────────────────────────────────────────────────────
 
 function showTab(tab) {
@@ -292,11 +337,13 @@ async function submitSignIn() {
 // ── SIGN UP ───────────────────────────────────────────────────────────────────
 
 async function submitSignUp() {
-  const biz   = document.getElementById('su-biz').value.trim();
-  const email = document.getElementById('su-email').value.trim();
-  const pass  = document.getElementById('su-pass').value;
-  const errEl = document.getElementById('su-err');
-  const btn   = document.getElementById('su-btn');
+  const biz    = document.getElementById('su-biz').value.trim();
+  const email  = document.getElementById('su-email').value.trim();
+  const mobile = document.getElementById('su-mobile').value.trim();
+  const pass   = document.getElementById('su-pass').value;
+  const consent = document.getElementById('sms-consent').checked;
+  const errEl  = document.getElementById('su-err');
+  const btn    = document.getElementById('su-btn');
 
   errEl.textContent = '';
 
@@ -312,6 +359,14 @@ async function submitSignUp() {
     errEl.textContent = 'Password must be at least 6 characters';
     return;
   }
+  if (!isValidE164(mobile)) {
+    errEl.textContent = 'Please enter a valid US mobile number';
+    return;
+  }
+  if (!consent) {
+    errEl.textContent = 'Please agree to receive SMS alerts to continue';
+    return;
+  }
 
   btn.textContent = 'Creating account…';
   btn.disabled    = true;
@@ -320,7 +375,13 @@ async function submitSignUp() {
     const res  = await fetch('/auth/signup', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ email, password: pass, business_name: biz }),
+      body:    JSON.stringify({
+        email,
+        password:          pass,
+        business_name:     biz,
+        mobile_phone:      mobile,
+        sms_consent_given: true,
+      }),
     });
     const data = await res.json();
 
@@ -333,11 +394,21 @@ async function submitSignUp() {
 
     storeSession(data);
 
+    // Record IP + UA for consent audit trail (fire-and-forget)
+    const contractorId = data.contractor?.id;
+    if (contractorId) {
+      fetch('/api/log-consent', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ contractor_id: contractorId, user_agent: navigator.userAgent }),
+      }).catch(() => {});
+    }
+
     // If a plan was passed (e.g. from pricing page), go to Stripe checkout now
     const plan = new URLSearchParams(window.location.search).get('plan');
     if (plan === 'starter' || plan === 'pro') {
       btn.textContent = 'Redirecting to checkout…';
-      await startCheckoutWithToken(plan, data.access_token, data.contractor?.id);
+      await startCheckoutWithToken(plan, data.access_token, contractorId);
       return;
     }
 

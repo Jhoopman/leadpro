@@ -12,6 +12,7 @@ const https     = require('https');
 const supabase  = require('../services/supabase');
 const claude    = require('../services/claude');
 const email     = require('../services/email');
+const { sendContractorSms }    = require('./twilio');
 const { formatSlotsForPrompt } = require('../services/calendar');
 const { catchAsync }           = require('../middleware/errorHandler');
 const { widgetLimit, apiLimit, scrapeLimit } = require('../middleware/rateLimit');
@@ -202,6 +203,10 @@ router.post('/send-confirmation', catchAsync(async (req, res) => {
   await saveLead({ ...lead, contractor_id: contractorId }, 'chat');
   await email.sendConfirmation({ ...lead, bizName });
   await email.sendLeadAlert({ ...lead, bizName }, 'Website chat');
+  if (contractorId) {
+    sendContractorSms(contractorId, `LeadPro: New lead — ${lead.name || 'Unknown'}, ${lead.service || 'service inquiry'}. Phone ${lead.phone || ''}.`)
+      .catch(e => console.error('[agent/send-confirmation] alert SMS error:', e.message));
+  }
 
   res.json({ success: true });
 }));

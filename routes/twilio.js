@@ -34,7 +34,14 @@ router.use(express.urlencoded({ extended: false }));
 
 function validateTwilio(req, res, next) {
   const authToken = cfg.twilio?.authToken;
-  if (!authToken) return next(); // dev: skip validation when token not set
+  if (!authToken) {
+    if (process.env.NODE_ENV === 'production') {
+      console.error('[Twilio] BLOCKED — TWILIO_AUTH_TOKEN missing in production');
+      return res.status(500).send('Server misconfigured');
+    }
+    console.warn('[Twilio] dev mode — skipping signature validation');
+    return next();
+  }
 
   const sig      = req.headers['x-twilio-signature'] || '';
   const url      = cfg.appUrl + req.originalUrl;
@@ -190,6 +197,32 @@ router.post('/twilio/sms', validateTwilio, catchAsync(async (req, res) => {
   const toPhone   = req.body.To   || cfg.twilio?.phone || '';
   const inbound   = (req.body.Body || '').trim();
 
+  // ── A2P keyword handling — runs BEFORE Claude ──
+  const keyword    = inbound.toUpperCase();
+  const STOP_WORDS  = ['STOP', 'STOPALL', 'UNSUBSCRIBE', 'CANCEL', 'END', 'QUIT'];
+  const START_WORDS = ['START', 'YES', 'UNSTOP'];
+  const HELP_WORDS  = ['HELP', 'INFO'];
+
+  if (STOP_WORDS.includes(keyword) || START_WORDS.includes(keyword) || HELP_WORDS.includes(keyword)) {
+    let reply;
+    if (STOP_WORDS.includes(keyword)) {
+      await supabase.from('contractors')
+        .update({ sms_opted_out: true, sms_opted_out_at: new Date().toISOString() })
+        .eq('mobile_phone', fromPhone);
+      console.log(`[Twilio SMS] opt-out from ${fromPhone}`);
+      reply = "LeadPro: You're unsubscribed. No more messages will be sent. Reply START to resubscribe.";
+    } else if (START_WORDS.includes(keyword)) {
+      await supabase.from('contractors')
+        .update({ sms_opted_out: false, sms_opted_out_at: null })
+        .eq('mobile_phone', fromPhone);
+      console.log(`[Twilio SMS] opt-in restored from ${fromPhone}`);
+      reply = "LeadPro: You're resubscribed. Reply STOP anytime to opt out.";
+    } else {
+      reply = "LeadPro lead alerts. Email support@useleadpro.net for help. Reply STOP to opt out.";
+    }
+    return res.set('Content-Type', 'text/xml').send(twiml(`<Message>${xmlEscape(reply)}</Message>`));
+  }
+
   const contractor   = await contractorByPhone(toPhone);
   const contractorId = contractor?.id || null;
   const threadKey    = `${fromPhone}:${contractorId || 'default'}`;
@@ -230,6 +263,10 @@ router.post('/twilio/sms', validateTwilio, catchAsync(async (req, res) => {
       email.sendLeadAlert({ ...lead }, 'SMS')
         .catch(e => console.error('[Twilio SMS] alert email error:', e.message));
     }
+    if (contractorId) {
+      sendContractorSms(contractorId, `LeadPro: New lead — ${lead.name || 'Unknown'}, ${lead.service || 'service inquiry'}. Phone ${lead.phone}.`)
+        .catch(e => console.error('[Twilio SMS] alert SMS error:', e.message));
+    }
 
     thread.leadSaved = true;
   }
@@ -252,4 +289,40 @@ router.post('/twilio/sms/status', validateTwilio, (req, res) => {
   res.sendStatus(204);
 });
 
-module.exports = { router, sendSms };
+// Send SMS to a contractor with consent + opt-out checks.
+// Use this for ALL outbound SMS to contractors (not for TwiML replies to leads).
+async function sendContractorSms(contractorId, message) {
+  const { data: c } = await supabase
+    .from('contractors')
+    .select('mobile_phone, sms_consent_given, sms_opted_out, business_name')
+    .eq('id', contractorId)
+    .single();
+
+  if (!c) {
+    console.warn(`[Twilio SMS] sendContractorSms — contractor ${contractorId} not found`);
+    return { sent: false, reason: 'no_contractor' };
+  }
+  if (!c.mobile_phone) {
+    console.warn(`[Twilio SMS] sendContractorSms — no mobile_phone for ${contractorId}`);
+    return { sent: false, reason: 'no_phone' };
+  }
+  if (!c.sms_consent_given) {
+    console.warn(`[Twilio SMS] sendContractorSms — no consent for ${contractorId}`);
+    return { sent: false, reason: 'no_consent' };
+  }
+  // opt-out checked after consent so a future re-opt-in can clear it independently
+  if (c.sms_opted_out) {
+    console.warn(`[Twilio SMS] sendContractorSms — opted out: ${contractorId}`);
+    return { sent: false, reason: 'opted_out' };
+  }
+
+  let body = message;
+  if (!/STOP/i.test(body)) body += ' Reply STOP to opt out.';
+  if (body.length > 160) body = body.slice(0, 157) + '...';
+
+  await sendSms(c.mobile_phone, cfg.twilio.phone, body);
+  console.log(`[Twilio SMS] sent to ${contractorId} (${c.mobile_phone})`);
+  return { sent: true };
+}
+
+module.exports = { router, sendSms, sendContractorSms };

@@ -111,6 +111,21 @@ ALTER TABLE contractors ADD COLUMN IF NOT EXISTS google_refresh_token text;
 ALTER TABLE contractors ADD COLUMN IF NOT EXISTS google_calendar_id   text;
 ALTER TABLE contractors ADD COLUMN IF NOT EXISTS google_connected      boolean DEFAULT false;
 
+-- SMS consent + opt-out columns (A2P 10DLC compliance):
+ALTER TABLE contractors ADD COLUMN IF NOT EXISTS mobile_phone          text             DEFAULT '';
+ALTER TABLE contractors ADD COLUMN IF NOT EXISTS sms_consent_given     boolean          DEFAULT false;
+ALTER TABLE contractors ADD COLUMN IF NOT EXISTS sms_consent_at        timestamptz;
+ALTER TABLE contractors ADD COLUMN IF NOT EXISTS sms_consent_ip        text;
+ALTER TABLE contractors ADD COLUMN IF NOT EXISTS sms_consent_user_agent text;
+ALTER TABLE contractors ADD COLUMN IF NOT EXISTS sms_opted_out         boolean          DEFAULT false;
+ALTER TABLE contractors ADD COLUMN IF NOT EXISTS sms_opted_out_at      timestamptz;
+
+-- Twilio phone number mapping (inbound call/SMS routing):
+ALTER TABLE contractors ADD COLUMN IF NOT EXISTS twilio_phone          text             DEFAULT '';
+ALTER TABLE contractors ADD COLUMN IF NOT EXISTS forward_phone         text             DEFAULT '';
+ALTER TABLE contractors ADD COLUMN IF NOT EXISTS vapi_phone_number_id  text             DEFAULT '';
+ALTER TABLE contractors ADD COLUMN IF NOT EXISTS owner_email           text             DEFAULT '';
+
 -- ─────────────────────────────────────────────────────────
 -- After running this SQL, copy the following values from
 -- Supabase Dashboard → Settings → API and add them to your

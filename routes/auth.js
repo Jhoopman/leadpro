@@ -21,7 +21,7 @@ function tokenFrom(req) {
 // Creates Supabase Auth user + contractors row, returns session tokens.
 
 router.post('/auth/signup', authLimit, catchAsync(async (req, res) => {
-  const { email, password, business_name } = req.body;
+  const { email, password, business_name, mobile_phone, sms_consent_given } = req.body;
 
   // ── Validation ──
   if (!email || !password || !business_name) {
@@ -63,14 +63,18 @@ router.post('/auth/signup', authLimit, catchAsync(async (req, res) => {
   // ── Step 2: Create contractors row ──
   const trialEndsAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
   const widgetId    = 'lp_' + Math.random().toString(36).substr(2, 8);
+  const consentAt = sms_consent_given ? new Date().toISOString() : null;
   const contractorPayload = {
-    id:            user.id,
-    email:         cleanEmail,
-    business_name: business_name.trim(),
-    plan:          'free',
-    plan_status:   'trial',
-    trial_ends_at: trialEndsAt,
-    widget_id:     widgetId,
+    id:                 user.id,
+    email:              cleanEmail,
+    business_name:      business_name.trim(),
+    plan:               'free',
+    plan_status:        'trial',
+    trial_ends_at:      trialEndsAt,
+    widget_id:          widgetId,
+    mobile_phone:       mobile_phone?.trim() || '',
+    sms_consent_given:  sms_consent_given === true,
+    sms_consent_at:     consentAt,
   };
   console.log('[auth/signup] step 2 — inserting contractor row', contractorPayload);
 

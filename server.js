@@ -146,6 +146,7 @@ app.use('/', require('./routes/prospector'));
 app.use('/', require('./routes/contractors'));
 app.use('/', require('./routes/twilio').router);
 app.use('/', require('./routes/vapi'));
+app.use('/', require('./routes/consent'));
 
 // ── ERROR HANDLING ────────────────────────────────────────────────────────────
 
