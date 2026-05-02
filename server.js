@@ -104,6 +104,10 @@ app.get('/signup', (_, res) => res.sendFile(path.join(__dirname, 'auth.html')));
 // Widget install guide — publicly served, JS inside handles auth redirect
 app.get('/install', (_, res) => res.sendFile(path.join(__dirname, 'install.html')));
 
+// Legal pages — publicly accessible
+app.get('/privacy', (_, res) => res.sendFile(path.join(__dirname, 'privacy.html')));
+app.get('/terms',   (_, res) => res.sendFile(path.join(__dirname, 'terms.html')));
+
 // Marketing landing page
 app.get('/',    (_, res) => res.sendFile(path.join(__dirname, 'index.html')));
 // PWA dashboard
