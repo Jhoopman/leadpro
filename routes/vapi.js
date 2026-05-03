@@ -107,7 +107,7 @@ router.post('/webhooks/vapi/end-of-call', (req, res) => {
       if (phoneNumId) {
         const { data } = await supabase
           .from('contractors')
-          .select('id, business_name, owner_email')
+          .select('id, business_name, email')
           .eq('vapi_phone_number_id', phoneNumId)
           .maybeSingle();
         contractor = data;
@@ -115,7 +115,7 @@ router.post('/webhooks/vapi/end-of-call', (req, res) => {
       if (!contractor && assistantId) {
         const { data } = await supabase
           .from('contractors')
-          .select('id, business_name, owner_email')
+          .select('id, business_name, email')
           .eq('vapi_assistant_id', assistantId)
           .maybeSingle();
         contractor = data;
@@ -170,11 +170,13 @@ router.post('/webhooks/vapi/end-of-call', (req, res) => {
       }
 
       // Email alert with transcript
-      if (contractor?.owner_email && (lead.name || lead.service || callerPhone)) {
+      // Fixed May 2 2026: contractor email column is `email`, not `owner_email`
+      if (contractor?.email && (lead.name || lead.service || callerPhone)) {
         email.sendLeadAlertWithTranscript(
           { ...lead, bizName: contractor.business_name },
           'Vapi Voice',
-          transcript
+          transcript,
+          contractor.email
         ).catch(e => console.error('[Vapi] alert email error:', e.message));
       }
       if (contractorId) {

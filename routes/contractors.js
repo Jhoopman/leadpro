@@ -82,7 +82,7 @@ router.post('/api/onboarding/complete', catchAsync(async (req, res) => {
 
   const { data: contractor, error: dbErr } = await supabase
     .from('contractors')
-    .select('id, business_name, owner_email')
+    .select('id, business_name, email')
     .eq('id', contractor_id)
     .single();
 
@@ -93,10 +93,11 @@ router.post('/api/onboarding/complete', catchAsync(async (req, res) => {
     .update({ status: 'active', onboarding_done: true })
     .eq('id', contractor_id);
 
+  // Fixed May 2 2026: contractor email column is `email`, not `owner_email`
   // Email contractor: "Your LeadPro AI is live!"
-  if (contractor.owner_email && cfg.resendApiKey) {
+  if (contractor.email && cfg.resendApiKey) {
     email.send(
-      contractor.owner_email,
+      contractor.email,
       'Your LeadPro AI is live! 🎉',
       `<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px">
         <h1 style="color:#2d7a4e">You're live on LeadPro! 🎉</h1>

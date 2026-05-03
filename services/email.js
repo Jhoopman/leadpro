@@ -88,18 +88,38 @@ function confirmHTML(lead) {
 
 // ── CONVENIENCE SENDERS ─────────────────────────────────────────────────────
 
-async function sendLeadAlert(lead, source) {
-  return send(cfg.alertEmail, `New ${source} lead: ${lead.name} — ${lead.service}`, leadAlertHTML(lead, source));
+// Fixed May 2 2026: route alerts to contractor's email when provided
+async function sendLeadAlert(lead, source, recipientEmail = null) {
+  const validEmail = recipientEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipientEmail);
+  const to = validEmail ? recipientEmail : cfg.alertEmail;
+  if (!to) {
+    console.warn('[Email] sendLeadAlert — no recipient available (no contractor email, no cfg.alertEmail)');
+    return null;
+  }
+  if (!validEmail && recipientEmail) {
+    console.warn(`[Email] sendLeadAlert — invalid contractor email "${recipientEmail}", falling back to cfg.alertEmail`);
+  }
+  return send(to, `New ${source} lead: ${lead.name} — ${lead.service}`, leadAlertHTML(lead, source));
 }
 
-async function sendLeadAlertWithTranscript(lead, source, transcript) {
+// Fixed May 2 2026: route alerts to contractor's email when provided
+async function sendLeadAlertWithTranscript(lead, source, transcript, recipientEmail = null) {
+  const validEmail = recipientEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipientEmail);
+  const to = validEmail ? recipientEmail : cfg.alertEmail;
+  if (!to) {
+    console.warn('[Email] sendLeadAlertWithTranscript — no recipient available (no contractor email, no cfg.alertEmail)');
+    return null;
+  }
+  if (!validEmail && recipientEmail) {
+    console.warn(`[Email] sendLeadAlertWithTranscript — invalid contractor email "${recipientEmail}", falling back to cfg.alertEmail`);
+  }
   const transcriptBlock = `
 <div style="margin-top:16px;background:#f5f5f3;border-radius:8px;padding:14px">
   <div style="font-size:11px;color:#888;margin-bottom:8px">CALL TRANSCRIPT</div>
   <div style="font-size:12px;color:#2c2c2a;line-height:1.7;white-space:pre-wrap">${(transcript || '').slice(0, 1000)}</div>
 </div>`;
   return send(
-    cfg.alertEmail,
+    to,
     `New ${source} lead: ${lead.name} — ${lead.service}`,
     leadAlertHTML(lead, source) + transcriptBlock
   );

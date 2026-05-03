@@ -13,7 +13,7 @@
 // DB tables expected (non-fatal if missing):
 //   contractors.twilio_phone  — maps Twilio "To" number → contractor row
 //   contractors.forward_phone — destination for call forwarding
-//   contractors.owner_email   — email for lead alerts
+//   contractors.email         — email for lead alerts
 //   calls                     — persisted by voice/status
 //   leads                     — persisted by sms
 
@@ -76,7 +76,7 @@ async function contractorByPhone(toPhone) {
   if (!toPhone) return null;
   const { data } = await supabase
     .from('contractors')
-    .select('id, business_name, forward_phone, owner_email, vapi_phone_number_id, vapi_assistant_id')
+    .select('id, business_name, forward_phone, email, vapi_phone_number_id, vapi_assistant_id')
     .eq('twilio_phone', toPhone)
     .maybeSingle();
   return data || null;
@@ -259,8 +259,9 @@ router.post('/twilio/sms', validateTwilio, catchAsync(async (req, res) => {
       if (error) console.error('[Twilio SMS] lead insert error:', error.message);
     }
 
-    if (contractor?.owner_email) {
-      email.sendLeadAlert({ ...lead }, 'SMS')
+    // Fixed May 2 2026: contractor email column is `email`, not `owner_email`
+    if (contractor?.email) {
+      email.sendLeadAlert({ ...lead }, 'SMS', contractor.email)
         .catch(e => console.error('[Twilio SMS] alert email error:', e.message));
     }
     if (contractorId) {
