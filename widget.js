@@ -28,7 +28,7 @@
 
     /* Button */
     '#lp-btn{',
-      'position:fixed;bottom:24px;right:24px;',
+      'position:fixed;bottom:24px;left:24px;',
       'width:56px;height:56px;border-radius:50%;',
       'background:#1a4d2e;border:none;outline:none;cursor:pointer;',
       'display:flex;align-items:center;justify-content:center;',
@@ -79,7 +79,7 @@
 
     /* Tooltip */
     '#lp-tooltip{',
-      'position:absolute;right:64px;top:50%;transform:translateY(-50%);',
+      'position:absolute;left:64px;top:50%;transform:translateY(-50%);',
       'background:rgba(10,10,10,0.82);',
       'backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);',
       'color:#fff;',
@@ -90,8 +90,8 @@
       'transition:opacity 0.15s;',
     '}',
     '#lp-tooltip::after{',
-      'content:"";position:absolute;left:100%;top:50%;transform:translateY(-50%);',
-      'border:5px solid transparent;border-left-color:rgba(10,10,10,0.82);',
+      'content:"";position:absolute;right:100%;top:50%;transform:translateY(-50%);',
+      'border:5px solid transparent;border-right-color:rgba(10,10,10,0.82);',
     '}',
     '#lp-btn:hover #lp-tooltip{opacity:1;}',
     '#lp-btn.lp-open #lp-tooltip{display:none;}',
@@ -115,13 +115,13 @@
 
     /* Chat panel */
     '#lp-panel{',
-      'position:fixed;bottom:92px;right:24px;',
+      'position:fixed;bottom:92px;left:24px;',
       'width:380px;height:580px;',
       'border-radius:16px;overflow:hidden;',
       'box-shadow:0 12px 56px rgba(0,0,0,0.22),0 2px 10px rgba(0,0,0,0.08);',
       'border:1px solid rgba(0,0,0,0.07);',
       'z-index:2147483645;',
-      'transform-origin:bottom right;',
+      'transform-origin:bottom left;',
       'transform:scale(0.88) translateY(20px);',
       'opacity:0;pointer-events:none;',
       'transition:',
@@ -140,10 +140,10 @@
       '#lp-panel{',
         'width:calc(100vw - 16px);',
         'height:calc(100dvh - 96px);',
-        'right:8px;bottom:76px;',
+        'left:8px;bottom:76px;',
         'border-radius:14px;',
       '}',
-      '#lp-btn{bottom:16px;right:16px;}',
+      '#lp-btn{bottom:16px;left:16px;}',
     '}',
 
     /* Reduced motion */
