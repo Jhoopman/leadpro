@@ -20,14 +20,17 @@ app.use('/stripe-webhook', express.raw({ type: 'application/json' }));
 app.use(express.json());
 
 // ── CORS ──────────────────────────────────────────────────────────────────────
-// TODO: tighten origin list when you have a stable domain
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin',  '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  if (req.method === 'OPTIONS') { res.sendStatus(204); return; }
-  next();
-});
+// ROLLBACK (remove after 7 days stable in prod — added 2026-05-05):
+// app.use((req, res, next) => {
+//   res.setHeader('Access-Control-Allow-Origin',  '*');
+//   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+//   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+//   if (req.method === 'OPTIONS') { res.sendStatus(204); return; }
+//   next();
+// });
+
+const { corsMiddleware } = require('./middleware/cors');
+app.use(corsMiddleware);
 
 // ── STATIC FILES ──────────────────────────────────────────────────────────────
 

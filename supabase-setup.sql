@@ -126,6 +126,9 @@ ALTER TABLE contractors ADD COLUMN IF NOT EXISTS forward_phone         text     
 ALTER TABLE contractors ADD COLUMN IF NOT EXISTS vapi_phone_number_id  text             DEFAULT '';
 ALTER TABLE contractors ADD COLUMN IF NOT EXISTS owner_email           text             DEFAULT '';
 
+-- Widget domain for CORS allowlisting (domain where contractor installs the chat widget):
+ALTER TABLE contractors ADD COLUMN IF NOT EXISTS widget_domain         text             DEFAULT '';
+
 -- ─────────────────────────────────────────────────────────
 -- After running this SQL, copy the following values from
 -- Supabase Dashboard → Settings → API and add them to your
