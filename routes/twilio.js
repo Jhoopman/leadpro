@@ -19,44 +19,16 @@
 
 const express  = require('express');
 const router   = express.Router();
-const crypto   = require('crypto');
 const https    = require('https');
 const supabase = require('../services/supabase');
 const claude   = require('../services/claude');
 const email    = require('../services/email');
 const { catchAsync } = require('../middleware/errorHandler');
 const cfg      = require('../config');
+const { verifyTwilioSignature } = require('../middleware/twilio-signature');
 
 // Twilio posts application/x-www-form-urlencoded — parse it for these routes only
 router.use(express.urlencoded({ extended: false }));
-
-// ── TWILIO SIGNATURE VALIDATION ───────────────────────────────────────────────
-
-function validateTwilio(req, res, next) {
-  const authToken = cfg.twilio?.authToken;
-  if (!authToken) {
-    if (process.env.NODE_ENV === 'production') {
-      console.error('[Twilio] BLOCKED — TWILIO_AUTH_TOKEN missing in production');
-      return res.status(500).send('Server misconfigured');
-    }
-    console.warn('[Twilio] dev mode — skipping signature validation');
-    return next();
-  }
-
-  const sig      = req.headers['x-twilio-signature'] || '';
-  const url      = cfg.appUrl + req.originalUrl;
-  const params   = req.body || {};
-  const paramStr = Object.keys(params).sort().reduce((s, k) => s + k + params[k], url);
-
-  const expected = crypto.createHmac('sha1', authToken).update(paramStr).digest('base64');
-
-  const sigBuf = Buffer.from(sig);
-  const expBuf = Buffer.from(expected);
-  if (sigBuf.length !== expBuf.length || !crypto.timingSafeEqual(sigBuf, expBuf)) {
-    return res.status(403).send('Forbidden');
-  }
-  next();
-}
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 
@@ -143,7 +115,7 @@ function extractLead(text) {
 // Connects to Vapi AI via SIP when vapi_phone_number_id is configured.
 // Falls back to voicemail when Vapi is not yet set up for this contractor.
 
-router.post('/twilio/voice', validateTwilio, catchAsync(async (req, res) => {
+router.post('/twilio/voice', verifyTwilioSignature, catchAsync(async (req, res) => {
   const toPhone    = req.body.To || cfg.twilio?.phone || '';
   const fromPhone  = req.body.From || '';
   const contractor = await contractorByPhone(toPhone);
@@ -169,7 +141,7 @@ router.post('/twilio/voice', validateTwilio, catchAsync(async (req, res) => {
 
 // ── ROUTE 2: Voice / voicemail status callback ────────────────────────────────
 
-router.post('/twilio/voice/status', validateTwilio, catchAsync(async (req, res) => {
+router.post('/twilio/voice/status', verifyTwilioSignature, catchAsync(async (req, res) => {
   const { CallSid, CallStatus, From, To, RecordingUrl, TranscriptionText } = req.body;
   console.log(`[Twilio Voice] ${CallSid} — ${CallStatus} from ${From}`);
 
@@ -192,7 +164,7 @@ router.post('/twilio/voice/status', validateTwilio, catchAsync(async (req, res) 
 
 // ── ROUTE 3: Incoming SMS — AI lead-capture conversation ──────────────────────
 
-router.post('/twilio/sms', validateTwilio, catchAsync(async (req, res) => {
+router.post('/twilio/sms', verifyTwilioSignature, catchAsync(async (req, res) => {
   const fromPhone = req.body.From || '';
   const toPhone   = req.body.To   || cfg.twilio?.phone || '';
   const inbound   = (req.body.Body || '').trim();
@@ -280,7 +252,7 @@ router.post('/twilio/sms', validateTwilio, catchAsync(async (req, res) => {
 
 // ── ROUTE 4: SMS delivery status callback ─────────────────────────────────────
 
-router.post('/twilio/sms/status', validateTwilio, (req, res) => {
+router.post('/twilio/sms/status', verifyTwilioSignature, (req, res) => {
   const { MessageSid, MessageStatus, To, ErrorCode } = req.body;
   if (ErrorCode) {
     console.error(`[Twilio SMS] delivery failed — ${MessageSid} to ${To}: error ${ErrorCode}`);
