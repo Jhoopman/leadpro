@@ -59,7 +59,7 @@ app.get('/health', (_, res) => res.json({ ok: true, ts: new Date().toISOString()
 // GET /api/health — uptime check for UptimeRobot and load-balancer pings.
 // Public (no auth). 200 = everything critical is working. 503 = something is broken.
 // Silent on success to avoid flooding Render logs (hits 12×/hr forever).
-app.get('/api/health', async (req, res) => {
+app.all('/api/health', async (req, res) => {
   const supabase = require('./services/supabase');
   const checks = {
     server:            'ok',
