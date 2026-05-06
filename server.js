@@ -2,6 +2,7 @@
 // This file only wires things together. No business logic lives here.
 // Target: stay under 100 lines. If it grows, something is in the wrong place.
 
+require('./instrument.js');
 require('dotenv').config();
 const express = require('express');
 const path    = require('path');
@@ -196,7 +197,15 @@ app.use('/', require('./routes/twilio').router);
 app.use('/', require('./routes/vapi'));
 app.use('/', require('./routes/consent'));
 
+// TEMPORARY — remove after Sentry capture verified
+app.get('/api/sentry-test', (req, res) => {
+  throw new Error('Sentry test error — safe to ignore');
+});
+
 // ── ERROR HANDLING ────────────────────────────────────────────────────────────
+
+const Sentry = require('@sentry/node');
+Sentry.setupExpressErrorHandler(app);
 
 const { notFound, globalError } = require('./middleware/errorHandler');
 app.use(notFound);
