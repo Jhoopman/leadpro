@@ -56,8 +56,49 @@ app.get('/config', (_, res) => res.json({
 
 app.get('/health', (_, res) => res.json({ ok: true, ts: new Date().toISOString() }));
 
-// GET /api/health/db — verifies PostgREST can read the three core tables.
+// GET /api/health — uptime check for UptimeRobot and load-balancer pings.
+// Public (no auth). 200 = everything critical is working. 503 = something is broken.
+// Silent on success to avoid flooding Render logs (hits 12×/hr forever).
+app.get('/api/health', async (req, res) => {
+  const supabase = require('./services/supabase');
+  const checks = {
+    server:            'ok',
+    supabase:          'unknown',
+    stripe_configured: 'unknown',
+    twilio_configured: 'unknown',
+  };
+
+  try {
+    const start = Date.now();
+    const { error } = await supabase
+      .from('contractors')
+      .select('id', { count: 'exact', head: true })
+      .limit(1);
+    if (error) throw error;
+    checks.supabase            = 'ok';
+    checks.supabase_latency_ms = Date.now() - start;
+  } catch (err) {
+    checks.supabase = 'error';
+    console.error('[Health] Supabase check failed:', err.message);
+  }
+
+  checks.stripe_configured = cfg.stripe.secretKey                            ? 'ok' : 'missing';
+  checks.twilio_configured = (cfg.twilio.accountSid && cfg.twilio.authToken) ? 'ok' : 'missing';
+
+  const critical_failed =
+    checks.supabase === 'error' ||
+    (process.env.NODE_ENV === 'production' && checks.stripe_configured === 'missing');
+
+  res.status(critical_failed ? 503 : 200).json({
+    status:    critical_failed ? 'unhealthy' : 'healthy',
+    checks,
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// GET /api/health/db — diagnostic tool: verifies PostgREST can read the three core tables.
 // Pass Authorization: Bearer <token> to also verify the caller has a contractors row.
+// More detailed than /api/health; not intended for UptimeRobot (exposes schema/row details).
 // Hit from browser: https://app.useleadpro.net/api/health/db
 app.get('/api/health/db', async (req, res) => {
   const supabase = require('./services/supabase');
