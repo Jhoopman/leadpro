@@ -657,6 +657,9 @@
       color: rgba(255,255,255,0.55);
     }
     .pricing-features li svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px; color: #74C69D; }
+    .pricing-badge-founding { background: linear-gradient(135deg, #7D5A00, #B8860B); color: #fff; }
+    .pricing-locked-subline { font-size: 0.78rem; color: rgba(255,255,255,0.35); margin-top: 4px; margin-bottom: 20px; letter-spacing: 0.02em; }
+    .pricing-standard-note { font-size: 0.75rem; color: rgba(255,255,255,0.28); margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 14px; line-height: 1.5; }
 
 
     /* ── FAQ ── */
@@ -1332,8 +1335,10 @@
     </ul>
     <div class="nav-cta">
       <a class="btn-ghost" href="https://app.useleadpro.net/auth">Log in</a>
-      <a class="btn-primary" href="https://app.useleadpro.net/signup">
-        Start free trial
+      <!-- old copy, remove after May 14 if no rollback needed -->
+      <!-- <a class="btn-primary" href="https://app.useleadpro.net/signup">Start free trial <svg ...></svg></a> -->
+      <a class="btn-primary" href="https://app.useleadpro.net">
+        Become a Founding Member
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
       </a>
     </div>
@@ -1351,7 +1356,9 @@
   <a href="#pricing" onclick="document.getElementById('mobileMenu').classList.remove('open')">Pricing</a>
   <a href="#faq" onclick="document.getElementById('mobileMenu').classList.remove('open')">FAQ</a>
   <a href="#contact" onclick="document.getElementById('mobileMenu').classList.remove('open')">Contact</a>
-  <a href="https://app.useleadpro.net/signup" style="color: var(--green); margin-top: 12px;">Start free trial →</a>
+  <!-- old copy, remove after May 14 if no rollback needed -->
+  <!-- <a href="https://app.useleadpro.net/signup" style="color: var(--green); margin-top: 12px;">Start free trial →</a> -->
+  <a href="https://app.useleadpro.net" style="color: var(--green); margin-top: 12px;">Become a Founding Member →</a>
 </div>
 
 <!-- HERO -->
@@ -1376,9 +1383,11 @@
     <h1 id="heroHeadline" class="reveal reveal-d1">Stop Losing Jobs<br/>to <em>Voicemail</em></h1>
     <p class="hero-sub reveal reveal-d2">LeadPro texts your missed calls back in 60 seconds and books the appointment — while you're still on the job.</p>
     <div class="hero-actions reveal reveal-d3">
-      <a class="btn-hero" href="https://app.useleadpro.net/signup">
+      <!-- old copy, remove after May 14 if no rollback needed -->
+      <!-- <a class="btn-hero" href="https://app.useleadpro.net/signup"><svg ...></svg> See It Work Free</a> -->
+      <a class="btn-hero" href="https://app.useleadpro.net">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        See It Work Free
+        Become a Founding Member
       </a>
       <a class="btn-hero-outline" href="https://app.useleadpro.net?demo=true">View Live Demo</a>
       <a class="hero-link" href="#how">
@@ -1386,7 +1395,9 @@
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
       </a>
     </div>
-    <p class="hero-microcopy reveal reveal-d3">No credit card. Live in 10 minutes.</p>
+    <!-- old copy, remove after May 14 if no rollback needed -->
+    <!-- <p class="hero-microcopy reveal reveal-d3">No credit card. Live in 10 minutes.</p> -->
+    <p class="hero-microcopy reveal reveal-d3">Done-for-you setup. Live within 24 hours.</p>
 
     <!-- LIVE DEMO -->
     <div class="hero-demo reveal reveal-d4">
@@ -1403,14 +1414,16 @@
       <p class="demo-after" id="demoAfter"></p>
     </div>
 
+    <!-- old copy, remove after May 14 if no rollback needed -->
+    <!-- Trust strip: No credit card required · Set up in under 10 minutes · Cancel anytime -->
     <div class="hero-trust reveal reveal-d5">
       <span>
         <svg viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
-        No credit card required
+        Done-for-you setup
       </span>
       <span>
         <svg viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
-        Set up in under 10 minutes
+        Live in 24 hours
       </span>
       <span>
         <svg viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
@@ -1708,13 +1721,81 @@
   </div>
 </section>
 
+<!-- FOUNDING MEMBER PROGRAM -->
+<style>
+.founding-member { background: #0A0A0A; padding: 80px 24px; }
+.founding-member-inner {
+  max-width: 720px;
+  margin: 0 auto;
+  background: rgba(45,106,79,0.07);
+  border: 1px solid rgba(116,198,157,0.18);
+  border-radius: 24px;
+  padding: 56px 64px;
+  box-shadow: 0 0 60px rgba(116,198,157,0.05);
+  text-align: center;
+}
+@media (max-width: 640px) { .founding-member-inner { padding: 40px 28px; } }
+.founding-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(45,106,79,0.2);
+  color: #74C69D;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 5px 13px;
+  border-radius: 999px;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+.founding-member-inner h2 {
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  color: #ffffff;
+  margin-bottom: 28px;
+}
+.founding-body p {
+  font-size: 1rem;
+  color: rgba(255,255,255,0.6);
+  line-height: 1.7;
+  max-width: 580px;
+  margin: 0 auto 16px;
+}
+.founding-body p:last-child { margin-bottom: 36px; }
+</style>
+<section class="founding-member">
+  <div class="founding-member-inner reveal">
+    <div class="founding-eyebrow">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#74C69D;opacity:0.8;">
+        <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+      FOUNDING MEMBER PROGRAM
+    </div>
+    <h2>Locked-in pricing. Forever.</h2>
+    <div class="founding-body">
+      <p>We're currently onboarding our founding 10 — contractors who get LeadPro at locked-in pricing for life. $97/mo Starter, $197/mo Pro. Dedicated AI phone number. Hands-on configuration done by the founder.</p>
+      <p>Once we close founding member onboarding, standard pricing applies: $150/mo Starter, $250/mo Pro, plus a $90 setup fee. Founding members never get bumped.</p>
+    </div>
+    <a class="btn-hero" href="https://app.useleadpro.net" style="display:inline-flex;margin:0 auto;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Become a Founding Member →
+    </a>
+  </div>
+</section>
+
 <!-- PRICING -->
 <section class="pricing" id="pricing">
   <div class="section-inner">
     <div class="section-header center reveal">
       <div class="section-tag"><span class="dot"></span> Pricing</div>
       <h2 class="section-title">Simple pricing.<br/>No surprises.</h2>
-      <p class="section-sub">Start free for 14 days. No credit card required. One job booked by LeadPro pays for itself many times over.</p>
+      <!-- old copy, remove after May 14 if no rollback needed -->
+      <!-- <p class="section-sub">Start free for 14 days. No credit card required. One job booked by LeadPro pays for itself many times over.</p> -->
+      <p class="section-sub">Founding member rate — $97/mo Starter, $197/mo Pro. No setup fee. One job booked by LeadPro pays for itself many times over.</p>
     </div>
     <div class="pricing-grid pricing-grid-3">
       <!-- FREE -->
@@ -1725,7 +1806,9 @@
           <span class="period">&nbsp;/ month</span>
         </div>
         <p class="pricing-desc">Missed-call text-back so no lead goes cold.</p>
-        <a class="pricing-cta" href="https://app.useleadpro.net/signup" style="background:#1f1f1f;color:#74C69D;border:1px solid #2D6A4F;">Start Free — No Card</a>
+        <!-- old copy, remove after May 14 if no rollback needed -->
+        <!-- <a class="pricing-cta" href="https://app.useleadpro.net/signup" ...>Start Free — No Card</a> -->
+        <a class="pricing-cta" href="https://app.useleadpro.net" style="background:#1f1f1f;color:#74C69D;border:1px solid #2D6A4F;">Start Free — No Card</a>
         <ul class="pricing-features">
           <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> Missed-call text-back</li>
           <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> Unlimited texts</li>
@@ -1735,16 +1818,22 @@
       </div>
       <!-- STARTER -->
       <div class="pricing-card featured reveal reveal-d2">
-        <div class="pricing-badge">Most Popular</div>
+        <!-- old copy, remove after May 14 if no rollback needed -->
+        <!-- <div class="pricing-badge">Most Popular</div> -->
+        <div class="pricing-badge pricing-badge-founding">Founding Rate</div>
         <div class="pricing-tier">Starter</div>
         <div class="pricing-price">
           <span class="currency">$</span>
           <span class="amount">97</span>
           <span class="period">&nbsp;/ month</span>
         </div>
-        <p class="setup-fee-note">+ $97 one-time setup fee<br>Includes done-for-you AI configuration by our team.</p>
+        <p class="pricing-locked-subline">Locked for life · founding members only</p>
+        <!-- old copy, remove after May 14 if no rollback needed -->
+        <!-- <p class="setup-fee-note">+ $97 one-time setup fee<br>Includes done-for-you AI configuration by our team.</p> -->
         <p class="pricing-desc">Everything you need to turn missed calls into booked jobs.</p>
-        <a class="pricing-cta" href="https://app.useleadpro.net/signup?plan=starter">Start 14-Day Trial</a>
+        <!-- old copy, remove after May 14 if no rollback needed -->
+        <!-- <a class="pricing-cta" href="https://app.useleadpro.net/signup?plan=starter">Start 14-Day Trial</a> -->
+        <a class="pricing-cta" href="https://app.useleadpro.net">Claim Founding Rate →</a>
         <ul class="pricing-features">
           <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> Everything in Free</li>
           <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> Booking link in every text</li>
@@ -1752,24 +1841,31 @@
           <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> Lead dashboard</li>
           <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> SMS notifications</li>
         </ul>
+        <p class="pricing-standard-note">Standard pricing after founding 10 closes: $150/mo + $90 setup</p>
       </div>
       <!-- PRO -->
       <div class="pricing-card reveal reveal-d3">
+        <div class="pricing-badge pricing-badge-founding">Founding Rate</div>
         <div class="pricing-tier">Pro</div>
         <div class="pricing-price">
           <span class="currency">$</span>
           <span class="amount">197</span>
           <span class="period">&nbsp;/ month</span>
         </div>
-        <p class="setup-fee-note">+ $97 one-time setup fee<br>Includes done-for-you AI configuration by our team.</p>
+        <p class="pricing-locked-subline">Locked for life · founding members only</p>
+        <!-- old copy, remove after May 14 if no rollback needed -->
+        <!-- <p class="setup-fee-note">+ $97 one-time setup fee<br>Includes done-for-you AI configuration by our team.</p> -->
         <p class="pricing-desc">For contractors ready to scale with an AI agent that answers live calls.</p>
-        <a class="pricing-cta" href="https://app.useleadpro.net/signup?plan=pro">Start 14-Day Trial</a>
+        <!-- old copy, remove after May 14 if no rollback needed -->
+        <!-- <a class="pricing-cta" href="https://app.useleadpro.net/signup?plan=pro">Start 14-Day Trial</a> -->
+        <a class="pricing-cta" href="https://app.useleadpro.net">Claim Founding Rate →</a>
         <ul class="pricing-features">
           <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> Everything in Starter</li>
           <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> AI phone agent (answers live calls)</li>
           <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> Call transcripts</li>
           <li><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> Multi-location</li>
         </ul>
+        <p class="pricing-standard-note">Standard pricing after founding 10 closes: $250/mo + $90 setup</p>
       </div>
     </div>
   </div>
@@ -1827,6 +1923,62 @@
         <p class="faq-a">Cancel anytime, no questions asked. We're confident you won't want to once you see your first recovered job hit the dashboard.</p>
       </details>
     </div>
+  </div>
+</section>
+
+<!-- BUILT BY A SOLO FOUNDER -->
+<style>
+.founder-section { background: #111111; padding: 80px 24px; border-top: 1px solid rgba(255,255,255,0.05); }
+.founder-inner {
+  max-width: 680px;
+  margin: 0 auto;
+  text-align: center;
+}
+.founder-inner h2 {
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  color: #ffffff;
+  margin-bottom: 28px;
+}
+.founder-body p {
+  font-size: 1rem;
+  color: rgba(255,255,255,0.58);
+  line-height: 1.75;
+  max-width: 580px;
+  margin: 0 auto 16px;
+}
+.founder-body p:last-child {
+  margin-bottom: 36px;
+}
+.founder-emphasis {
+  font-size: 1.05rem !important;
+  color: #74C69D !important;
+  font-weight: 600;
+  opacity: 1 !important;
+}
+</style>
+<section class="founder-section">
+  <div class="founder-inner reveal">
+    <div class="founding-eyebrow" style="margin-bottom:20px;">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#74C69D;opacity:0.8;">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      BUILT BY A SOLO FOUNDER
+    </div>
+    <h2>Hey — I'm Josiah.</h2>
+    <div class="founder-body">
+      <p>I built LeadPro because I saw too many contractors losing work to phones they couldn't answer.</p>
+      <p>I personally set up every founding member's AI agent — done-for-you, live within 24 hours. No support tickets, no chatbots, no offshore handoffs. Just me, until founding member onboarding closes.</p>
+      <p>That's why founding spots are limited. After we close the program, setup becomes self-serve and standard pricing kicks in.</p>
+      <p class="founder-emphasis">If you're a founding member, you get the best price LeadPro will ever offer — for as long as you stay subscribed.</p>
+    </div>
+    <a class="btn-hero" href="https://app.useleadpro.net" style="display:inline-flex;margin:0 auto;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Become a Founding Member →
+    </a>
   </div>
 </section>
 
@@ -1939,17 +2091,21 @@ document.getElementById('contactForm').addEventListener('submit', async function
 </script>
 
 <!-- FINAL CTA -->
+<!-- old copy, remove after May 14 if no rollback needed -->
+<!-- <p>Start free for 14 days. No credit card. Cancel anytime. One booked job pays for months of LeadPro.</p> -->
+<!-- <a class="btn-cta-white" href="...">Start free trial</a> -->
+<!-- <p class="cta-note">14-day free trial · No credit card required · Cancel anytime</p> -->
 <section class="final-cta">
   <div>
     <h2>Your next job is calling.<br/>Make sure you answer.</h2>
-    <p>Start free for 14 days. No credit card. Cancel anytime. One booked job pays for months of LeadPro.</p>
+    <p>Founding member pricing — locked for life. Done-for-you setup. Live within 24 hours.</p>
     <div class="final-cta-actions">
-      <a class="btn-cta-white" href="https://app.useleadpro.net/signup">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.09 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
-        Start free trial
+      <a class="btn-cta-white" href="https://app.useleadpro.net">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Become a Founding Member →
       </a>
     </div>
-    <p class="cta-note">14-day free trial · No credit card required · Cancel anytime</p>
+    <p class="cta-note">$97/mo Starter · $197/mo Pro · No setup fee · Cancel anytime</p>
   </div>
 </section>
 
