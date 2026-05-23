@@ -3,11 +3,21 @@
 // Also exports requireAuth middleware — import it in any route file that needs auth:
 //   const { requireAuth } = require('./auth');
 
-const express  = require('express');
-const router   = express.Router();
-const supabase = require('../services/supabase');
+const express        = require('express');
+const router         = express.Router();
+const { createClient } = require('@supabase/supabase-js');
+const supabase       = require('../services/supabase');
+const cfg            = require('../config');
 const { catchAsync } = require('../middleware/errorHandler');
 const { authLimit }  = require('../middleware/rateLimit');
+
+// Anon client used ONLY for signInWithPassword.
+// Never call signInWithPassword on the service-role singleton — it writes the user JWT
+// to currentSession in memory (even with persistSession:false), causing subsequent
+// from() calls to send the user JWT instead of the service key, breaking RLS on inserts.
+const anonSupabase = createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
+  auth: { persistSession: false, autoRefreshToken: false },
+});
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 
@@ -90,7 +100,7 @@ router.post('/auth/signup', authLimit, catchAsync(async (req, res) => {
 
   // ── Step 3: Issue session ──
   console.log('[auth/signup] step 3 — signInWithPassword');
-  const { data: { session }, error: sessionErr } = await supabase.auth.signInWithPassword({
+  const { data: { session }, error: sessionErr } = await anonSupabase.auth.signInWithPassword({
     email: cleanEmail,
     password,
   });
@@ -126,7 +136,7 @@ router.post('/auth/login', authLimit, catchAsync(async (req, res) => {
     return res.status(400).json({ error: 'Email and password are required' });
   }
 
-  const { data: { session }, error } = await supabase.auth.signInWithPassword({
+  const { data: { session }, error } = await anonSupabase.auth.signInWithPassword({
     email:    email.toLowerCase().trim(),
     password,
   });
