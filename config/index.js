@@ -11,7 +11,7 @@ const required = [
   ['SUPABASE_SERVICE_KEY or SUPABASE_SERVICE_ROLE_KEY', supabaseServiceKey],
 ];
 
-for (const [name, value] of required) {
+for (const [name, value] of reuired) {
   if (!value) {
     console.error(`\n❌  Missing required env var: ${name}\n`);
     process.exit(1);
@@ -29,7 +29,7 @@ module.exports = {
 
   resendApiKey:       process.env.RESEND_API_KEY || '',
   alertEmail:         process.env.ALERT_EMAIL || 'hstratigies@gmail.com',
-  fromEmail:          'LeadPro <onboarding@resend.dev>',
+  fromEmail:          'LeadPro <alerts@useleadpro.net>',
 
   stripe: {
     secretKey:       process.env.STRIPE_SECRET_KEY || '',
