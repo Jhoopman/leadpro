@@ -250,6 +250,164 @@ router.post('/twilio/sms', verifyTwilioSignature, catchAsync(async (req, res) =>
   res.set('Content-Type', 'text/xml').send(twiml(`<Message>${replyText}</Message>`));
 }));
 
+// ── ROUTE: Missed-call text-back ──────────────────────────────────────────────
+// Configure as the StatusCallback URL on your Twilio number's Voice settings.
+// Fires after every call completes; we only act on missed statuses.
+
+router.post('/webhook/twilio/voice', verifyTwilioSignature, catchAsync(async (req, res) => {
+  const { CallSid, CallStatus, From, To, CallDuration } = req.body;
+  console.log(`[MissedCall] ${CallSid} — ${CallStatus} from ${From}`);
+
+  const MISSED = ['no-answer', 'busy', 'failed'];
+  if (!MISSED.includes(CallStatus)) return res.sendStatus(204);
+
+  const toPhone    = To || cfg.twilio?.phone || '';
+  const fromPhone  = From || '';
+  const contractor = await contractorByPhone(toPhone);
+
+  if (!contractor) {
+    console.warn(`[MissedCall] no contractor for ${toPhone}`);
+    return res.sendStatus(204);
+  }
+
+  // Honour opt-out: check leads table for this caller
+  const { data: lead } = await supabase
+    .from('leads')
+    .select('id, sms_opt_out')
+    .eq('contractor_id', contractor.id)
+    .eq('phone', fromPhone)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (lead?.sms_opt_out) {
+    console.log(`[MissedCall] opt-out — skipping text-back to ${fromPhone}`);
+    return res.sendStatus(204);
+  }
+
+  // "Reply STOP to opt out" footer on first outbound message in this conversation
+  const { data: priorOutbound } = await supabase
+    .from('sms_events')
+    .select('id')
+    .eq('contractor_id', contractor.id)
+    .eq('to_phone', fromPhone)
+    .eq('direction', 'outbound')
+    .limit(1)
+    .maybeSingle();
+
+  const bizName = contractor.business_name || 'us';
+  let body = `Hi! You recently called ${bizName} and we missed you. How can we help you today?`;
+  if (!priorOutbound) body += ' Reply STOP to opt out.';
+
+  let twilioSid = null;
+  try {
+    const raw    = await sendSms(fromPhone, toPhone, body);
+    const parsed = JSON.parse(raw);
+    twilioSid    = parsed.sid || null;
+    if (parsed.error_code) console.error(`[MissedCall] Twilio error ${parsed.error_code}: ${parsed.message}`);
+    else console.log(`[MissedCall] text-back sent to ${fromPhone}: SID ${twilioSid}`);
+  } catch (err) {
+    console.error(`[MissedCall] send error to ${fromPhone}:`, err.message);
+  }
+
+  // Log outbound event
+  const { error: evtErr } = await supabase.from('sms_events').insert({
+    lead_id:       lead?.id     || null,
+    contractor_id: contractor.id,
+    direction:     'outbound',
+    from_phone:    toPhone,
+    to_phone:      fromPhone,
+    body,
+    status:        twilioSid ? 'sent' : 'failed',
+    twilio_sid:    twilioSid,
+  });
+  if (evtErr) console.error('[MissedCall] sms_events insert error:', evtErr.message);
+
+  // Record the missed call
+  const { error: mcErr } = await supabase.from('missed_calls').insert({
+    contractor_id:  contractor.id,
+    caller_phone:   fromPhone,
+    twilio_number:  toPhone,
+    call_duration:  parseInt(CallDuration || '0', 10),
+    auto_text_sent: !!twilioSid,
+  });
+  if (mcErr) console.error('[MissedCall] missed_calls insert error:', mcErr.message);
+
+  res.sendStatus(204);
+}));
+
+// ── ROUTE: Inbound SMS reply handler ──────────────────────────────────────────
+// Configure as the Messaging webhook URL on your Twilio number.
+// Logs every event to sms_events; handles STOP/HELP per A2P 10DLC requirements.
+
+router.post('/webhook/twilio/sms', verifyTwilioSignature, catchAsync(async (req, res) => {
+  const { MessageSid, From, To, Body } = req.body;
+  const fromPhone = From || '';
+  const toPhone   = To   || cfg.twilio?.phone || '';
+  const inbound   = (Body || '').trim();
+
+  const contractor   = await contractorByPhone(toPhone);
+  const contractorId = contractor?.id || null;
+
+  // Log inbound event first (best-effort — don't let a DB error block the reply)
+  supabase.from('sms_events').insert({
+    contractor_id: contractorId,
+    direction:     'inbound',
+    from_phone:    fromPhone,
+    to_phone:      toPhone,
+    body:          inbound,
+    status:        'received',
+    twilio_sid:    MessageSid || null,
+  }).then(({ error }) => {
+    if (error) console.error('[SMS Reply] sms_events insert error:', error.message);
+  });
+
+  const keyword     = inbound.toUpperCase();
+  const STOP_WORDS  = ['STOP', 'STOPALL', 'UNSUBSCRIBE', 'CANCEL', 'END', 'QUIT'];
+  const START_WORDS = ['START', 'YES', 'UNSTOP'];
+  const HELP_WORDS  = ['HELP', 'INFO'];
+
+  if (STOP_WORDS.includes(keyword)) {
+    if (contractorId) {
+      await supabase.from('leads')
+        .update({ sms_opt_out: true, sms_opt_out_at: new Date().toISOString() })
+        .eq('contractor_id', contractorId)
+        .eq('phone', fromPhone)
+        .then(({ error }) => { if (error) console.error('[SMS Reply] opt-out update:', error.message); });
+    }
+    console.log(`[SMS Reply] STOP from ${fromPhone}`);
+    return res.set('Content-Type', 'text/xml').send(
+      twiml('<Message>You have been unsubscribed and will receive no further messages. Reply START to resubscribe.</Message>')
+    );
+  }
+
+  if (START_WORDS.includes(keyword)) {
+    if (contractorId) {
+      await supabase.from('leads')
+        .update({ sms_opt_out: false, sms_opt_out_at: null })
+        .eq('contractor_id', contractorId)
+        .eq('phone', fromPhone)
+        .then(({ error }) => { if (error) console.error('[SMS Reply] opt-in update:', error.message); });
+    }
+    return res.set('Content-Type', 'text/xml').send(
+      twiml('<Message>You have been resubscribed. Reply STOP anytime to opt out.</Message>')
+    );
+  }
+
+  if (HELP_WORDS.includes(keyword)) {
+    const biz = xmlEscape(contractor?.business_name || 'LeadPro');
+    return res.set('Content-Type', 'text/xml').send(
+      twiml(`<Message>${biz} lead alerts. Email support@useleadpro.net for help. Reply STOP to opt out.</Message>`)
+    );
+  }
+
+  // Generic reply — logged above; brief acknowledgement so Twilio doesn't retry
+  const biz = xmlEscape(contractor?.business_name || 'us');
+  res.set('Content-Type', 'text/xml').send(
+    twiml(`<Message>${biz} received your message and will follow up shortly.</Message>`)
+  );
+}));
+
 // ── ROUTE 4: SMS delivery status callback ─────────────────────────────────────
 
 router.post('/twilio/sms/status', verifyTwilioSignature, (req, res) => {
