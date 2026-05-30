@@ -99,7 +99,7 @@ router.post('/webhooks/vapi/end-of-call', (req, res) => {
       ? Math.max(0, Math.round((new Date(endedAt) - new Date(startedAt)) / 1000))
       : 0;
 
-    console.log(`[Vapi] end-of-call ${callId} from ${callerPhone} (${durationSec}s)`);
+    console.log(`[Vapi] end-of-call ${callId} from ${callerPhone} (${durationSec}s) phoneNumId=${phoneNumId} assistantId=${assistantId}`);
 
     try {
       // Look up contractor by vapi_phone_number_id or vapi_assistant_id
