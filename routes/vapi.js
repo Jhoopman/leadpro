@@ -16,7 +16,7 @@ const https    = require('https');
 const supabase = require('../services/supabase');
 const claude   = require('../services/claude');
 const email    = require('../services/email');
-const { sendContractorSms } = require('./twilio');
+const { sendSms, sendContractorSms } = require('./twilio');
 const { catchAsync } = require('../middleware/errorHandler');
 
 const VAPI_API_KEY = process.env.VAPI_API_KEY;
@@ -107,7 +107,7 @@ router.post('/webhooks/vapi/end-of-call', (req, res) => {
       if (phoneNumId) {
         const { data } = await supabase
           .from('contractors')
-          .select('id, business_name, email')
+          .select('id, business_name, email, twilio_phone')
           .eq('vapi_phone_number_id', phoneNumId)
           .maybeSingle();
         contractor = data;
@@ -115,7 +115,7 @@ router.post('/webhooks/vapi/end-of-call', (req, res) => {
       if (!contractor && assistantId) {
         const { data } = await supabase
           .from('contractors')
-          .select('id, business_name, email')
+          .select('id, business_name, email, twilio_phone')
           .eq('vapi_assistant_id', assistantId)
           .maybeSingle();
         contractor = data;
@@ -182,6 +182,32 @@ router.post('/webhooks/vapi/end-of-call', (req, res) => {
       if (contractorId) {
         sendContractorSms(contractorId, `LeadPro: New lead — ${lead.name || 'Unknown'}, ${lead.service || 'service inquiry'}. Phone ${lead.phone || callerPhone}.`)
           .catch(e => console.error('[Vapi] alert SMS error:', e.message));
+      }
+
+      // ── CALLER TEXT-BACK (deduped per call id) ──
+      if (!callId) {
+        console.log('[Vapi] text-back skipped — no call id for dedup');
+      } else if (!callerPhone || !/^\+[1-9]\d{7,14}$/.test(callerPhone)) {
+        console.log('[Vapi] text-back skipped — no caller number');
+      } else {
+        const { error: dupErr } = await supabase
+          .from('processed_webhook_events')
+          .insert({ event_id: `vapi_textback_${callId}` });
+
+        if (dupErr) {
+          console.log(`[Vapi] text-back skipped — duplicate ${callId}`);
+        } else {
+          const fromNum = contractor?.twilio_phone;
+          if (!fromNum) {
+            console.log('[Vapi] text-back skipped — no contractor twilio_phone');
+          } else {
+            const bizName = contractor?.business_name || 'us';
+            const textBody = `Hi! You recently called ${bizName}. How can we help you today? Reply STOP to opt out.`;
+            sendSms(callerPhone, fromNum, textBody)
+              .then(() => console.log(`[Vapi] text-back sent to ${callerPhone}`))
+              .catch(e => console.error('[Vapi] text-back send error:', e.message));
+          }
+        }
       }
 
     } catch (err) {

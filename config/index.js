@@ -11,7 +11,7 @@ const required = [
   ['SUPABASE_SERVICE_KEY or SUPABASE_SERVICE_ROLE_KEY', supabaseServiceKey],
 ];
 
-for (const [name, value] of reuired) {
+for (const [name, value] of required) {
   if (!value) {
     console.error(`\n❌  Missing required env var: ${name}\n`);
     process.exit(1);
