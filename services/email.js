@@ -27,7 +27,18 @@ function send(to, subject, html) {
     }, res => {
       let d = '';
       res.on('data', c => d += c);
-      res.on('end', () => resolve({ status: res.statusCode, data: d }));
+      res.on('end', () => {
+        if (res.statusCode >= 400) {
+          console.error(`[Email] FAILED ${res.statusCode}: ${d}`);
+          reject(new Error(`Resend ${res.statusCode}: ${d}`));
+        } else {
+          let id;
+          try { id = JSON.parse(d).id; } catch { id = null; }
+          const recipient = Array.isArray(to) ? to[0] : to;
+          console.log(`[Email] sent id=${id} to=${recipient}`);
+          resolve({ status: res.statusCode, data: d });
+        }
+      });
     });
     req.on('error', reject);
     req.write(body);
