@@ -102,6 +102,17 @@ router.post('/webhooks/vapi/end-of-call', (req, res) => {
     console.log(`[Vapi] end-of-call ${callId} from ${callerPhone} (${durationSec}s) phoneNumId=${phoneNumId} assistantId=${assistantId}`);
 
     try {
+      // ── IDEMPOTENCY GATE ──
+      if (callId) {
+        const { error: dupErr } = await supabase
+          .from('processed_webhook_events')
+          .insert({ event_id: `vapi_endofcall_${callId}` });
+        if (dupErr) {
+          console.log(`[Vapi] end-of-call duplicate — skipping ${callId}`);
+          return;
+        }
+      }
+
       // Look up contractor by vapi_phone_number_id or vapi_assistant_id
       let contractor = null;
       if (phoneNumId) {
@@ -184,29 +195,19 @@ router.post('/webhooks/vapi/end-of-call', (req, res) => {
           .catch(e => console.error('[Vapi] alert SMS error:', e.message));
       }
 
-      // ── CALLER TEXT-BACK (deduped per call id) ──
-      if (!callId) {
-        console.log('[Vapi] text-back skipped — no call id for dedup');
-      } else if (!callerPhone || !/^\+[1-9]\d{7,14}$/.test(callerPhone)) {
+      // ── CALLER TEXT-BACK ──
+      if (!callerPhone || !/^\+[1-9]\d{7,14}$/.test(callerPhone)) {
         console.log('[Vapi] text-back skipped — no caller number');
       } else {
-        const { error: dupErr } = await supabase
-          .from('processed_webhook_events')
-          .insert({ event_id: `vapi_textback_${callId}` });
-
-        if (dupErr) {
-          console.log(`[Vapi] text-back skipped — duplicate ${callId}`);
+        const fromNum = contractor?.twilio_phone;
+        if (!fromNum) {
+          console.log('[Vapi] text-back skipped — no contractor twilio_phone');
         } else {
-          const fromNum = contractor?.twilio_phone;
-          if (!fromNum) {
-            console.log('[Vapi] text-back skipped — no contractor twilio_phone');
-          } else {
-            const bizName = contractor?.business_name || 'us';
-            const textBody = `Hi! You recently called ${bizName}. How can we help you today? Reply STOP to opt out.`;
-            sendSms(callerPhone, fromNum, textBody)
-              .then(() => console.log(`[Vapi] text-back sent to ${callerPhone}`))
-              .catch(e => console.error('[Vapi] text-back send error:', e.message));
-          }
+          const bizName = contractor?.business_name || 'us';
+          const textBody = `Hi! You recently called ${bizName}. How can we help you today? Reply STOP to opt out.`;
+          sendSms(callerPhone, fromNum, textBody)
+            .then(() => console.log(`[Vapi] text-back sent to ${callerPhone}`))
+            .catch(e => console.error('[Vapi] text-back send error:', e.message));
         }
       }
 
