@@ -17,18 +17,13 @@ const app = express();
 // Raw body capture for Stripe webhook signature verification (must come first)
 app.use('/stripe-webhook', express.raw({ type: 'application/json' }));
 
+// Raw body capture for Twilio signature verification (urlencoded; must precede router mount)
+app.use('/twilio', express.urlencoded({ extended: false, verify: (req, res, buf) => { req.rawBody = buf; } }));
+
 // JSON body parser for all other routes
 app.use(express.json());
 
 // ── CORS ──────────────────────────────────────────────────────────────────────
-// ROLLBACK (remove after 7 days stable in prod — added 2026-05-05):
-// app.use((req, res, next) => {
-//   res.setHeader('Access-Control-Allow-Origin',  '*');
-//   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-//   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-//   if (req.method === 'OPTIONS') { res.sendStatus(204); return; }
-//   next();
-// });
 
 const { corsMiddleware } = require('./middleware/cors');
 app.use(corsMiddleware);

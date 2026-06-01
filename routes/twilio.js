@@ -16,6 +16,11 @@
 //   contractors.email         — email for lead alerts
 //   calls                     — persisted by voice/status
 //   leads                     — persisted by sms
+//
+// Run this SQL once in Supabase before deploying:
+//   ALTER TABLE calls ADD COLUMN IF NOT EXISTS idempotency_key text;
+//   CREATE UNIQUE INDEX IF NOT EXISTS calls_idempotency_key_idx
+//     ON calls(idempotency_key) WHERE idempotency_key IS NOT NULL;
 
 const express  = require('express');
 const router   = express.Router();
@@ -143,18 +148,32 @@ router.post('/twilio/voice', verifyTwilioSignature, catchAsync(async (req, res) 
 
 router.post('/twilio/voice/status', verifyTwilioSignature, catchAsync(async (req, res) => {
   const { CallSid, CallStatus, From, To, RecordingUrl, TranscriptionText } = req.body;
+
+  // Idempotency: Twilio retries StatusCallback on timeout — dedup by CallSid+CallStatus
+  const idempotencyKey = `twilio_cb_${CallSid}_${CallStatus}`;
+  const { data: existing } = await supabase
+    .from('calls')
+    .select('id')
+    .eq('idempotency_key', idempotencyKey)
+    .maybeSingle();
+  if (existing) {
+    console.log(`[Twilio Voice] duplicate callback ignored: ${idempotencyKey}`);
+    return res.set('Content-Type', 'text/xml').send(twiml(''));
+  }
+
   console.log(`[Twilio Voice] ${CallSid} — ${CallStatus} from ${From}`);
 
   const contractor = await contractorByPhone(To);
   if (contractor) {
     const { error } = await supabase.from('calls').insert({
-      contractor_id: contractor.id,
-      call_sid:      CallSid,
-      status:        CallStatus,
-      from_phone:    From,
-      recording_url: RecordingUrl      || null,
-      transcription: TranscriptionText || null,
-      created_at:    new Date().toISOString(),
+      contractor_id:   contractor.id,
+      call_sid:        CallSid,
+      status:          CallStatus,
+      from_phone:      From,
+      recording_url:   RecordingUrl      || null,
+      transcription:   TranscriptionText || null,
+      idempotency_key: idempotencyKey,
+      created_at:      new Date().toISOString(),
     });
     if (error) console.warn('[Twilio Voice] calls insert skipped:', error.message);
   }

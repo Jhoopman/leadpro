@@ -1,7 +1,7 @@
 // middleware/twilio-signature.js
 // Verifies Twilio's X-Twilio-Signature header on every inbound Twilio webhook.
 //
-// Twilio's algorithm:
+// Twilio's algorithm (equivalent to twilio.validateRequest from the twilio npm package):
 //   1. Full request URL (https://host/path?query)
 //   2. POST params sorted alphabetically by key, concatenated as key+value
 //   3. HMAC-SHA1 of (url + params) with TWILIO_AUTH_TOKEN
@@ -9,21 +9,19 @@
 //
 // Applied to: POST /twilio/voice, /twilio/voice/status, /twilio/sms, /twilio/sms/status
 // NOT applied to: /vapi-webhook (different scheme), /stripe-webhook (different scheme)
+// Enforcement: production only — dev/test skips so local curl/ngrok testing works.
 
 const crypto = require('crypto');
 const cfg    = require('../config');
 
 function verifyTwilioSignature(req, res, next) {
-  const authToken = cfg.twilio?.authToken;
+  // Skip in dev/test so local webhook testing works without a valid signature
+  if (process.env.NODE_ENV !== 'production') return next();
 
-  // In dev/test, skip validation when auth token is absent
+  const authToken = cfg.twilio?.authToken;
   if (!authToken) {
-    if (process.env.NODE_ENV === 'production') {
-      console.error('[Twilio] BLOCKED — TWILIO_AUTH_TOKEN missing in production');
-      return res.status(500).json({ error: 'Server misconfigured' });
-    }
-    console.warn('[Twilio] dev mode — skipping signature validation');
-    return next();
+    console.error('[Twilio] BLOCKED — TWILIO_AUTH_TOKEN missing in production');
+    return res.status(500).json({ error: 'Server misconfigured' });
   }
 
   const sig = req.headers['x-twilio-signature'];
@@ -31,7 +29,7 @@ function verifyTwilioSignature(req, res, next) {
 
   if (!sig) {
     console.warn(`[Twilio] REJECTED missing-signature path=${req.path} ts=${ts}`);
-    return res.status(403).json({ error: 'Missing X-Twilio-Signature header' });
+    return res.status(403).send('Forbidden');
   }
 
   // Reconstruct the full URL Twilio used to sign the request.
@@ -54,7 +52,7 @@ function verifyTwilioSignature(req, res, next) {
   const expBuf = Buffer.from(expected);
   if (sigBuf.length !== expBuf.length || !crypto.timingSafeEqual(sigBuf, expBuf)) {
     console.warn(`[Twilio] REJECTED bad-signature path=${req.path} ts=${ts}`);
-    return res.status(403).json({ error: 'Invalid Twilio signature' });
+    return res.status(403).send('Forbidden');
   }
 
   next();
