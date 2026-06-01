@@ -793,8 +793,8 @@ nav { flex: 1; padding: 8px 0; }
     </div>
     <div id="auth-tagline">AI scheduling for contractors</div>
     <div class="auth-tabs">
-      <button class="auth-tab active" id="auth-tab-signin" onclick="switchAuthTab('signin')">Sign in</button>
-      <button class="auth-tab" id="auth-tab-signup" onclick="switchAuthTab('signup')">Create account</button>
+      <button type="button" class="auth-tab active" id="auth-tab-signin" onclick="switchAuthTab('signin')">Sign in</button>
+      <button type="button" class="auth-tab" id="auth-tab-signup" onclick="switchAuthTab('signup')">Create account</button>
     </div>
     <!-- Sign In -->
     <div id="auth-signin-form">
@@ -805,10 +805,17 @@ nav { flex: 1; padding: 8px 0; }
     </div>
     <!-- Sign Up -->
     <div id="auth-signup-form" style="display:none">
-      <div class="auth-field"><label>Business name</label><input type="text" id="signup-biz" placeholder="Green Lawn Co."></div>
-      <div class="auth-field"><label>Email</label><input type="email" id="signup-email" placeholder="you@example.com" autocomplete="email"></div>
-      <div class="auth-field"><label>Password (min 6 chars)</label><input type="password" id="signup-pass" placeholder="Create a password" autocomplete="new-password"></div>
-      <button class="auth-submit" id="signup-btn" onclick="signUp()">Create account</button>
+      <form id="signup-form" novalidate>
+        <div class="auth-field"><label for="signup-biz">Business name</label><input type="text" id="signup-biz" placeholder="Green Lawn Co." required></div>
+        <div class="auth-field"><label for="signup-email">Email</label><input type="email" id="signup-email" placeholder="you@example.com" autocomplete="email" required></div>
+        <div class="auth-field"><label for="signup-pass">Password (min 6 chars)</label><input type="password" id="signup-pass" placeholder="Create a password" autocomplete="new-password" required minlength="6"></div>
+        <div class="auth-field"><label for="signup-phone">Mobile number for lead alerts</label><input type="tel" id="signup-phone" placeholder="+15405550192" inputmode="tel" pattern="^\+[1-9]\d{1,14}$" required></div>
+        <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:14px">
+          <input type="checkbox" id="sms-consent" required style="margin-top:3px;flex-shrink:0">
+          <label for="sms-consent" style="font-size:12px;color:#888888;line-height:1.5;cursor:pointer">I consent to receive SMS alerts for new leads. Message &amp; data rates may apply. Reply STOP to cancel.</label>
+        </div>
+        <button type="button" class="auth-submit" id="signup-btn" onclick="signUp()" disabled>Create account</button>
+      </form>
       <div class="auth-err" id="signup-error"></div>
       <div class="auth-ok" id="signup-success">Account created! Check your email to confirm, then sign in.</div>
     </div>
@@ -3303,6 +3310,29 @@ document.getElementById('event-overlay').addEventListener('click', e=>{ if(e.tar
   }
 })();
 initSupabase();
+
+// Deep-link: app.useleadpro.net/auth?tab=signup opens Create account directly
+if (new URLSearchParams(location.search).get('tab') === 'signup') switchAuthTab('signup');
+
+// Enable signup button only when all required fields are valid
+(function() {
+  function _checkSignup() {
+    const phone = (document.getElementById('signup-phone')?.value || '').trim();
+    const ok = !!(
+      document.getElementById('signup-biz')?.value.trim() &&
+      document.getElementById('signup-email')?.value.trim() &&
+      (document.getElementById('signup-pass')?.value || '').length >= 6 &&
+      /^\+[1-9]\d{1,14}$/.test(phone) &&
+      document.getElementById('sms-consent')?.checked
+    );
+    const btn = document.getElementById('signup-btn');
+    if (btn) btn.disabled = !ok;
+  }
+  ['signup-biz', 'signup-email', 'signup-pass', 'signup-phone'].forEach(id =>
+    document.getElementById(id)?.addEventListener('input', _checkSignup)
+  );
+  document.getElementById('sms-consent')?.addEventListener('change', _checkSignup);
+})();
 
 // ── PWA: SERVICE WORKER ──
 if ('serviceWorker' in navigator) {
