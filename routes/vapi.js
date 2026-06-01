@@ -225,7 +225,7 @@ router.post('/api/vapi/assistant', catchAsync(async (req, res) => {
 
   const { data: contractor, error: dbErr } = await supabase
     .from('contractors')
-    .select('id, business_name, services, profile, vapi_assistant_id')
+    .select('id, business_name, services, profile, vapi_assistant_id, twilio_phone')
     .eq('id', contractor_id)
     .maybeSingle();
 
@@ -249,7 +249,10 @@ router.post('/api/vapi/assistant', catchAsync(async (req, res) => {
     `Always confirm details before ending the call. Never quote prices — say we provide free estimates. ` +
     `If unsure about anything, say ${ownerName} will follow up personally.` +
     (bookingUrl ? ` Online booking is also available at ${bookingUrl}.` : '') +
-    ` Keep responses concise and conversational — you are on the phone, not chatting.`;
+    ` Keep responses concise and conversational — you are on the phone, not chatting.` +
+    (contractor.twilio_phone
+      ? ` If the caller presses 2 or asks to speak with someone directly, immediately use the transferCall tool to transfer them.`
+      : '');
 
   const assistantPayload = {
     name:         `${bizName} Receptionist`,
@@ -262,7 +265,9 @@ router.post('/api/vapi/assistant', catchAsync(async (req, res) => {
       provider: 'playht',
       voiceId:  'jennifer',
     },
-    firstMessage:           `Thank you for calling ${bizName}! I'm your AI receptionist. How can I help you today?`,
+    firstMessage:           `Thank you for calling ${bizName}! I'm your AI receptionist.` +
+                            (contractor.twilio_phone ? ` Press 2 at any time to speak with us directly.` : '') +
+                            ` How can I help you today?`,
     endCallFunctionEnabled: true,
     recordingEnabled:       true,
     transcriber: {
@@ -270,6 +275,22 @@ router.post('/api/vapi/assistant', catchAsync(async (req, res) => {
       model:    'nova-2',
       language: 'en-US',
     },
+    // Live transfer: caller presses 2 → routes to contractor's Twilio number
+    ...(contractor.twilio_phone ? {
+      tools: [
+        {
+          type: 'transferCall',
+          destinations: [
+            {
+              type:    'number',
+              number:  contractor.twilio_phone,
+              message: `Please hold while I connect you directly with ${bizName}.`,
+            },
+          ],
+        },
+      ],
+    } : {}),
+
     // Vapi structured data extraction — maps call info to lead fields
     analysisPlan: {
       structuredDataSchema: {
