@@ -147,6 +147,7 @@ app.get('/install', (_, res) => res.sendFile(path.join(__dirname, 'install.html'
 // Legal pages — publicly accessible
 app.get('/privacy', (_, res) => res.sendFile(path.join(__dirname, 'privacy.html')));
 app.get('/terms',   (_, res) => res.sendFile(path.join(__dirname, 'terms.html')));
+app.get('/text',    (_, res) => res.sendFile(path.join(__dirname, 'text.html')));
 
 // Marketing landing page
 app.get('/',    (_, res) => res.sendFile(path.join(__dirname, 'index.html')));
@@ -191,6 +192,7 @@ app.use('/', require('./routes/contractors'));
 app.use('/', require('./routes/twilio').router);
 app.use('/', require('./routes/vapi'));
 app.use('/', require('./routes/consent'));
+app.use('/', require('./routes/sms-consent'));
 
 // TEMPORARY — remove after Sentry capture verified
 app.get('/api/sentry-test', (req, res) => {
