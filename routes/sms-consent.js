@@ -18,13 +18,14 @@ function toE164(raw) {
 }
 
 router.post('/api/sms-consent', catchAsync(async (req, res) => {
-  const { name = '', phone, consent } = req.body;
+  const body = req.body || {};
+  const { name = '', phone, consent } = body;
 
   if (consent !== true) {
     return res.status(400).json({ success: false, error: 'consent required' });
   }
 
-  const e164 = toE164(String(phone || '').trim());
+  const e164 = phone ? toE164(String(phone).trim()) : null;
   if (!e164) {
     return res.status(400).json({ success: false, error: 'invalid phone number' });
   }
