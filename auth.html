@@ -4,25 +4,30 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>LeadPro — Sign In</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
   --green:      #2D6A4F;
+  --green-mid:  #3a7a5f;
   --green-text: #74C69D;
-  --bg:         #0A0A0A;
-  --bg2:        #141414;
-  --bg3:        #111111;
-  --border:     #1f1f1f;
-  --text:       #ffffff;
-  --text2:      #aaaaaa;
-  --text3:      #555555;
+  --bg:         #080d0a;
+  --bg2:        #0f1510;
+  --bg3:        #0c1209;
+  --border:     rgba(116,198,157,0.09);
+  --border2:    rgba(255,255,255,0.05);
+  --text:       #edf5f0;
+  --text2:      #8ea898;
+  --text3:      #3d5045;
   --red:        #f87171;
-  --radius:     10px;
+  --radius:     12px;
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Figtree', -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
@@ -30,11 +35,20 @@ body {
   align-items: center;
   justify-content: center;
   padding: 20px;
+  background-image:
+    radial-gradient(ellipse 90% 55% at 50% -5%, rgba(45,106,79,0.22) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 35% at 85% 85%, rgba(45,106,79,0.09) 0%, transparent 55%);
 }
 
 .auth-wrap {
   width: 100%;
-  max-width: 380px;
+  max-width: 384px;
+  animation: lp-rise 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes lp-rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ── Brand ── */
@@ -43,69 +57,83 @@ body {
   align-items: center;
   gap: 10px;
   justify-content: center;
-  margin-bottom: 32px;
+  margin-bottom: 30px;
 }
-.brand svg { width: 26px; height: 26px; fill: var(--green-text); flex-shrink: 0; }
-.brand-name { font-size: 20px; font-weight: 700; color: var(--text); }
-.brand-sub   { font-size: 12px; color: var(--text3); margin-top: 1px; text-align: center; }
+.brand svg { width: 26px; height: 26px; fill: var(--green-text); flex-shrink: 0; filter: drop-shadow(0 0 8px rgba(116,198,157,0.4)); }
+.brand-name { font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: -0.025em; }
+.brand-sub   { font-size: 11.5px; color: var(--text3); margin-top: 2px; text-align: center; letter-spacing: 0.01em; }
 
 /* ── Card ── */
 .card {
   background: var(--bg2);
-  border: 0.5px solid var(--border);
-  border-radius: 14px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
   padding: 28px 24px 24px;
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.4),
+    0 20px 50px rgba(0,0,0,0.5),
+    inset 0 1px 0 rgba(116,198,157,0.06);
 }
 
 /* ── Tabs ── */
 .tabs {
   display: flex;
-  gap: 4px;
+  gap: 3px;
   background: var(--bg3);
-  border-radius: 8px;
-  padding: 4px;
-  margin-bottom: 24px;
-  border: 0.5px solid var(--border);
+  border-radius: 11px;
+  padding: 3px;
+  margin-bottom: 22px;
+  border: 1px solid var(--border);
 }
 .tab {
   flex: 1;
   text-align: center;
-  padding: 7px;
-  border-radius: 6px;
+  padding: 8px 6px;
+  border-radius: 9px;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   color: var(--text3);
-  transition: all .15s;
+  transition: all .2s;
   border: none;
   background: none;
   font-family: inherit;
+  letter-spacing: 0.005em;
 }
-.tab.active { background: #1f1f1f; color: var(--text); }
+.tab.active {
+  background: rgba(45,106,79,0.3);
+  color: var(--green-text);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.35), inset 0 1px 0 rgba(116,198,157,0.12);
+}
 .tab:hover:not(.active) { color: var(--text2); }
 
 /* ── Fields ── */
-.field { margin-bottom: 14px; }
+.field { margin-bottom: 13px; }
 .field label {
   display: block;
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text2);
   margin-bottom: 6px;
-  font-weight: 500;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
 }
 .field input {
   width: 100%;
   background: var(--bg3);
-  border: 0.5px solid var(--border);
-  border-radius: 8px;
-  padding: 10px 12px;
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 11px 14px;
   font-size: 14px;
   color: var(--text);
   font-family: inherit;
   outline: none;
-  transition: border-color .15s;
+  transition: border-color .18s, box-shadow .18s;
 }
-.field input:focus { border-color: var(--green); }
+.field input:focus {
+  border-color: rgba(116,198,157,0.45);
+  box-shadow: 0 0 0 3px rgba(45,106,79,0.18);
+}
 .field input::placeholder { color: var(--text3); }
 
 /* ── Submit button ── */
@@ -114,17 +142,32 @@ body {
   background: var(--green);
   color: #fff;
   border: none;
-  border-radius: 8px;
-  padding: 11px;
+  border-radius: 11px;
+  padding: 12px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   font-family: inherit;
   margin-top: 4px;
-  transition: background .15s, opacity .15s;
+  transition: background .15s, transform .1s, box-shadow .15s;
+  letter-spacing: 0.01em;
+  position: relative;
+  overflow: hidden;
 }
-.submit-btn:hover:not(:disabled) { background: #245c44; }
-.submit-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.submit-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.06) 0%, transparent 60%);
+  pointer-events: none;
+}
+.submit-btn:hover:not(:disabled) {
+  background: var(--green-mid);
+  box-shadow: 0 4px 18px rgba(45,106,79,0.35);
+  transform: translateY(-1px);
+}
+.submit-btn:active:not(:disabled) { transform: translateY(0); }
+.submit-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
 /* ── Messages ── */
 .error-msg {
@@ -145,26 +188,31 @@ body {
 .auth-footer {
   text-align: center;
   margin-top: 20px;
-  font-size: 11.5px;
+  font-size: 11px;
   color: var(--text3);
-  line-height: 1.6;
+  line-height: 1.7;
 }
-.auth-footer a { color: var(--text3); text-decoration: underline; }
+.auth-footer a { color: var(--text3); text-decoration: underline; transition: color .15s; }
+.auth-footer a:hover { color: var(--text2); }
 
 /* ── Trial badge ── */
 .trial-badge {
   display: flex;
   align-items: center;
-  gap: 6px;
-  background: rgba(45,106,79,0.12);
-  border: 0.5px solid rgba(116,198,157,0.25);
-  border-radius: 8px;
-  padding: 8px 12px;
+  gap: 8px;
+  background: rgba(45,106,79,0.14);
+  border: 1px solid rgba(116,198,157,0.22);
+  border-radius: 10px;
+  padding: 9px 13px;
   margin-bottom: 20px;
-  font-size: 12px;
+  font-size: 12.5px;
   color: var(--green-text);
+  font-weight: 500;
 }
 .trial-badge svg { width: 14px; height: 14px; fill: var(--green-text); flex-shrink: 0; }
+
+/* ── SMS consent ── */
+label span { font-size: 12px; color: var(--text2); line-height: 1.55; }
 </style>
 </head>
 <body>
