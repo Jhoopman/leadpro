@@ -130,7 +130,7 @@
 
     /* ── HERO ── */
     .hero {
-      background: linear-gradient(160deg, #0A0A0A 0%, #0d1f15 55%, #0f2318 100%);
+      background: linear-gradient(160deg, #060a08 0%, #0a1c12 45%, #0d2217 100%);
       color: #ffffff;
       padding: 80px 24px 0;
       overflow: hidden;
@@ -140,7 +140,9 @@
       content: '';
       position: absolute;
       inset: 0;
-      background: radial-gradient(ellipse 80% 60% at 60% 40%, rgba(45,106,79,0.06) 0%, transparent 70%);
+      background:
+        radial-gradient(ellipse 70% 55% at 65% 38%, rgba(45,106,79,0.10) 0%, transparent 65%),
+        radial-gradient(ellipse 40% 40% at 20% 80%, rgba(45,106,79,0.05) 0%, transparent 60%);
       pointer-events: none;
     }
     .hero-inner {
@@ -1313,6 +1315,114 @@
     @media (max-width: 900px) {
       .pricing-grid-3 { grid-template-columns: 1fr !important; max-width: 480px !important; }
     }
+
+    /* ── HERO DASHBOARD MOCKUP — light theme (matches the real app) ── */
+    .dashboard-window { background: #FFFFFF; border-color: #E5E7EB; box-shadow: 0 -8px 80px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.04); }
+    .window-bar { background: #F8F9FA; border-bottom: 1px solid #E5E7EB; }
+    .window-url { background: #FFFFFF; border: 1px solid #E5E7EB; color: #9CA3AF; }
+    .db-sidebar { background: #FFFFFF; border-right-color: #E5E7EB; }
+    .db-sidebar-label { color: #9CA3AF; }
+    .db-nav-item { color: #6B7280; }
+    .db-nav-item:hover { background: #F9FAFB; }
+    .db-nav-item.active { background: rgba(45,106,79,0.08); color: #2D6A4F; border-left: 3px solid #2D6A4F; border-radius: 6px; }
+    .db-main { background: #F8F9FA; }
+    .db-title { color: #111827; }
+    .db-badge { background: rgba(45,106,79,0.1); color: #2D6A4F; }
+    .db-stat { background: #FFFFFF; border: 1px solid #E5E7EB; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    .db-stat-label { color: #9CA3AF; }
+    .db-stat-val { color: #111827; }
+    .db-stat-delta { color: #2D6A4F; }
+    .db-leads { background: #FFFFFF; border: 1px solid #E5E7EB; }
+    .db-lead-row { border-bottom-color: #F3F4F6; }
+    .db-lead-name { color: #111827; }
+    .db-lead-phone { color: #9CA3AF; font-size: 0.72rem; }
+    .db-lead-time { color: #D1D5DB; }
+    .status-booked { background: rgba(45,106,79,0.1); color: #2D6A4F; }
+    .status-new { background: rgba(251,191,36,0.12); color: #B45309; }
+    .status-called { background: rgba(59,130,246,0.1); color: #2563EB; }
+
+    /* ── TRUST MARQUEE ── */
+    .trust-strip {
+      background: #0f0f0f;
+      border-top: 1px solid rgba(255,255,255,0.04);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 11px 0;
+      overflow: hidden;
+    }
+    .trust-inner {
+      display: flex;
+      gap: 52px;
+      animation: marquee 36s linear infinite;
+      width: max-content;
+      align-items: center;
+    }
+    .trust-inner:hover { animation-play-state: paused; }
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      color: rgba(255,255,255,0.38);
+    }
+    .trust-item.hi { color: #74C69D; }
+    .trust-item svg { width: 13px; height: 13px; flex-shrink: 0; opacity: 0.7; }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    /* ── PAIN BLOCKS UPGRADE ── */
+    .pain-block {
+      border-left: 3px solid rgba(116,198,157,0.3);
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+    .pain-block:hover { border-left-color: #74C69D; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+    .pain-block-headline { font-size: 1.12rem; }
+
+    /* ── TESTIMONIALS UPGRADE ── */
+    .testimonial-card {
+      position: relative;
+      padding: 32px 28px 24px;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    }
+    .testimonial-card::before {
+      content: '\201C';
+      position: absolute;
+      top: 14px; left: 20px;
+      font-size: 64px;
+      line-height: 1;
+      color: rgba(116,198,157,0.2);
+      font-family: Georgia, serif;
+      pointer-events: none;
+    }
+    .testimonial-card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px rgba(0,0,0,0.25); border-color: rgba(116,198,157,0.25); }
+    .testimonial-quote { font-size: 0.95rem; padding-top: 24px; color: rgba(255,255,255,0.65); font-style: italic; }
+    .testimonial-name { font-size: 0.82rem; font-weight: 700; color: #74C69D; }
+    .testimonial-stars { font-size: 13px; color: #74C69D; letter-spacing: 1px; }
+
+    /* ── SECTION TITLE REFINEMENTS ── */
+    .section-header { position: relative; }
+    .section-title em { font-style: normal; background: linear-gradient(90deg, #74C69D, #a8e6c8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+    /* ── FEATURE CARD UPGRADE ── */
+    .feature-title { font-size: 1.05rem; font-weight: 700; letter-spacing: -0.01em; }
+
+    /* ── FOUNDING MEMBER UPGRADE ── */
+    .founding-member-inner {
+      background: linear-gradient(135deg, rgba(45,106,79,0.08) 0%, rgba(116,198,157,0.06) 100%);
+      border: 1px solid rgba(116,198,157,0.2);
+      box-shadow: 0 0 80px rgba(116,198,157,0.06), inset 0 1px 0 rgba(116,198,157,0.1);
+    }
+
+    /* ── HOW STEP UPGRADE ── */
+    .step-num {
+      background: linear-gradient(135deg, #2D6A4F 0%, #3a7a5f 100%);
+      box-shadow: 0 0 0 6px #111111, 0 0 0 7px rgba(45,106,79,0.3), 0 4px 16px rgba(45,106,79,0.3);
+    }
   </style>
 </head>
 <body>
@@ -1530,9 +1640,27 @@
   </div>
 </section>
 
-<!-- TAGLINE BAR -->
-<div style="background:#111111;border-bottom:1px solid rgba(255,255,255,0.07);padding:22px 24px;text-align:center;">
-  <span style="font-size:0.95rem;font-weight:600;color:rgba(255,255,255,0.7);letter-spacing:0.01em;">Built for contractors who are done losing jobs to voicemail.</span>
+<!-- TRUST MARQUEE -->
+<div class="trust-strip" aria-hidden="true">
+  <div class="trust-inner">
+    <span class="trust-item hi"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>60-second text-back</span>
+    <span class="trust-item">24/7 AI receptionist</span>
+    <span class="trust-item hi"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>Done-for-you setup</span>
+    <span class="trust-item">Live in 24 hours</span>
+    <span class="trust-item hi"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>Founding rate locked for life</span>
+    <span class="trust-item">Books the appointment, not just messages</span>
+    <span class="trust-item hi"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>Cancel anytime</span>
+    <span class="trust-item">No IT required</span>
+    <!-- Duplicate for seamless loop -->
+    <span class="trust-item hi"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>60-second text-back</span>
+    <span class="trust-item">24/7 AI receptionist</span>
+    <span class="trust-item hi"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>Done-for-you setup</span>
+    <span class="trust-item">Live in 24 hours</span>
+    <span class="trust-item hi"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>Founding rate locked for life</span>
+    <span class="trust-item">Books the appointment, not just messages</span>
+    <span class="trust-item hi"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>Cancel anytime</span>
+    <span class="trust-item">No IT required</span>
+  </div>
 </div>
 
 <!-- PAIN SECTION -->
@@ -1589,33 +1717,16 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 24px;
   max-width: 1120px;
-  margin: 0 auto;
-  margin-top: 48px;
+  margin: 48px auto 0;
 }
 .testimonial-card {
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 16px;
-  padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 14px;
-}
-.testimonial-stars {
-  color: #74C69D;
-  font-size: 16px;
-  letter-spacing: 2px;
-}
-.testimonial-quote {
-  color: rgba(255,255,255,0.55);
-  font-size: 14px;
-  line-height: 1.7;
-  flex: 1;
-}
-.testimonial-name {
-  color: #ffffff;
-  font-size: 14px;
-  font-weight: 700;
+  overflow: hidden;
 }
 @media (max-width: 768px) {
   .testimonials-grid { grid-template-columns: 1fr; }
