@@ -467,10 +467,17 @@ function showQuickReplies() {
   var msgs = el('msgs');
   var qr = document.createElement('div');
   qr.id = 'lc-qr';
-  qr.innerHTML =
-    '<button class="lc-qr-btn" data-msg="Get a free estimate">Get a free estimate</button>' +
-    '<button class="lc-qr-btn" data-msg="Schedule a service call">Schedule a service call</button>' +
-    '<button class="lc-qr-btn" data-msg="Emergency \u2014 need help now">Emergency \u2014 need help now</button>';
+  if (!WIDGET_ID || WIDGET_ID === 'lp_rdzvuqld') {
+    qr.innerHTML =
+      '<button class="lc-qr-btn" data-msg="How does it work?">How does it work?</button>' +
+      '<button class="lc-qr-btn" data-msg="See pricing">See pricing</button>' +
+      '<button class="lc-qr-btn" data-msg="Start free trial">Start free trial</button>';
+  } else {
+    qr.innerHTML =
+      '<button class="lc-qr-btn" data-msg="Get a free estimate">Get a free estimate</button>' +
+      '<button class="lc-qr-btn" data-msg="Schedule a service call">Schedule a service call</button>' +
+      '<button class="lc-qr-btn" data-msg="Emergency \u2014 need help now">Emergency \u2014 need help now</button>';
+  }
   msgs.appendChild(qr);
   msgs.scrollTop = msgs.scrollHeight;
 
@@ -506,8 +513,13 @@ function sendQuickReply(text) {
 
 /* ── Start / send ── */
 function startChat() {
-  var bizName = contractor ? contractor.business_name : 'us';
-  var welcome = 'Hey! \uD83D\uDC4B Thanks for reaching out to ' + bizName + '. What can we help you with today?';
+  var welcome;
+  if (!WIDGET_ID || WIDGET_ID === 'lp_rdzvuqld') {
+    welcome = "Hi! I'm LeadPro's AI \u2014 ask me about pricing, how it works, or getting started.";
+  } else {
+    var bizName = contractor ? contractor.business_name : 'us';
+    welcome = 'Hey! \uD83D\uDC4B Thanks for reaching out to ' + bizName + '. What can we help you with today?';
+  }
   addMsg('bot', welcome);
   showQuickReplies();
   // Prime history with the greeting so AI has context on first user reply

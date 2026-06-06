@@ -65,6 +65,9 @@ function proxyToAnthropic(payloadStr, res) {
     let d = '';
     proxyRes.on('data', c => d += c);
     proxyRes.on('end', () => {
+      if (proxyRes.statusCode !== 200) {
+        console.error('[proxyToAnthropic] Anthropic error', proxyRes.statusCode, d.slice(0, 400));
+      }
       try   { res.status(proxyRes.statusCode).json(JSON.parse(d)); }
       catch (e) { res.status(500).json({ error: 'Claude API parse error' }); }
     });
@@ -75,6 +78,46 @@ function proxyToAnthropic(payloadStr, res) {
 }
 
 // ── ROUTES ───────────────────────────────────────────────────────────────────
+
+// GET /api/admin/anthropic-test — live Anthropic connectivity check
+router.get('/api/admin/anthropic-test', (req, res) => {
+  if (req.query.token !== 'leadpro-diag-2024') return res.status(401).json({ error: 'Unauthorized' });
+
+  const keyPrefix = cfg.anthropicApiKey ? cfg.anthropicApiKey.slice(0, 14) + '...' : '(not set)';
+  const payload = JSON.stringify({
+    model:      'claude-haiku-4-5-20251001',
+    max_tokens: 10,
+    messages:   [{ role: 'user', content: 'ping' }],
+  });
+
+  try {
+    const apiReq = https.request({
+      hostname: 'api.anthropic.com',
+      port:     443,
+      path:     '/v1/messages',
+      method:   'POST',
+      headers:  {
+        'Content-Type':      'application/json',
+        'Content-Length':    Buffer.byteLength(payload),
+        'x-api-key':         cfg.anthropicApiKey,
+        'anthropic-version': '2023-06-01',
+      },
+    }, apiRes => {
+      let d = '';
+      apiRes.on('data', c => d += c);
+      apiRes.on('end', () => {
+        let parsed;
+        try { parsed = JSON.parse(d); } catch(_) { parsed = d; }
+        res.json({ keyPrefix, anthropicStatus: apiRes.statusCode, anthropicBody: parsed });
+      });
+    });
+    apiReq.on('error', e => res.json({ keyPrefix, error: e.message }));
+    apiReq.write(payload);
+    apiReq.end();
+  } catch (e) {
+    res.json({ keyPrefix, error: e.message });
+  }
+});
 
 // POST /widget-api — AI chat for embedded widget
 router.post('/widget-api', widgetLimit, (req, res) => {
