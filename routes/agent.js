@@ -15,7 +15,10 @@ const email     = require('../services/email');
 const { sendContractorSms }    = require('./twilio');
 const { formatSlotsForPrompt } = require('../services/calendar');
 const { catchAsync }           = require('../middleware/errorHandler');
-const { widgetLimit, apiLimit, scrapeLimit } = require('../middleware/rateLimit');
+const { widgetLimit, apiLimit, scrapeLimit, createLimiter } = require('../middleware/rateLimit');
+
+const roiEmailLimit  = createLimiter({ maxRequests: 5,  windowMs: 60_000, message: 'Too many ROI email requests.' });
+const pitchLimit     = createLimiter({ maxRequests: 20, windowMs: 60_000, message: 'Too many pitch requests.' });
 const cfg       = require('../config');
 
 const MARKETING_WIDGET_ID = 'lp_rdzvuqld';
@@ -376,7 +379,7 @@ router.post('/api/test-agent', catchAsync(async (req, res) => {
 }));
 
 // POST /send-roi-email — send weekly ROI summary email to a contractor
-router.post('/send-roi-email', catchAsync(async (req, res) => {
+router.post('/send-roi-email', roiEmailLimit, catchAsync(async (req, res) => {
   const { contractorId } = req.body;
   if (!contractorId) return res.status(400).json({ error: 'contractorId required' });
 
@@ -466,7 +469,7 @@ router.post('/send-roi-email', catchAsync(async (req, res) => {
 }));
 
 // POST /api/generate-pitch — AI-personalized cold-call opener for a prospector lead
-router.post('/api/generate-pitch', catchAsync(async (req, res) => {
+router.post('/api/generate-pitch', pitchLimit, catchAsync(async (req, res) => {
   const { name, phone, website, score, missing, address } = req.body;
   if (!name) return res.status(400).json({ error: 'name required' });
 

@@ -34,9 +34,11 @@ function globalError(err, req, res, next) {
   const message = err.message || 'Internal server error';
 
   console.error(`[ERROR] ${req.method} ${req.path} → ${status}: ${message}`);
-  if (status === 500) console.error(err.stack);
+  if (status >= 500) console.error(err.stack);
 
-  res.status(status).json({ error: message });
+  // Never expose internal error details — only pass through safe 4xx messages
+  const clientMessage = status >= 500 ? 'Internal server error' : message;
+  res.status(status).json({ error: clientMessage });
 }
 
 module.exports = { catchAsync, notFound, globalError };

@@ -7,7 +7,10 @@ const supabase = require('../services/supabase');
 const email    = require('../services/email');
 const cfg      = require('../config');
 const { catchAsync } = require('../middleware/errorHandler');
-const { contractorLookupLimit } = require('../middleware/rateLimit');
+const { contractorLookupLimit, createLimiter } = require('../middleware/rateLimit');
+
+const provisionLimit = createLimiter({ maxRequests: 5, windowMs: 60_000,
+  message: 'Too many provisioning requests — try again shortly.' });
 
 // Thin Twilio SMS helper (avoids importing the full twilio route)
 function sendSms(to, body) {
@@ -46,7 +49,7 @@ router.get('/contractor/:id', contractorLookupLimit, catchAsync(async (req, res)
 
 // POST /ensure-contractor — creates contractor row via service key if it doesn't exist.
 // Called from frontend after signup (RLS blocks anon insert while email confirmation is pending).
-router.post('/ensure-contractor', catchAsync(async (req, res) => {
+router.post('/ensure-contractor', provisionLimit, catchAsync(async (req, res) => {
   const { userId, businessName } = req.body;
   if (!userId) return res.status(400).json({ error: 'Missing userId' });
 
@@ -76,7 +79,7 @@ router.post('/ensure-contractor', catchAsync(async (req, res) => {
 }));
 
 // POST /api/onboarding/complete
-router.post('/api/onboarding/complete', catchAsync(async (req, res) => {
+router.post('/api/onboarding/complete', provisionLimit, catchAsync(async (req, res) => {
   const { contractor_id } = req.body;
   if (!contractor_id) return res.status(400).json({ error: 'contractor_id required' });
 

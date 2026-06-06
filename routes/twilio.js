@@ -184,9 +184,21 @@ router.post('/twilio/voice/status', verifyTwilioSignature, catchAsync(async (req
 // ── ROUTE 3: Incoming SMS — AI lead-capture conversation ──────────────────────
 
 router.post('/twilio/sms', verifyTwilioSignature, catchAsync(async (req, res) => {
-  const fromPhone = req.body.From || '';
-  const toPhone   = req.body.To   || cfg.twilio?.phone || '';
-  const inbound   = (req.body.Body || '').trim();
+  const { From, To, Body, MessageSid } = req.body;
+  const fromPhone = From || '';
+  const toPhone   = To   || cfg.twilio?.phone || '';
+  const inbound   = (Body || '').trim();
+
+  // Idempotency: Twilio can redeliver SMS webhooks — dedup by MessageSid
+  if (MessageSid) {
+    const { error: dedupErr } = await supabase
+      .from('processed_webhook_events')
+      .insert({ event_id: `twilio_sms_${MessageSid}` });
+    if (dedupErr?.code === '23505') {
+      console.log(`[Twilio SMS] duplicate ignored: ${MessageSid}`);
+      return res.set('Content-Type', 'text/xml').send(twiml(''));
+    }
+  }
 
   // ── A2P keyword handling — runs BEFORE Claude ──
   const keyword    = inbound.toUpperCase();
@@ -364,6 +376,17 @@ router.post('/webhook/twilio/sms', verifyTwilioSignature, catchAsync(async (req,
   const fromPhone = From || '';
   const toPhone   = To   || cfg.twilio?.phone || '';
   const inbound   = (Body || '').trim();
+
+  // Idempotency: dedup by MessageSid before any processing
+  if (MessageSid) {
+    const { error: dedupErr } = await supabase
+      .from('processed_webhook_events')
+      .insert({ event_id: `twilio_sms_reply_${MessageSid}` });
+    if (dedupErr?.code === '23505') {
+      console.log(`[SMS Reply] duplicate ignored: ${MessageSid}`);
+      return res.set('Content-Type', 'text/xml').send(twiml(''));
+    }
+  }
 
   const contractor   = await contractorByPhone(toPhone);
   const contractorId = contractor?.id || null;

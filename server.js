@@ -23,10 +23,19 @@ app.use('/twilio', express.urlencoded({ extended: false, verify: (req, res, buf)
 // JSON body parser for all other routes
 app.use(express.json());
 
+// ── SECURITY HEADERS ──────────────────────────────────────────────────────────
+
+app.use(require('./middleware/securityHeaders'));
+
 // ── CORS ──────────────────────────────────────────────────────────────────────
 
 const { corsMiddleware } = require('./middleware/cors');
 app.use(corsMiddleware);
+
+// ── SENSITIVE FILE BLOCK ──────────────────────────────────────────────────────
+// Defense-in-depth: return 404 if anyone requests .env files directly.
+// GoDaddy static hosting previously served these — add this at the reverse proxy layer too.
+app.get(/^\/.env($|\.)/, (_, res) => res.status(404).end());
 
 // ── STATIC FILES ──────────────────────────────────────────────────────────────
 
@@ -96,7 +105,9 @@ app.all('/api/health', async (req, res) => {
 // Pass Authorization: Bearer <token> to also verify the caller has a contractors row.
 // More detailed than /api/health; not intended for UptimeRobot (exposes schema/row details).
 // Hit from browser: https://app.useleadpro.net/api/health/db
-app.get('/api/health/db', async (req, res) => {
+const { createLimiter: _rl } = require('./middleware/rateLimit');
+const healthDbLimit = _rl({ maxRequests: 30, windowMs: 60_000 });
+app.get('/api/health/db', healthDbLimit, async (req, res) => {
   const supabase = require('./services/supabase');
   const results  = {};
 
@@ -194,11 +205,6 @@ app.use('/', require('./routes/contractors'));
 app.use('/', require('./routes/twilio').router);
 app.use('/', require('./routes/vapi'));
 app.use('/', require('./routes/consent'));
-
-// TEMPORARY — remove after Sentry capture verified
-app.get('/api/sentry-test', (req, res) => {
-  throw new Error('Sentry test error — safe to ignore');
-});
 
 // ── ERROR HANDLING ────────────────────────────────────────────────────────────
 
