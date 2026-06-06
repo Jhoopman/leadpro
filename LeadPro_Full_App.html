@@ -20,22 +20,27 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --green: #2D6A4F; --green-mid: #2D6A4F; --green-lite: rgba(45,106,79,0.15);
+  /* Brand */
+  --green: #2D6A4F; --green-mid: #3D7A5F; --green-lite: rgba(45,106,79,0.15);
   --green-text: #74C69D; --accent: #74C69D;
-  --bg: #0A0A0A; --bg2: #141414; --bg3: #111111;
-  --text: #ffffff; --text2: #aaaaaa; --text3: #666666;
-  --border: 0.5px solid #1f1f1f; --border2: #2a2a2a;
-  --radius: 8px; --radius-lg: 12px;
   --amber: #74C69D; --amber-lite: rgba(45,106,79,0.12);
   --blue: #74C69D; --blue-lite: rgba(45,106,79,0.12);
+  /* Surfaces — 4-step elevation */
+  --bg: #0A0A0A; --bg2: #141414; --bg3: #111111;
+  --surf-1: #141414; --surf-2: #1a1a1a; --surf-3: #1f1f1f;
+  /* Text — all verified WCAG AA ≥4.5:1 on --bg and --surf-1 */
+  --text: #F2F2F2; --text2: #C0C0C0; --text3: #8E8E8E;
+  /* Borders */
+  --border: 0.5px solid rgba(255,255,255,0.08); --border2: #2a2a2a;
+  --radius: 8px; --radius-lg: 12px;
 }
-body { font-family: 'Figtree', -apple-system, BlinkMacSystemFont, sans-serif; background: #0A0A0A; color: var(--text); min-height: 100vh; }
+body { font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif; background: #0A0A0A; color: var(--text); min-height: 100vh; }
 #app { display: flex; height: 100vh; overflow: hidden; }
 
 /* SIDEBAR */
@@ -44,9 +49,9 @@ body { font-family: 'Figtree', -apple-system, BlinkMacSystemFont, sans-serif; ba
 .brand-pill { display: inline-flex; align-items: center; gap: 8px; background: rgba(45,106,79,0.18); border: 1px solid rgba(116,198,157,0.15); border-radius: 10px; padding: 6px 10px; }
 .brand { font-size: 16px; font-weight: 700; color: #ffffff; display: flex; align-items: center; gap: 8px; letter-spacing: -0.01em; }
 .brand svg { width: 20px; height: 20px; fill: var(--accent); filter: drop-shadow(0 0 6px rgba(116,198,157,0.3)); }
-.brand-sub { font-size: 10.5px; color: #3d3d3d; margin-top: 2px; letter-spacing: 0.01em; }
+.brand-sub { font-size: 10.5px; color: #8E8E8E; margin-top: 2px; letter-spacing: 0.01em; }
 nav { flex: 1; padding: 8px 0; }
-.nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 16px; cursor: pointer; color: #555555; font-size: 13px; font-weight: 500; border-left: 2px solid transparent; transition: all .15s; user-select: none; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 16px; cursor: pointer; color: #8E8E8E; font-size: 13px; font-weight: 500; border-left: 2px solid transparent; transition: all .15s; user-select: none; }
 .nav-item:hover { background: #161616; color: #aaaaaa; }
 .nav-item.active { color: #e8f5ec; background: rgba(116,198,157,0.07); border-left: 3px solid #74C69D; }
 .nav-item svg { width: 15px; height: 15px; fill: currentColor; flex-shrink: 0; }
@@ -90,7 +95,7 @@ nav { flex: 1; padding: 8px 0; }
 .metric-teal  { }
 .metric-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px; }
 .metric-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: rgba(45,106,79,0.15); }
-.metric .ml { font-size: 11px; color: #444444; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; }
+.metric .ml { font-size: 11px; color: #8E8E8E; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; }
 .metric .mv { font-size: 36px; font-weight: 700; line-height: 1; margin-bottom: 10px; color: #ffffff; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
 .metric-featured .mv { color: #74C69D; }
 .metric .ms { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; padding: 3px 8px; border-radius: 6px; font-weight: 500; }
@@ -106,7 +111,7 @@ nav { flex: 1; padding: 8px 0; }
 .chart-card { background: #141414; border: 0.5px solid #1f1f1f; border-radius: 14px; padding: 20px 22px; }
 .chart-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
 .chart-card-title { font-size: 13px; font-weight: 600; color: #ffffff; }
-.chart-card-sub { font-size: 11px; color: #444444; margin-bottom: 16px; }
+.chart-card-sub { font-size: 11px; color: #8E8E8E; margin-bottom: 16px; }
 .chart-wrap { position: relative; height: 220px; }
 .chart-wrap-sm { position: relative; height: 220px; }
 
@@ -125,11 +130,11 @@ nav { flex: 1; padding: 8px 0; }
 .a-amber { background: #fbbf24; }
 .a-blue { background: #60a5fa; }
 .act-text { font-size: 12px; line-height: 1.5; color: #aaaaaa; }
-.act-time { font-size: 10px; color: #444444; margin-top: 2px; }
+.act-time { font-size: 10px; color: #8E8E8E; margin-top: 2px; }
 
 /* TABLE */
 .tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
-.tbl th { text-align: left; padding: 8px 14px; font-size: 11px; color: #444444; background: #111111; border-bottom: 0.5px solid #1f1f1f; text-transform: uppercase; letter-spacing: .04em; font-weight: 500; }
+.tbl th { text-align: left; padding: 8px 14px; font-size: 11px; color: #8E8E8E; background: #111111; border-bottom: 0.5px solid #1f1f1f; text-transform: uppercase; letter-spacing: .04em; font-weight: 500; }
 .tbl td { padding: 10px 14px; border-bottom: 0.5px solid #161616; vertical-align: middle; color: #aaaaaa; }
 .tbl tr:last-child td { border-bottom: none; }
 .tbl tr:hover td { background: #161616; }
@@ -137,7 +142,7 @@ nav { flex: 1; padding: 8px 0; }
 .p-new { background: rgba(74,222,128,0.12); color: #4ade80; }
 .p-sched { background: rgba(96,165,250,0.12); color: #60a5fa; }
 .p-follow { background: rgba(251,191,36,0.12); color: #fbbf24; }
-.p-done { background: #1a1a1a; color: #555555; }
+.p-done { background: #1a1a1a; color: #8E8E8E; }
 .lname { font-weight: 600; color: #ffffff; font-size: 14px; } .laddr { font-size: 11px; color: var(--text3); }
 .btn-sm { font-size: 11px; padding: 4px 9px; border-radius: 6px; border: 0.5px solid #2a2a2a; background: none; cursor: pointer; color: #aaaaaa; margin-right: 3px; font-family: inherit; }
 .btn-sm:hover { background: #1a1a1a; }
@@ -204,14 +209,14 @@ nav { flex: 1; padding: 8px 0; }
 /* CALENDAR */
 .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 0.5px; background: #1f1f1f; border-radius: 0 0 12px 12px; overflow: hidden; }
 .cal-header-row { display: grid; grid-template-columns: repeat(7,1fr); background: #111111; }
-.cal-header-cell { padding: 8px; text-align: center; font-size: 11px; color: #444444; font-weight: 500; text-transform: uppercase; letter-spacing: .04em; }
+.cal-header-cell { padding: 8px; text-align: center; font-size: 11px; color: #8E8E8E; font-weight: 500; text-transform: uppercase; letter-spacing: .04em; }
 .cal-cell { background: #141414; padding: 7px 8px; min-height: 80px; cursor: pointer; transition: background .1s; }
 .cal-cell:hover { background: #161616; }
 .cal-cell.other-month { background: #0f0f0f; }
 .cal-cell.today { background: rgba(45,106,79,0.1); }
 .cal-cell .cal-day { font-size: 12px; font-weight: 500; color: #aaaaaa; margin-bottom: 4px; }
 .cal-cell.today .cal-day { color: #74C69D; font-weight: 700; }
-.cal-cell.other-month .cal-day { color: #333333; }
+.cal-cell.other-month .cal-day { color: #5a5a5a; }
 .cal-event { font-size: 10px; background: #2D6A4F; color: #ffffff; border-radius: 3px; padding: 2px 5px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
 .cal-event.pest { background: #3a4a2D; }
 .cal-event.lawn { background: #2D6A4F; }
@@ -333,7 +338,7 @@ nav { flex: 1; padding: 8px 0; }
 #scrape-profile-card { display: none; margin-top: 14px; border: 0.5px solid #1f1f1f; border-radius: var(--radius); overflow: hidden; }
 .profile-row { display: flex; gap: 0; border-bottom: 0.5px solid #1f1f1f; }
 #scrape-profile-card .profile-row:last-child { border-bottom: none; }
-.profile-label { font-size: 11px; font-weight: 600; color: #444444; text-transform: uppercase; letter-spacing: .04em; padding: 8px 12px; width: 110px; flex-shrink: 0; background: #111111; display: flex; align-items: flex-start; padding-top: 10px; }
+.profile-label { font-size: 11px; font-weight: 600; color: #8E8E8E; text-transform: uppercase; letter-spacing: .04em; padding: 8px 12px; width: 110px; flex-shrink: 0; background: #111111; display: flex; align-items: flex-start; padding-top: 10px; }
 .profile-value { font-size: 13px; color: #aaaaaa; padding: 8px 12px; line-height: 1.5; flex: 1; }
 
 /* AUTH OVERLAY */
@@ -344,7 +349,7 @@ nav { flex: 1; padding: 8px 0; }
 #auth-brand .name { font-size: 20px; font-weight: 700; color: #ffffff; }
 #auth-tagline { font-size: 13px; color: var(--text3); margin-bottom: 24px; }
 .auth-tabs { display: flex; gap: 4px; background: #111111; border-radius: 8px; padding: 4px; margin-bottom: 22px; border: 0.5px solid #1f1f1f; }
-.auth-tab { flex: 1; text-align: center; padding: 7px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; color: #666666; transition: all .15s; border: none; background: none; font-family: inherit; }
+.auth-tab { flex: 1; text-align: center; padding: 7px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; color: #8E8E8E; transition: all .15s; border: none; background: none; font-family: inherit; }
 .auth-tab.active { background: #1f1f1f; color: #ffffff; }
 .auth-field { margin-bottom: 13px; }
 .auth-field label { font-size: 12px; color: #aaaaaa; display: block; margin-bottom: 4px; }
@@ -355,7 +360,7 @@ nav { flex: 1; padding: 8px 0; }
 .auth-submit:disabled { opacity: .6; cursor: default; }
 .auth-err { font-size: 12px; color: #f87171; margin-top: 8px; min-height: 16px; }
 .auth-ok { font-size: 12px; color: #74C69D; margin-top: 8px; display: none; }
-.signout-btn { font-size: 11px; padding: 4px 10px; border-radius: 6px; border: 0.5px solid #2a2a2a; background: none; cursor: pointer; color: #666666; font-family: inherit; }
+.signout-btn { font-size: 11px; padding: 4px 10px; border-radius: 6px; border: 0.5px solid #2a2a2a; background: none; cursor: pointer; color: #8E8E8E; font-family: inherit; }
 .signout-btn:hover { background: #1a1a1a; color: #aaaaaa; }
 .settings-section h3 { font-size: 11px; font-weight: 600; color: #aaaaaa; margin-bottom: 13px; padding-bottom: 9px; border-bottom: 0.5px solid #1f1f1f; text-transform: uppercase; letter-spacing: .05em; }
 .srow { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 0.5px solid #1f1f1f; }
@@ -397,7 +402,7 @@ nav { flex: 1; padding: 8px 0; }
 .um-btn-primary { background: #2D6A4F; color: #fff; border: none; border-radius: 8px; padding: 10px 22px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
 .um-btn-primary:hover { background: #245a42; }
 .um-btn-secondary { background: none; color: #aaaaaa; border: 0.5px solid #2a2a2a; border-radius: 8px; padding: 10px 22px; font-size: 13px; cursor: pointer; font-family: inherit; }
-.um-btn-secondary:hover { color: #ffffff; border-color: #444444; }
+.um-btn-secondary:hover { color: #ffffff; border-color: #8E8E8E; }
 
 /* PAYWALL OVERLAY */
 #paywall-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 8000; display: none; align-items: center; justify-content: center; }
@@ -414,15 +419,15 @@ nav { flex: 1; padding: 8px 0; }
 .pw-plan-name { font-size: 13px; font-weight: 700; color: #74C69D; margin-bottom: 5px; }
 .pw-plan-price { font-size: 24px; font-weight: 700; color: #ffffff; line-height: 1; }
 .pw-plan-price span { font-size: 13px; font-weight: 400; color: #aaaaaa; }
-.pw-plan-desc { font-size: 11px; color: #666666; margin-top: 6px; line-height: 1.45; }
-.pw-portal { font-size: 12px; color: #666666; cursor: pointer; text-decoration: underline; margin-top: 4px; display: inline-block; }
+.pw-plan-desc { font-size: 11px; color: #8E8E8E; margin-top: 6px; line-height: 1.45; }
+.pw-portal { font-size: 12px; color: #8E8E8E; cursor: pointer; text-decoration: underline; margin-top: 4px; display: inline-block; }
 
 /* BILLING SECTION */
 .plan-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
 .plan-trial    { background: rgba(45,106,79,0.15); color: #74C69D; }
 .plan-active   { background: rgba(45,106,79,0.2); color: #74C69D; }
 .plan-inactive { background: rgba(248,113,113,0.15); color: #f87171; }
-.plan-free     { background: #1a1a1a; color: #666666; }
+.plan-free     { background: #1a1a1a; color: #8E8E8E; }
 .upgrade-btn { padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; border: none; transition: opacity .15s; }
 .upgrade-btn:hover { opacity: 0.85; }
 .upgrade-btn.starter { background: #2D6A4F; color: #fff; }
@@ -477,17 +482,17 @@ nav { flex: 1; padding: 8px 0; }
 .cdp-close:hover { background: #1a1a1a; }
 .cdp-meta { padding: 14px 18px; border-bottom: 0.5px solid #1f1f1f; display: flex; gap: 20px; flex-wrap: wrap; flex-shrink: 0; background: #111111; }
 .cdp-meta-item { display: flex; flex-direction: column; gap: 3px; }
-.cdp-meta-item .cdp-ml { font-size: 10px; color: #444444; text-transform: uppercase; letter-spacing: .04em; font-weight: 500; }
+.cdp-meta-item .cdp-ml { font-size: 10px; color: #8E8E8E; text-transform: uppercase; letter-spacing: .04em; font-weight: 500; }
 .cdp-meta-item .cdp-mv { font-size: 13px; font-weight: 500; color: #ffffff; }
 .cdp-section { padding: 16px 18px; border-bottom: 0.5px solid #1f1f1f; flex-shrink: 0; }
-.cdp-section-title { font-size: 11px; font-weight: 600; color: #444444; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 10px; }
+.cdp-section-title { font-size: 11px; font-weight: 600; color: #8E8E8E; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 10px; }
 .cdp-lead-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; }
-.cdp-lead-grid label { font-size: 10px; color: #444444; display: block; margin-bottom: 2px; }
+.cdp-lead-grid label { font-size: 10px; color: #8E8E8E; display: block; margin-bottom: 2px; }
 .cdp-lead-grid span { font-size: 13px; font-weight: 500; color: #ffffff; }
 .transcript-box { background: #111111; border: 0.5px solid #1f1f1f; border-radius: var(--radius); padding: 12px 14px; font-size: 12px; line-height: 1.75; color: #aaaaaa; max-height: 320px; overflow-y: auto; white-space: pre-wrap; }
 
 /* EMPTY STATE */
-.empty-state { text-align: center; padding: 40px 20px; color: #444444; font-size: 13px; }
+.empty-state { text-align: center; padding: 40px 20px; color: #8E8E8E; font-size: 13px; }
 .empty-state svg { width: 32px; height: 32px; fill: #333333; margin: 0 auto 12px; display: block; }
 
 /* INSTALL BANNER */
@@ -499,12 +504,12 @@ nav { flex: 1; padding: 8px 0; }
 #pwa-banner .pb-text strong { color: #ffffff; }
 #pwa-install-btn { background: #2D6A4F; color: #fff; border: none; border-radius: 8px; padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; flex-shrink: 0; min-height: 34px; }
 #pwa-install-btn:active { opacity: 0.8; }
-#pwa-dismiss-btn { background: none; border: none; color: #444444; font-size: 18px; cursor: pointer; padding: 4px 6px; line-height: 1; flex-shrink: 0; min-width: 32px; min-height: 32px; display: flex; align-items: center; justify-content: center; }
+#pwa-dismiss-btn { background: none; border: none; color: #8E8E8E; font-size: 18px; cursor: pointer; padding: 4px 6px; line-height: 1; flex-shrink: 0; min-width: 32px; min-height: 32px; display: flex; align-items: center; justify-content: center; }
 
 /* BOTTOM NAV (mobile only) */
 #bottom-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: #111111; border-top: 0.5px solid #1f1f1f; z-index: 500; padding-bottom: env(safe-area-inset-bottom); }
 #bottom-nav .bnav-inner { display: flex; align-items: stretch; }
-.bnav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 10px 4px 8px; cursor: pointer; color: #555555; font-size: 10px; font-weight: 500; border: none; background: none; font-family: inherit; min-height: 56px; -webkit-tap-highlight-color: transparent; transition: color .15s; }
+.bnav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 10px 4px 8px; cursor: pointer; color: #8E8E8E; font-size: 10px; font-weight: 500; border: none; background: none; font-family: inherit; min-height: 56px; -webkit-tap-highlight-color: transparent; transition: color .15s; }
 .bnav-item svg { width: 20px; height: 20px; fill: currentColor; }
 .bnav-item.active { color: #74C69D; }
 .bnav-badge { position: absolute; top: 7px; right: calc(50% - 14px); background: #74C69D; color: #0A0A0A; font-size: 9px; font-weight: 700; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
@@ -638,16 +643,16 @@ nav { flex: 1; padding: 8px 0; }
 /* ROI HERO CARD */
 .roi-hero { background: #111111; border: 1px solid #1a1a1a; border-radius: 14px; padding: 20px 24px 16px; margin-bottom: 20px; display: flex; align-items: flex-start; gap: 24px; flex-wrap: wrap; }
 .roi-block { flex: 1; min-width: 140px; }
-.roi-label { font-size: 11px; font-weight: 600; color: #555555; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 7px; }
+.roi-label { font-size: 11px; font-weight: 600; color: #8E8E8E; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 7px; }
 .roi-value { font-size: 36px; font-weight: 600; color: #74C69D; line-height: 1; letter-spacing: -0.02em; margin-bottom: 5px; }
-.roi-sub { font-size: 12px; color: #666666; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.roi-sub { font-size: 12px; color: #8E8E8E; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .roi-change { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 5px; }
 .roi-change.up { background: rgba(45,106,79,0.18); color: #74C69D; }
 .roi-change.down { background: rgba(248,113,113,0.12); color: #f87171; }
 .roi-change.neutral { background: rgba(116,198,157,0.1); color: #74C69D; }
 .roi-tagline { font-size: 11px; color: #74C69D; font-style: italic; margin-top: 7px; }
 .roi-spark-block { flex: 2; min-width: 180px; display: flex; flex-direction: column; }
-.roi-spark-label { font-size: 10px; color: #444444; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 5px; }
+.roi-spark-label { font-size: 10px; color: #8E8E8E; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 5px; }
 #roi-sparkline-canvas { width: 100%; height: 48px; display: block; }
 @media (max-width: 600px) { .roi-hero { gap: 14px; padding: 16px 16px 14px; } .roi-spark-block { flex: 0 0 100%; } }
 
@@ -664,11 +669,11 @@ nav { flex: 1; padding: 8px 0; }
 .speed-opt input[type=radio] { accent-color: #74C69D; width: 15px; height: 15px; flex-shrink: 0; cursor: pointer; }
 .speed-opt-label { font-size: 13px; color: #ffffff; display: flex; align-items: center; gap: 7px; }
 .speed-badge { font-size: 9px; padding: 2px 6px; background: rgba(116,198,157,0.12); color: #74C69D; border-radius: 4px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
-.speed-opt-sub { font-size: 11px; color: #555555; margin-top: 2px; }
+.speed-opt-sub { font-size: 11px; color: #8E8E8E; margin-top: 2px; }
 .tb-test-box { background: #0f0f0f; border: 0.5px solid #1a1a1a; border-radius: var(--radius); padding: 14px 16px; margin-top: 12px; display: none; }
 .tb-countdown { font-size: 34px; font-weight: 700; color: #74C69D; line-height: 1; margin: 10px 0 2px; font-variant-numeric: tabular-nums; }
-.tb-test-msg { font-size: 12px; color: #666666; line-height: 1.65; }
-.settings-sub-label { font-size: 10px; color: #555555; text-transform: uppercase; letter-spacing: .07em; font-weight: 600; margin-bottom: 8px; }
+.tb-test-msg { font-size: 12px; color: #8E8E8E; line-height: 1.65; }
+.settings-sub-label { font-size: 10px; color: #8E8E8E; text-transform: uppercase; letter-spacing: .07em; font-weight: 600; margin-bottom: 8px; }
 /* ── AGENT PREVIEW & CHAT ─────────────────────────────────────────────────── */
 #agent-missing-banner { display:none; background:rgba(220,90,40,0.1); border:0.5px solid rgba(220,90,40,0.35); border-radius:var(--radius); padding:10px 14px; margin-top:20px; font-size:12px; color:#e8a87c; line-height:1.55; }
 #agent-missing-banner a { color:#74C69D; text-decoration:underline; cursor:pointer; }
@@ -695,11 +700,11 @@ nav { flex: 1; padding: 8px 0; }
 .ob-dot { height: 3px; flex: 1; border-radius: 2px; background: #222222; transition: background .25s; }
 .ob-dot.active { background: #74C69D; }
 .ob-title { font-size: 18px; font-weight: 700; color: #ffffff; margin-bottom: 6px; }
-.ob-sub { font-size: 13px; color: #666666; margin-bottom: 22px; line-height: 1.6; }
+.ob-sub { font-size: 13px; color: #8E8E8E; margin-bottom: 22px; line-height: 1.6; }
 .ob-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; flex-wrap: wrap; }
 .ob-btn-primary { padding: 10px 20px; background: #2D6A4F; color: #ffffff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; transition: background .15s; white-space: nowrap; }
 .ob-btn-primary:hover { background: #3a7a5f; }
-.ob-btn-secondary { padding: 10px 16px; border: 0.5px solid #2a2a2a; background: none; color: #666666; border-radius: 8px; font-size: 13px; cursor: pointer; font-family: inherit; }
+.ob-btn-secondary { padding: 10px 16px; border: 0.5px solid #2a2a2a; background: none; color: #8E8E8E; border-radius: 8px; font-size: 13px; cursor: pointer; font-family: inherit; }
 .ob-btn-secondary:hover { background: #1a1a1a; color: #aaaaaa; }
 .ob-err { font-size: 12px; color: #f87171; min-height: 16px; margin: -6px 0 10px; }
 .ob-forward-box { background: #111111; border: 1px solid #1a1a1a; border-radius: 10px; padding: 16px 18px; margin: 4px 0 14px; }
@@ -720,7 +725,7 @@ nav { flex: 1; padding: 8px 0; }
 .set-input { width: 100%; background: #111; border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 11px 14px; font-size: 14px; color: #fff; font-family: inherit; outline: none; transition: border-color .15s, box-shadow .15s; box-sizing: border-box; }
 .set-input:focus { border-color: #2D6A4F; box-shadow: 0 0 0 3px rgba(45,106,79,0.15); }
 .set-save-row { display: flex; align-items: center; justify-content: flex-end; padding: 12px 20px 14px; gap: 8px; border-top: 0.5px solid rgba(255,255,255,0.04); }
-.set-save-hint { font-size: 12px; color: #3d3d3d; flex: 1; }
+.set-save-hint { font-size: 12px; color: #8E8E8E; flex: 1; }
 .set-btn-primary { background: #2D6A4F; color: #fff; border: none; border-radius: 9px; padding: 9px 22px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap; flex-shrink: 0; transition: background .15s, box-shadow .15s, transform .1s; letter-spacing: 0.01em; }
 .set-btn-primary:hover { background: #3a7a5f; box-shadow: 0 3px 12px rgba(45,106,79,0.3); transform: translateY(-1px); }
 .set-btn-primary:active { transform: translateY(0); }
@@ -742,7 +747,7 @@ nav { flex: 1; padding: 8px 0; }
 .set-plan-card-desc { font-size: 11px; color: #555; line-height: 1.5; margin-bottom: 14px; }
 .set-plan-cta { font-size: 11px; font-weight: 700; background: #2D6A4F; color: #fff; border-radius: 8px; padding: 7px 13px; display: inline-block; letter-spacing: 0.01em; }
 .set-plan-card-featured .set-plan-cta { background: #74C69D; color: #080d0a; }
-.set-advanced-toggle { background: none; border: none; color: #3d3d3d; font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit; padding: 6px 0; display: flex; align-items: center; gap: 6px; transition: color .15s; text-transform: uppercase; letter-spacing: 0.07em; }
+.set-advanced-toggle { background: none; border: none; color: #8E8E8E; font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit; padding: 6px 0; display: flex; align-items: center; gap: 6px; transition: color .15s; text-transform: uppercase; letter-spacing: 0.07em; }
 .set-advanced-toggle:hover { color: #888; }
 .set-adv-section { margin-bottom: 20px; }
 </style>
@@ -862,7 +867,7 @@ nav { flex: 1; padding: 8px 0; }
   <nav>
     <div class="nav-item active" onclick="showScreen('dashboard',this)"><svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>Dashboard</div>
     <div class="nav-item" onclick="showScreen('chatbot',this)"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>Live chatbot<span class="nav-badge" id="new-badge" style="display:none">!</span></div>
-    <div class="nav-item" onclick="showScreen('leads',this)"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>Leads<span class="nav-badge" id="leads-badge">3</span></div>
+    <div class="nav-item" onclick="showScreen('leads',this)"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>Leads<span class="nav-badge" id="leads-badge" style="display:none">0</span></div>
     <div class="nav-item" onclick="showScreen('calls',this)"><svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02L6.6 10.8z"/></svg>Phone calls</div>
     <div class="nav-item" onclick="showScreen('calendar',this)"><svg viewBox="0 0 24 24"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>Calendar</div>
     <div class="nav-item" onclick="showScreen('settings',this)"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96a7.01 7.01 0 00-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.47.47 0 00-.59.22L2.74 8.87a.47.47 0 00.12.61l2.03 1.58c-.05.3-.07.63-.07.94s.02.64.07.94l-2.03 1.58a.47.47 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.37 1.04.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.57 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.47.47 0 00-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>Settings</div>
@@ -872,7 +877,7 @@ nav { flex: 1; padding: 8px 0; }
       <div class="c-av" id="sidebar-user-initials">?</div>
       <div style="flex:1;min-width:0">
         <div style="font-size:12px;color:#aaaaaa;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="sidebar-user-biz">Loading...</div>
-        <div style="font-size:10px;color:#666666;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="sidebar-user-email"></div>
+        <div style="font-size:10px;color:#8E8E8E;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="sidebar-user-email"></div>
       </div>
       <button class="signout-btn" onclick="signOut()" title="Sign out">↩</button>
     </div>
@@ -898,7 +903,7 @@ nav { flex: 1; padding: 8px 0; }
 <div id="s-dashboard" class="screen active">
   <div class="topbar">
     <div>
-      <div id="dash-welcome" style="font-size:11px;color:#444444;text-transform:uppercase;letter-spacing:.06em;font-weight:500;margin-bottom:4px">Good morning</div>
+      <div id="dash-welcome" style="font-size:11px;color:#8E8E8E;text-transform:uppercase;letter-spacing:.06em;font-weight:500;margin-bottom:4px">Good morning</div>
       <h1>Dashboard</h1>
       <div class="sub" id="dash-date">Loading...</div>
     </div>
@@ -932,15 +937,15 @@ nav { flex: 1; padding: 8px 0; }
   <div class="metrics">
     <div class="metric metric-featured">
       <div class="metric-top"><div class="ml">New leads this week</div><div class="metric-icon"><svg viewBox="0 0 24 24" width="15" height="15" fill="#74C69D"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg></div></div>
-      <div class="mv" id="m-leads">8</div><span class="ms up">+3 vs last week</span>
+      <div class="mv" id="m-leads">—</div><span class="ms neutral" id="m-leads-sub"></span>
     </div>
     <div class="metric">
       <div class="metric-top"><div class="ml">Appointments booked</div><div class="metric-icon"><svg viewBox="0 0 24 24" width="15" height="15" fill="#74C69D"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg></div></div>
-      <div class="mv" id="m-appts">5</div><span class="ms up">+2 vs last week</span>
+      <div class="mv" id="m-appts">—</div><span class="ms neutral" id="m-appts-sub"></span>
     </div>
     <div class="metric">
       <div class="metric-top"><div class="ml">Pending follow-ups</div><div class="metric-icon"><svg viewBox="0 0 24 24" width="15" height="15" fill="#74C69D"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg></div></div>
-      <div class="mv" id="m-followups">3</div><span class="ms warn">needs action</span>
+      <div class="mv" id="m-followups">—</div><span class="ms neutral" id="m-followups-sub"></span>
     </div>
     <div class="metric">
       <div class="metric-top"><div class="ml">Conversion rate</div><div class="metric-icon"><svg viewBox="0 0 24 24" width="15" height="15" fill="#74C69D"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg></div></div>
@@ -1005,7 +1010,7 @@ nav { flex: 1; padding: 8px 0; }
       <button id="send-btn" onclick="sendMsg()"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
     </div>
   </div>
-  <p style="text-align:center;font-size:12px;color:#444444;margin-top:10px">Leads captured here appear instantly in your dashboard and calendar</p>
+  <p style="text-align:center;font-size:12px;color:#8E8E8E;margin-top:10px">Leads captured here appear instantly in your dashboard and calendar</p>
 </div>
 
 <!-- ── LEADS ── -->
@@ -1097,7 +1102,7 @@ nav { flex: 1; padding: 8px 0; }
     <div id="ob2-celebrate" class="ob-celebrate" style="display:none">
       <div style="font-size:48px;margin-bottom:12px">🎉</div>
       <div style="font-size:22px;font-weight:700;color:#ffffff;margin-bottom:8px">You're live!</div>
-      <div style="font-size:14px;color:#666666;line-height:1.7;margin-bottom:24px">Your AI is answering calls at<br><strong style="color:#74C69D">+1 (302) 664-7594</strong></div>
+      <div style="font-size:14px;color:#8E8E8E;line-height:1.7;margin-bottom:24px">Your AI is answering calls at<br><strong style="color:#74C69D">+1 (302) 664-7594</strong></div>
       <button class="set-btn-primary" onclick="ob2Finish()">Go to Dashboard</button>
     </div>
     <!-- checklist -->
@@ -1131,20 +1136,25 @@ nav { flex: 1; padding: 8px 0; }
 
 <!-- ── SETTINGS ── -->
 <div id="s-settings" class="screen">
-  <div class="topbar"><div><h1>Settings</h1><div class="sub">Your business, agent, and plan</div></div></div>
+  <div class="topbar"><div><h1>Settings</h1><div class="sub">Business info, integrations, and billing</div></div></div>
 
   <div class="set-wrap">
 
-    <!-- ══════════ 1 — MY BUSINESS ══════════ -->
-    <span class="set-section-label">My Business</span>
+    <!-- Missing-info banner (always at top) -->
+    <div id="agent-missing-banner"></div>
+
+    <!-- ══ YOUR BUSINESS ══ -->
+    <span class="set-section-label">Your Business</span>
+
+    <!-- Business info: consolidated -->
     <div class="set-card">
       <div class="set-row set-row-stacked">
         <label class="set-field-label" for="biz-name">Business name</label>
-        <input type="text" id="biz-name" class="set-input" placeholder="Green Lawn Co.">
+        <input type="text" id="biz-name" class="set-input" placeholder="e.g. Green Lawn Co.">
       </div>
       <div class="set-row-sep"></div>
       <div class="set-row set-row-stacked">
-        <label class="set-field-label" for="biz-owner">Your name (used in texts)</label>
+        <label class="set-field-label" for="biz-owner">Your name <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#8E8E8E">(used in text-back messages)</span></label>
         <input type="text" id="biz-owner" class="set-input" placeholder="e.g. John">
       </div>
       <div class="set-row-sep"></div>
@@ -1157,107 +1167,146 @@ nav { flex: 1; padding: 8px 0; }
         <label class="set-field-label" for="biz-service-area">Service area</label>
         <input type="text" id="biz-service-area" class="set-input" placeholder="e.g. Lynchburg, VA and surrounding areas">
       </div>
+      <div class="set-row-sep"></div>
+      <div class="set-row set-row-stacked">
+        <label class="set-field-label" for="biz-hours">Business hours</label>
+        <input type="text" id="biz-hours" class="set-input" placeholder="Mon–Fri 8am–6pm, Sat 8am–2pm">
+      </div>
+      <div class="set-row-sep"></div>
+      <div class="set-row set-row-stacked">
+        <label class="set-field-label" for="biz-phone">Business phone</label>
+        <input type="tel" id="biz-phone" class="set-input" placeholder="(540) 555-0192">
+      </div>
+      <div class="set-row-sep"></div>
+      <div class="set-row set-row-stacked">
+        <label class="set-field-label" for="biz-services">Services offered <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#8E8E8E">(comma-separated)</span></label>
+        <input type="text" id="biz-services" class="set-input" placeholder="Lawn care, Pest control, Tree trimming…">
+      </div>
+      <div class="set-row-sep"></div>
+      <div class="set-row set-row-stacked">
+        <label class="set-field-label" for="biz-booking-link">Booking link</label>
+        <input type="url" id="biz-booking-link" class="set-input" placeholder="https://calendly.com/yourname">
+      </div>
       <div class="set-save-row">
-        <span class="set-save-hint">This info powers your AI agent.</span>
+        <span class="set-save-hint">Powers your AI agent responses.</span>
         <span class="s-saved-confirm" id="biz-save-confirm" style="color:#74C69D">Saved ✓</span>
         <button class="set-btn-primary" id="biz-save-btn" onclick="saveBizInfo()">Save</button>
       </div>
     </div>
 
-    <!-- ══════════ 2 — MY AGENT ══════════ -->
-    <span class="set-section-label" style="margin-top:28px;display:block">My Agent</span>
-    <div class="set-card" id="textback-section">
-
-      <!-- Status row -->
-      <div class="set-row-status">
-        <span class="set-status-dot" id="agent-status-dot" style="background:#444"></span>
-        <span class="set-status-text" id="agent-status-text">Text-back inactive</span>
-      </div>
-      <div class="set-row-sep"></div>
-
-      <!-- Variable pills -->
+    <!-- Website scraper -->
+    <div class="set-card" style="margin-top:14px">
       <div class="set-row set-row-stacked">
-        <label class="set-field-label">Insert variable</label>
-        <div class="var-pills" style="margin:4px 0 0">
-          <span class="var-pill" onclick="insertVar('{{business_name}}')">{{business_name}}</span>
-          <span class="var-pill" onclick="insertVar('{{your_name}}')">{{your_name}}</span>
-          <span class="var-pill" onclick="insertVar('{{booking_link}}')">{{booking_link}}</span>
-          <span class="var-pill" onclick="insertVar('{{phone}}')">{{phone}}</span>
+        <label class="set-field-label">Auto-fill from your website</label>
+        <div class="s-row-sub" style="margin-bottom:10px">Paste your URL — LeadPro reads your site and fills in the fields above</div>
+        <div style="display:flex;gap:8px;align-items:flex-start">
+          <input type="url" id="scrape-url" class="set-input" placeholder="https://yourbusiness.com" style="flex:1">
+          <button class="set-btn-primary" id="scrape-btn" onclick="scrapeWebsite()">Scrape</button>
+        </div>
+        <div id="scrape-status" style="font-size:12px;color:#8E8E8E;margin-top:8px;min-height:16px"></div>
+        <div id="scrape-timestamp" style="font-size:11px;color:#8E8E8E;margin-top:2px"></div>
+        <div id="scrape-profile-card"></div>
+      </div>
+    </div>
+
+    <!-- ══ INTEGRATIONS ══ -->
+    <span class="set-section-label" style="margin-top:28px;display:block">Integrations</span>
+
+    <!-- Google Calendar -->
+    <div class="set-card" id="gcal-section">
+      <div id="gcal-connected-row" style="display:none">
+        <div class="s-row" style="border-bottom:none">
+          <div class="s-row-icon"><svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:#74C69D"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg></div>
+          <div class="s-row-body">
+            <div class="s-row-label" style="display:flex;align-items:center;gap:7px">
+              <span class="s-status-dot" style="background:#74C69D"></span>Google Calendar
+              <span class="s-pill s-pill-green" style="font-size:10px">Connected</span>
+            </div>
+            <div class="s-row-sub" id="gcal-email">—</div>
+          </div>
+          <div class="s-row-right"><button onclick="disconnectGoogleCalendar()" class="s-danger-link">Disconnect</button></div>
         </div>
       </div>
-      <div class="set-row-sep"></div>
-
-      <!-- SMS template -->
-      <div class="set-row set-row-stacked">
-        <label class="set-field-label">Text-back message</label>
-        <textarea class="set-textarea sms-tpl-area" id="sms-template" rows="5" oninput="updateSmsCharCount()">Hi, this is {{business_name}}! Sorry we missed your call — we're on a job right now. Reply here and we'll get back to you shortly, or tap the link below to book a time: {{booking_link}}</textarea>
-      </div>
-
-      <!-- Char count + save -->
-      <div class="set-save-row">
-        <span style="font-size:12px;color:#555;flex:1"><span id="sms-char-count">0</span> characters</span>
-        <span class="s-saved-confirm" id="textback-save-status" style="color:#74C69D">Saved ✓</span>
-        <button class="set-btn-primary" id="textback-save-btn" onclick="saveTextbackSettings()">Save</button>
-      </div>
-      <div class="set-row-sep"></div>
-
-      <!-- Test row -->
-      <div class="set-row set-row-stacked" style="padding-bottom:18px">
-        <label class="set-field-label">Send yourself a test</label>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <input type="tel" id="tb-test-phone" class="set-input" placeholder="(540) 555-0192" style="flex:1;min-width:160px">
-          <button class="set-btn-primary" id="tb-test-btn" onclick="startSmsTest()">Send test</button>
-        </div>
-        <div id="tb-test-status-msg" style="font-size:12px;margin-top:6px;min-height:16px"></div>
-        <div class="tb-test-box" id="tb-test-box" style="display:none;margin-top:10px">
-          <div style="font-size:13px;color:#ffffff;font-weight:500;margin-bottom:4px">Waiting for a missed call…</div>
-          <div class="tb-test-msg">Call your LeadPro number, hang up, and watch your phone. You'll get the text-back within 60 seconds.</div>
-          <div class="tb-countdown" id="tb-countdown">60</div>
-          <div style="font-size:10px;color:#3a3a3a;letter-spacing:.04em">SECONDS REMAINING</div>
+      <div id="gcal-disconnected-row">
+        <div class="s-row" style="border-bottom:none">
+          <div class="s-row-icon"><svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:#8E8E8E"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg></div>
+          <div class="s-row-body">
+            <div class="s-row-label" style="display:flex;align-items:center;gap:7px">
+              <span class="s-status-dot" style="background:#8E8E8E"></span>Google Calendar
+            </div>
+            <div class="s-row-sub">Not connected — AI can't check your availability</div>
+          </div>
+          <div class="s-row-right"><a id="gcal-connect-btn" class="s-connect-btn" style="cursor:pointer" onclick="connectGoogleCalendar()">Connect</a></div>
         </div>
       </div>
+    </div>
 
-    </div><!-- /textback-section -->
-
-    <!-- Missing info banner -->
-    <div id="agent-missing-banner"></div>
-
-    <!-- ══════════ 3 — MY WIDGET ══════════ -->
-    <span class="set-section-label" style="margin-top:28px;display:block">My Widget</span>
-    <div class="set-card">
-
-      <!-- Row 1: Widget ID -->
+    <!-- Website embed -->
+    <div class="set-card" style="margin-top:14px">
       <div style="display:flex;align-items:center;padding:16px 20px;gap:12px">
-        <div style="flex:1">
-          <div class="set-field-label" style="margin-bottom:0">Your widget ID</div>
-        </div>
+        <div style="flex:1"><div class="set-field-label" style="margin-bottom:0">Widget ID</div></div>
         <div style="display:flex;align-items:center;gap:8px">
           <code class="s-mono-pill" id="widget-id-display">—</code>
           <button class="set-btn-secondary" onclick="(function(btn){var id=document.getElementById('widget-id-display').textContent;navigator.clipboard.writeText(id).catch(function(){});btn.textContent='Copied!';setTimeout(function(){btn.textContent='Copy'},2000);})(this)">Copy</button>
         </div>
       </div>
       <div class="set-row-sep"></div>
-
-      <!-- Row 2: Embed code -->
       <div class="set-row set-row-stacked" style="padding-bottom:18px">
         <label class="set-field-label">Add to your website</label>
-        <div style="font-size:12px;color:#555;margin-bottom:8px">Paste before &lt;/body&gt; on any page</div>
+        <div style="font-size:12px;color:#8E8E8E;margin-bottom:8px">Paste before &lt;/body&gt; on any page</div>
         <div class="s-code-block" id="widget-embed-code" style="position:relative">
           <code style="font-family:'Courier New',monospace;font-size:11px;color:#74C69D;line-height:1.6;word-break:break-all;display:block">&lt;script src="https://app.useleadpro.net/widget.js" data-id="<span id="widget-id-span" style="color:#ffffff">loading...</span>"&gt;&lt;/script&gt;</code>
-          <button class="cc" onclick="copyEmbedCode(this)" style="position:absolute;top:8px;right:8px;font-size:10px;background:#1f1f1f;border:0.5px solid #2a2a2a;padding:3px 10px;border-radius:6px;cursor:pointer;color:#aaaaaa;font-family:inherit">Copy</button>
+          <button class="cc" onclick="copyEmbedCode(this)" style="position:absolute;top:8px;right:8px;font-size:10px;background:#1f1f1f;border:0.5px solid #2a2a2a;padding:3px 10px;border-radius:6px;cursor:pointer;color:#C0C0C0;font-family:inherit">Copy</button>
         </div>
       </div>
-
     </div>
 
-    <!-- ══════════ 4 — PLAN & BILLING ══════════ -->
-    <span class="set-section-label" style="margin-top:28px;display:block">Plan &amp; Billing</span>
-    <div class="set-card" id="billing-section">
+    <!-- ══ ACCOUNT ══ -->
+    <span class="set-section-label" style="margin-top:28px;display:block">Account</span>
 
-      <!-- Current plan -->
+    <!-- Notifications -->
+    <div class="set-card">
+      <div style="display:flex;align-items:center;padding:14px 20px">
+        <div class="s-row-body">
+          <div class="s-row-label">SMS alert on new lead</div>
+          <div class="s-row-sub">Text me the moment the AI captures a lead</div>
+        </div>
+        <div class="s-toggle on" onclick="this.classList.toggle('on')"><div class="s-tthumb"></div></div>
+      </div>
+      <div class="set-row-sep"></div>
+      <div style="display:flex;align-items:center;padding:14px 20px">
+        <div class="s-row-body">
+          <div class="s-row-label">Daily email digest</div>
+          <div class="s-row-sub">Summary of all leads sent at 7am</div>
+        </div>
+        <div class="s-toggle on" onclick="this.classList.toggle('on')"><div class="s-tthumb"></div></div>
+      </div>
+      <div class="set-row-sep"></div>
+      <div style="display:flex;align-items:center;padding:14px 20px">
+        <div class="s-row-body">
+          <div class="s-row-label">Weekly ROI email</div>
+          <div class="s-row-sub">Every Monday 8am</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button class="s-preview-btn">Preview</button>
+          <div class="s-toggle on" onclick="this.classList.toggle('on')"><div class="s-tthumb"></div></div>
+        </div>
+      </div>
+      <div class="set-row-sep"></div>
+      <div style="display:flex;align-items:center;padding:14px 20px">
+        <div class="s-row-body">
+          <div class="s-row-label">Follow-up reminders</div>
+          <div class="s-row-sub">Alert if a lead hasn't been contacted in 2 hrs</div>
+        </div>
+        <div class="s-toggle" onclick="this.classList.toggle('on')"><div class="s-tthumb"></div></div>
+      </div>
+    </div>
+
+    <!-- Plan & billing -->
+    <div class="set-card" id="billing-section" style="margin-top:14px">
       <div style="padding:20px 20px 18px;border-bottom:0.5px solid #1a1a1a">
         <div style="margin-bottom:8px"><span class="plan-badge plan-free" id="billing-badge">Free trial</span></div>
-        <div style="font-size:22px;font-weight:700;color:#fff;margin-top:8px;line-height:1.2" id="billing-plan-detail">Loading…</div>
+        <div style="font-size:22px;font-weight:700;color:#F2F2F2;margin-top:8px;line-height:1.2" id="billing-plan-detail">Loading…</div>
         <div id="billing-trial-row" style="display:none;margin-top:8px">
           <span style="font-size:13px;color:#fbbf24">Trial ends: </span><span style="font-size:13px;color:#fbbf24" id="billing-trial-end">—</span>
         </div>
@@ -1265,8 +1314,6 @@ nav { flex: 1; padding: 8px 0; }
           <button class="set-btn-primary" id="billing-portal-btn" style="display:none" onclick="openBillingPortal()">Manage billing →</button>
         </div>
       </div>
-
-      <!-- Upgrade cards -->
       <div class="set-upgrade-row">
         <button class="set-plan-card" onclick="startCheckout('starter')">
           <div class="set-plan-card-name">Starter</div>
@@ -1281,45 +1328,58 @@ nav { flex: 1; padding: 8px 0; }
           <div class="set-plan-cta">Get Pro →</div>
         </button>
       </div>
-
-    <div id="checkout-error-msg" style="display:none;margin:12px 20px 4px;padding:10px 14px;background:rgba(127,29,29,0.25);border:0.5px solid #f87171;border-radius:8px;font-size:12.5px;color:#fca5a5;line-height:1.5"></div>
+      <div id="checkout-error-msg" style="display:none;margin:12px 20px 4px;padding:10px 14px;background:rgba(127,29,29,0.25);border:0.5px solid #f87171;border-radius:8px;font-size:12.5px;color:#fca5a5;line-height:1.5"></div>
     </div><!-- /billing-section -->
 
-    <!-- ══════════ ADVANCED ══════════ -->
+    <!-- ══ ADVANCED ══ -->
     <div style="margin-top:32px;margin-bottom:8px">
       <button class="set-advanced-toggle" id="advanced-toggle" onclick="(function(){var p=document.getElementById('advanced-panel');var a=document.getElementById('advanced-arrow');var open=p.style.display!=='none';p.style.display=open?'none':'block';a.style.transform=open?'':'rotate(90deg)'})()">&nbsp;<span id="advanced-arrow" style="display:inline-block;transition:transform .2s;font-size:11px">▸</span>&nbsp;Advanced settings</button>
     </div>
 
     <div id="advanced-panel" style="display:none">
 
-      <!-- Business hours + phone -->
+      <!-- Text-back agent -->
       <div class="set-adv-section">
-        <span class="set-section-label">Hours &amp; Contact</span>
-        <div class="set-card">
-          <div class="set-row set-row-stacked">
-            <label class="set-field-label" for="biz-hours">Business hours</label>
-            <input type="text" id="biz-hours" class="set-input" placeholder="Mon–Fri 8am–6pm, Sat 8am–2pm">
+        <span class="set-section-label">Text-Back Agent</span>
+        <div class="set-card" id="textback-section">
+          <div class="set-row-status">
+            <span class="set-status-dot" id="agent-status-dot" style="background:#444"></span>
+            <span class="set-status-text" id="agent-status-text">Text-back inactive</span>
           </div>
           <div class="set-row-sep"></div>
           <div class="set-row set-row-stacked">
-            <label class="set-field-label" for="biz-phone">Business phone number</label>
-            <input type="tel" id="biz-phone" class="set-input" placeholder="(540) 555-0192">
-          </div>
-        </div>
-      </div>
-
-      <!-- Services & booking link -->
-      <div class="set-adv-section">
-        <span class="set-section-label">Services &amp; Booking</span>
-        <div class="set-card">
-          <div class="set-row set-row-stacked">
-            <label class="set-field-label">Services offered <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#444">(comma-separated)</span></label>
-            <input type="text" id="biz-services" class="set-input" placeholder="Lawn care, Pest control, Tree trimming…">
+            <label class="set-field-label">Insert variable</label>
+            <div class="var-pills" style="margin:4px 0 0">
+              <span class="var-pill" onclick="insertVar('{{business_name}}')">{{business_name}}</span>
+              <span class="var-pill" onclick="insertVar('{{your_name}}')">{{your_name}}</span>
+              <span class="var-pill" onclick="insertVar('{{booking_link}}')">{{booking_link}}</span>
+              <span class="var-pill" onclick="insertVar('{{phone}}')">{{phone}}</span>
+            </div>
           </div>
           <div class="set-row-sep"></div>
           <div class="set-row set-row-stacked">
-            <label class="set-field-label" for="biz-booking-link">Booking link</label>
-            <input type="url" id="biz-booking-link" class="set-input" placeholder="https://calendly.com/yourname">
+            <label class="set-field-label">Text-back message</label>
+            <textarea class="set-textarea sms-tpl-area" id="sms-template" rows="5" oninput="updateSmsCharCount()">Hi, this is {{business_name}}! Sorry we missed your call — we're on a job right now. Reply here and we'll get back to you shortly, or tap the link below to book a time: {{booking_link}}</textarea>
+          </div>
+          <div class="set-save-row">
+            <span style="font-size:12px;color:#8E8E8E;flex:1"><span id="sms-char-count">0</span> characters</span>
+            <span class="s-saved-confirm" id="textback-save-status" style="color:#74C69D">Saved ✓</span>
+            <button class="set-btn-primary" id="textback-save-btn" onclick="saveTextbackSettings()">Save</button>
+          </div>
+          <div class="set-row-sep"></div>
+          <div class="set-row set-row-stacked" style="padding-bottom:18px">
+            <label class="set-field-label">Send yourself a test</label>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <input type="tel" id="tb-test-phone" class="set-input" placeholder="(540) 555-0192" style="flex:1;min-width:160px">
+              <button class="set-btn-primary" id="tb-test-btn" onclick="startSmsTest()">Send test</button>
+            </div>
+            <div id="tb-test-status-msg" style="font-size:12px;margin-top:6px;min-height:16px"></div>
+            <div class="tb-test-box" id="tb-test-box" style="display:none;margin-top:10px">
+              <div style="font-size:13px;color:#ffffff;font-weight:500;margin-bottom:4px">Waiting for a missed call…</div>
+              <div class="tb-test-msg">Call your LeadPro number, hang up, and watch your phone. You'll get the text-back within 60 seconds.</div>
+              <div class="tb-countdown" id="tb-countdown">60</div>
+              <div style="font-size:10px;color:#8E8E8E;letter-spacing:.04em">SECONDS REMAINING</div>
+            </div>
           </div>
         </div>
       </div>
@@ -1351,124 +1411,23 @@ nav { flex: 1; padding: 8px 0; }
         </div>
       </div>
 
-      <!-- Google Calendar -->
-      <div class="set-adv-section">
-        <span class="set-section-label">Integrations</span>
-        <div class="set-card" id="gcal-section">
-          <div id="gcal-connected-row" style="display:none">
-            <div class="s-row" style="border-bottom:none">
-              <div class="s-row-icon">
-                <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:#74C69D"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg>
-              </div>
-              <div class="s-row-body">
-                <div class="s-row-label" style="display:flex;align-items:center;gap:7px">
-                  <span class="s-status-dot" style="background:#74C69D"></span>
-                  Google Calendar
-                  <span class="s-pill s-pill-green" style="font-size:10px">Connected</span>
-                </div>
-                <div class="s-row-sub" id="gcal-email">—</div>
-              </div>
-              <div class="s-row-right">
-                <button onclick="disconnectGoogleCalendar()" class="s-danger-link">Disconnect</button>
-              </div>
-            </div>
-          </div>
-          <div id="gcal-disconnected-row">
-            <div class="s-row" style="border-bottom:none">
-              <div class="s-row-icon">
-                <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:#555"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg>
-              </div>
-              <div class="s-row-body">
-                <div class="s-row-label" style="display:flex;align-items:center;gap:7px">
-                  <span class="s-status-dot" style="background:#555"></span>
-                  Google Calendar
-                </div>
-                <div class="s-row-sub">Not connected — AI can't check your availability</div>
-              </div>
-              <div class="s-row-right">
-                <a id="gcal-connect-btn" class="s-connect-btn" style="cursor:pointer" onclick="connectGoogleCalendar()">Connect</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Notifications -->
-      <div class="set-adv-section">
-        <span class="set-section-label">Notifications</span>
-        <div class="set-card">
-          <div style="display:flex;align-items:center;padding:14px 20px">
-            <div class="s-row-body">
-              <div class="s-row-label">SMS alert on new lead</div>
-              <div class="s-row-sub">Text me the moment the AI captures a lead</div>
-            </div>
-            <div class="s-toggle on" onclick="this.classList.toggle('on')"><div class="s-tthumb"></div></div>
-          </div>
-          <div class="set-row-sep"></div>
-          <div style="display:flex;align-items:center;padding:14px 20px">
-            <div class="s-row-body">
-              <div class="s-row-label">Daily email digest</div>
-              <div class="s-row-sub">Summary of all leads sent at 7am</div>
-            </div>
-            <div class="s-toggle on" onclick="this.classList.toggle('on')"><div class="s-tthumb"></div></div>
-          </div>
-          <div class="set-row-sep"></div>
-          <div style="display:flex;align-items:center;padding:14px 20px">
-            <div class="s-row-body">
-              <div class="s-row-label">Weekly ROI email</div>
-              <div class="s-row-sub">Every Monday 8am</div>
-            </div>
-            <div style="display:flex;align-items:center;gap:8px">
-              <button class="s-preview-btn">Preview</button>
-              <div class="s-toggle on" onclick="this.classList.toggle('on')"><div class="s-tthumb"></div></div>
-            </div>
-          </div>
-          <div class="set-row-sep"></div>
-          <div style="display:flex;align-items:center;padding:14px 20px">
-            <div class="s-row-body">
-              <div class="s-row-label">Follow-up reminders</div>
-              <div class="s-row-sub">Alert if a lead hasn't been contacted in 2 hrs</div>
-            </div>
-            <div class="s-toggle" onclick="this.classList.toggle('on')"><div class="s-tthumb"></div></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Website scraper -->
-      <div class="set-adv-section">
-        <span class="set-section-label">Website Scraper</span>
-        <div class="set-card">
-          <div class="set-row set-row-stacked">
-            <label class="set-field-label">Auto-fill from your site</label>
-            <div class="s-row-sub" style="margin-bottom:10px">Paste your URL — LeadPro extracts your business info to power the AI agent</div>
-            <div style="display:flex;gap:8px;align-items:flex-start">
-              <input type="url" id="scrape-url" class="set-input" placeholder="https://yourbusiness.com" style="flex:1">
-              <button class="set-btn-primary" id="scrape-btn" onclick="scrapeWebsite()">Scrape</button>
-            </div>
-            <div id="scrape-status" style="font-size:12px;color:#555;margin-top:8px;min-height:16px"></div>
-            <div id="scrape-timestamp" style="font-size:11px;color:#444;margin-top:2px"></div>
-            <div id="scrape-profile-card"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Agent instructions preview -->
+      <!-- Agent instructions -->
       <div class="set-adv-section">
         <span class="set-section-label">Agent Instructions</span>
         <div class="set-card">
           <div class="set-row set-row-stacked">
-            <label class="set-field-label">System prompt (read-only preview)</label>
+            <label class="set-field-label">System prompt (read-only)</label>
             <textarea id="agent-prompt-preview" class="s-agent-preview" readonly placeholder="Loading…" style="margin-top:6px"></textarea>
           </div>
         </div>
       </div>
 
-      <!-- Chat with agent -->
+      <!-- Test agent -->
       <div class="set-adv-section">
         <span class="set-section-label">Test Your Agent</span>
         <div class="set-card" style="overflow:hidden">
           <div id="agent-chat-panel" style="border-radius:0;border:none;background:#0d0d0d">
-            <div class="acp-header" style="font-size:11px;color:#555;text-transform:uppercase;letter-spacing:.07em;font-weight:600;padding:10px 18px;border-bottom:0.5px solid #1a1a1a">Chat with your agent</div>
+            <div class="acp-header" style="font-size:11px;color:#8E8E8E;text-transform:uppercase;letter-spacing:.07em;font-weight:600;padding:10px 18px;border-bottom:0.5px solid #1a1a1a">Chat with your agent</div>
             <div class="acp-messages" id="acp-messages"></div>
             <div class="acp-input-row">
               <input type="text" id="acp-input" placeholder="Type a message…" onkeydown="if(event.key==='Enter')sendAgentTestMessage()">
@@ -1576,11 +1535,11 @@ nav { flex: 1; padding: 8px 0; }
       <div class="ob-title">Set up call forwarding</div>
       <div class="ob-sub">Forward your business number to the LeadPro number below and you're live. You can do this in under 2 minutes from your carrier settings.</div>
       <div class="ob-forward-box">
-        <div style="font-size:10px;color:#555555;text-transform:uppercase;letter-spacing:.07em;font-weight:600">Your LeadPro number</div>
+        <div style="font-size:10px;color:#8E8E8E;text-transform:uppercase;letter-spacing:.07em;font-weight:600">Your LeadPro number</div>
         <div class="ob-number" id="ob-lp-number">Loading…</div>
         <button class="ob-copy-btn" id="ob-copy-btn" onclick="obCopyNumber(this)">Copy number</button>
       </div>
-      <p style="font-size:12px;color:#555555;line-height:1.65;margin-bottom:0">LeadPro will answer every call, capture the lead, and send it straight to your dashboard.</p>
+      <p style="font-size:12px;color:#8E8E8E;line-height:1.65;margin-bottom:0">LeadPro will answer every call, capture the lead, and send it straight to your dashboard.</p>
       <div class="ob-actions">
         <button class="ob-btn-secondary" onclick="obBack()">← Back</button>
         <button class="ob-btn-primary" onclick="obComplete()">I've set up forwarding</button>
@@ -1593,7 +1552,7 @@ nav { flex: 1; padding: 8px 0; }
         <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
       </div>
       <div style="font-size:22px;font-weight:700;color:#ffffff;margin-bottom:10px">You're live.</div>
-      <div style="font-size:14px;color:#666666;line-height:1.7;margin-bottom:28px">LeadPro is now answering for you.<br>Every missed call becomes a lead.</div>
+      <div style="font-size:14px;color:#8E8E8E;line-height:1.7;margin-bottom:28px">LeadPro is now answering for you.<br>Every missed call becomes a lead.</div>
       <button class="ob-btn-primary" style="width:100%;justify-content:center" onclick="obDismiss()">Go to dashboard</button>
     </div>
 
@@ -1660,10 +1619,18 @@ function showScreen(id, el) {
 
 // ── METRICS ──
 function updateMetrics() {
-  document.getElementById('m-leads').textContent = leads.filter(l=>l.status==='new').length;
-  document.getElementById('m-appts').textContent = appointments.length;
-  document.getElementById('m-followups').textContent = leads.filter(l=>l.status==='followup').length;
-  document.getElementById('leads-badge').textContent = leads.filter(l=>l.status==='new').length;
+  const newLeads = leads.filter(l=>l.status==='new').length;
+  const apptCount = appointments.length;
+  const followupCount = leads.filter(l=>l.status==='followup').length;
+  document.getElementById('m-leads').textContent = newLeads || '—';
+  document.getElementById('m-appts').textContent = apptCount || '—';
+  document.getElementById('m-followups').textContent = followupCount || '—';
+  const badge = document.getElementById('leads-badge');
+  if (badge) { badge.textContent = newLeads; badge.style.display = newLeads > 0 ? '' : 'none'; }
+  const sub = document.getElementById('m-followups-sub');
+  if (sub && followupCount > 0) { sub.textContent = 'needs attention'; sub.className = 'ms warn'; }
+  const apptSub = document.getElementById('m-appts-sub');
+  if (apptSub) { apptSub.textContent = apptCount > 0 ? 'this month' : ''; }
   const totalLeads = leads.length;
   const booked = appointments.length;
   const convEl = document.getElementById('m-conversion');
@@ -1676,6 +1643,10 @@ function updateMetrics() {
 function renderDashLeads() {
   const tbl = document.getElementById('dash-leads-tbl');
   if (!tbl) return;
+  if (!leads.length) {
+    tbl.innerHTML = '<tbody><tr><td colspan="4"><div class="empty-state"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>No leads yet — <a style="color:#74C69D;cursor:pointer" onclick="showScreen(\'settings\',document.querySelectorAll(\'.nav-item\')[5])">add your widget</a> to start capturing</div></td></tr></tbody>';
+    return;
+  }
   tbl.innerHTML =
     `<thead><tr><th>Customer</th><th>Service</th><th>Received</th><th>Status</th></tr></thead><tbody>${
       leads.slice(0,4).map(l=>{ const [bg,fg]=avatarColors(l.name); return `<tr>
@@ -1703,6 +1674,10 @@ function renderDashAppts() {
 function renderFeed() {
   const el = document.getElementById('dash-feed');
   if (!el) return;
+  if (!feed.length) {
+    el.innerHTML = '<div class="empty-state" style="padding:32px 20px"><svg viewBox="0 0 24 24"><path d="M13 9h-2V7h2m0 10h-2v-6h2m-1-9A10 10 0 002 12a10 10 0 0010 10 10 10 0 0010-10A10 10 0 0012 2z"/></svg>No activity yet</div>';
+    return;
+  }
   el.innerHTML = feed.map(f=>`
     <div class="act"><div class="act-dot ${f.color}"></div><div><div class="act-text">${f.text}</div><div class="act-time">${f.time}</div></div></div>`).join('');
 }
@@ -1716,6 +1691,7 @@ function sourceTag(src) {
 function renderLeadsTable() {
   const f = document.getElementById('filter-status')?.value || '';
   const data = f ? leads.filter(l=>l.status===f) : leads;
+  if (!data.length) { document.getElementById('leads-body').innerHTML = '<tr><td colspan="7"><div class="empty-state"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>No leads yet — your AI widget will capture them automatically</div></td></tr>'; renderMobileLeads(data); updateMetrics(); return; }
   document.getElementById('leads-body').innerHTML = data.map((l,i) => { const [bg,fg]=avatarColors(l.name); return `<tr>
     <td><div style="display:flex;align-items:center;gap:9px"><div style="width:28px;height:28px;border-radius:50%;background:${bg};color:${fg};font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">${initials(l.name)}</div><div><div class="lname">${l.name}</div><div class="laddr">${l.addr}</div></div></div></td>
     <td>${l.service}</td><td>${l.phone}</td>
@@ -2181,17 +2157,17 @@ function renderCharts() {
       responsive: true, maintainAspectRatio: false,
       plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1a1a1a', borderColor: '#1f1f1f', borderWidth: 1, padding: 10, cornerRadius: 8, titleFont: { size: 11 }, bodyFont: { size: 13, weight: '600' }, titleColor: '#aaaaaa', bodyColor: '#ffffff' } },
       scales: {
-        y: { beginAtZero: true, grid: { color: '#1f1f1f' }, border: { display: false }, ticks: { font: { size: 11 }, color: '#444444', stepSize: 1 } },
-        x: { grid: { display: false }, border: { display: false }, ticks: { font: { size: 11 }, color: '#444444' } }
+        y: { beginAtZero: true, grid: { color: '#1f1f1f' }, border: { display: false }, ticks: { font: { size: 11 }, color: '#8E8E8E', stepSize: 1 } },
+        x: { grid: { display: false }, border: { display: false }, ticks: { font: { size: 11 }, color: '#8E8E8E' } }
       }
     }
   });
 
   const statusData = [
-    leads.filter(l=>l.status==='new').length || 2,
-    leads.filter(l=>l.status==='scheduled').length || 1,
-    leads.filter(l=>l.status==='followup').length || 1,
-    leads.filter(l=>l.status==='done').length || 1
+    leads.filter(l=>l.status==='new').length,
+    leads.filter(l=>l.status==='scheduled').length,
+    leads.filter(l=>l.status==='followup').length,
+    leads.filter(l=>l.status==='done').length
   ];
   const ctx2 = document.getElementById('status-chart');
   if (!ctx2) return;
@@ -2205,7 +2181,7 @@ function renderCharts() {
     options: {
       responsive: true, maintainAspectRatio: false,
       plugins: {
-        legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 10, usePointStyle: true, pointStyleWidth: 8, color: '#666666' } },
+        legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 10, usePointStyle: true, pointStyleWidth: 8, color: '#8E8E8E' } },
         tooltip: { backgroundColor: '#1a1a1a', borderColor: '#1f1f1f', borderWidth: 1, padding: 10, cornerRadius: 8, bodyFont: { size: 12 }, bodyColor: '#ffffff', titleColor: '#aaaaaa' }
       },
       cutout: '68%'
@@ -2465,7 +2441,7 @@ async function loadContractorProfile() {
     bizName = contractorProfile.business_name || bizName;
     document.getElementById('biz-name').value = bizName;
     const titleEl = document.getElementById('chat-widget-title');
-    if (titleEl) titleEl.textContent = (bizName || 'LeadPro') + ' Assistant';
+    if (titleEl) titleEl.textContent = (bizName || 'AI') + ' Assistant';
     const phoneEl = document.getElementById('biz-phone');
     if (phoneEl) phoneEl.value = contractorProfile.phone || '';
     const servicesEl = document.getElementById('biz-services');
@@ -2777,13 +2753,12 @@ function updateCallStats() {
   const withDur = callsData.filter(c => c.duration_seconds > 0);
   const avgDur = withDur.length ? Math.round(withDur.reduce((s,c) => s + c.duration_seconds, 0) / withDur.length) : 0;
   const leadsFromCalls = callsData.filter(c => c.status === 'lead_captured').length;
-  document.getElementById('calls-total').textContent = total;
-  document.getElementById('calls-answered').textContent = answered;
-  const pct = total ? Math.round(answered/total*100) : 0;
+  document.getElementById('calls-total').textContent = total || '—';
+  document.getElementById('calls-answered').textContent = total ? answered : '—';
   const pctEl = document.getElementById('calls-answer-pct');
-  if (pctEl) pctEl.textContent = pct + '% answer rate';
+  if (pctEl) pctEl.textContent = total ? Math.round(answered/total*100) + '% answer rate' : '— answer rate';
   document.getElementById('calls-avg-dur').textContent = fmtDuration(avgDur);
-  document.getElementById('calls-leads').textContent = leadsFromCalls;
+  document.getElementById('calls-leads').textContent = total ? leadsFromCalls : '—';
 }
 
 function openCallDetail(idx) {
