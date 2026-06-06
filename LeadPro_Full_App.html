@@ -763,11 +763,13 @@ body { background: #F8F9FA; color: #111827; }
 .nav-item.active { color: #2D6A4F; background: rgba(45,106,79,0.08); border-left-color: #2D6A4F; }
 #sidebar-footer { border-top: 1px solid #E5E7EB; }
 .card, .metric, .chart-card, .feed-card { background: #FFFFFF; border: 1px solid #E5E7EB; }
-.metric-featured { background: linear-gradient(135deg,#FFFFFF 0%,rgba(45,106,79,0.04) 100%); border-color: rgba(45,106,79,0.2); }
-.metric-featured .mv { color: #2D6A4F; }
+.metric-featured { background: linear-gradient(135deg, #f0faf4 0%, #e8f5ee 100%); border-color: #c6e6d4; }
 .panel-header { border-bottom: 1px solid #E5E7EB; }
 .panel-title, .chart-card-title, .metric .mv, .topbar h1, .cn { color: #111827; }
+.metric-featured .mv { color: #2D6A4F; }
 .metric .ml { color: #6B7280; }
+.metric { box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.metric .mv[data-empty] { font-size: 28px; font-weight: 600; color: #D1D5DB; }
 .tbl th { background: #F8F9FA; color: #6B7280; border-bottom: 1px solid #E5E7EB; }
 .tbl td { color: #374151; border-bottom: 1px solid #F3F4F6; }
 .tbl tr:hover td { background: #F9FAFB; }
@@ -1726,20 +1728,36 @@ function updateMetrics() {
   const newLeads = leads.filter(l=>l.status==='new').length;
   const apptCount = appointments.length;
   const followupCount = leads.filter(l=>l.status==='followup').length;
-  document.getElementById('m-leads').textContent = newLeads || '—';
-  document.getElementById('m-appts').textContent = apptCount || '—';
-  document.getElementById('m-followups').textContent = followupCount || '—';
+
+  function setMv(id, val) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = val || '—';
+    if (val) delete el.dataset.empty; else el.dataset.empty = '1';
+  }
+  setMv('m-leads', newLeads);
+  setMv('m-appts', apptCount);
+  setMv('m-followups', followupCount);
+
   const badge = document.getElementById('leads-badge');
   if (badge) { badge.textContent = newLeads; badge.style.display = newLeads > 0 ? '' : 'none'; }
+
+  const leadsSub = document.getElementById('m-leads-sub');
+  if (leadsSub) { leadsSub.textContent = newLeads > 0 ? 'this week' : 'no data yet'; leadsSub.className = newLeads > 0 ? 'ms neutral' : 'ms neutral'; }
+
   const sub = document.getElementById('m-followups-sub');
-  if (sub && followupCount > 0) { sub.textContent = 'needs attention'; sub.className = 'ms warn'; }
+  if (sub) { sub.textContent = followupCount > 0 ? 'needs attention' : 'no data yet'; sub.className = followupCount > 0 ? 'ms warn' : 'ms neutral'; }
+
   const apptSub = document.getElementById('m-appts-sub');
-  if (apptSub) { apptSub.textContent = apptCount > 0 ? 'this month' : ''; }
+  if (apptSub) { apptSub.textContent = apptCount > 0 ? 'this month' : 'no data yet'; }
+
   const totalLeads = leads.length;
   const booked = appointments.length;
   const convEl = document.getElementById('m-conversion');
   if (convEl) {
-    convEl.textContent = (totalLeads > 0 && booked > 0) ? Math.round(booked / totalLeads * 100) + '%' : '—';
+    const convVal = (totalLeads > 0 && booked > 0) ? Math.round(booked / totalLeads * 100) + '%' : null;
+    convEl.textContent = convVal || '—';
+    if (convVal) delete convEl.dataset.empty; else convEl.dataset.empty = '1';
   }
 }
 
@@ -2232,40 +2250,57 @@ function renderCharts() {
 
   const ctx1 = document.getElementById('leads-chart');
   if (!ctx1) return;
-  if (window._leadsChart) window._leadsChart.destroy();
-  // Create gradient fills for each bar (dark green → bright green)
-  const chartCtx = ctx1.getContext('2d');
-  const barColors = dayCounts.map((v, i) => {
-    const grad = chartCtx.createLinearGradient(0, 0, 0, 220);
-    if (i === dayCounts.length - 1) {
-      grad.addColorStop(0, '#74C69D');
-      grad.addColorStop(1, 'rgba(116,198,157,0.3)');
-    } else {
-      grad.addColorStop(0, '#2D6A4F');
-      grad.addColorStop(1, 'rgba(45,106,79,0.3)');
-    }
-    return grad;
-  });
-  window._leadsChart = new Chart(ctx1, {
-    type: 'bar',
-    data: {
-      labels: dayLabels,
-      datasets: [{
-        data: dayCounts,
-        backgroundColor: barColors,
-        borderRadius: 5,
-        borderSkipped: false,
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1a1a1a', borderColor: '#1f1f1f', borderWidth: 1, padding: 10, cornerRadius: 8, titleFont: { size: 11 }, bodyFont: { size: 13, weight: '600' }, titleColor: '#aaaaaa', bodyColor: '#ffffff' } },
-      scales: {
-        y: { beginAtZero: true, grid: { color: '#1f1f1f' }, border: { display: false }, ticks: { font: { size: 11 }, color: '#8E8E8E', stepSize: 1 } },
-        x: { grid: { display: false }, border: { display: false }, ticks: { font: { size: 11 }, color: '#8E8E8E' } }
+
+  const allZero = dayCounts.every(v => v === 0);
+  let emptyEl = document.getElementById('leads-chart-empty');
+  if (allZero) {
+    ctx1.style.display = 'none';
+    if (window._leadsChart) { window._leadsChart.destroy(); window._leadsChart = null; }
+    if (!emptyEl) {
+      emptyEl = document.createElement('div');
+      emptyEl.id = 'leads-chart-empty';
+      emptyEl.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;height:160px;color:#9CA3AF;font-size:13px;gap:10px;text-align:center;';
+      emptyEl.innerHTML = '<svg viewBox="0 0 24 24" width="28" height="28" fill="#D1D5DB"><path d="M22 21H2V3h2v16h2v-9h4v9h2V6h4v15h2v-6h4v6z"/></svg><span>No lead data yet — your chart will populate once leads come in</span>';
+      ctx1.parentNode.insertBefore(emptyEl, ctx1.nextSibling);
+    } else { emptyEl.style.display = 'flex'; }
+  } else {
+    ctx1.style.display = '';
+    if (emptyEl) emptyEl.style.display = 'none';
+    if (window._leadsChart) window._leadsChart.destroy();
+    // Create gradient fills for each bar (dark green → bright green)
+    const chartCtx = ctx1.getContext('2d');
+    const barColors = dayCounts.map((v, i) => {
+      const grad = chartCtx.createLinearGradient(0, 0, 0, 220);
+      if (i === dayCounts.length - 1) {
+        grad.addColorStop(0, '#74C69D');
+        grad.addColorStop(1, 'rgba(116,198,157,0.3)');
+      } else {
+        grad.addColorStop(0, '#2D6A4F');
+        grad.addColorStop(1, 'rgba(45,106,79,0.3)');
       }
-    }
-  });
+      return grad;
+    });
+    window._leadsChart = new Chart(ctx1, {
+      type: 'bar',
+      data: {
+        labels: dayLabels,
+        datasets: [{
+          data: dayCounts,
+          backgroundColor: barColors,
+          borderRadius: 5,
+          borderSkipped: false,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1a1a1a', borderColor: '#1f1f1f', borderWidth: 1, padding: 10, cornerRadius: 8, titleFont: { size: 11 }, bodyFont: { size: 13, weight: '600' }, titleColor: '#aaaaaa', bodyColor: '#ffffff' } },
+        scales: {
+          y: { beginAtZero: true, grid: { color: '#1f1f1f' }, border: { display: false }, ticks: { font: { size: 11 }, color: '#8E8E8E', stepSize: 1 } },
+          x: { grid: { display: false }, border: { display: false }, ticks: { font: { size: 11 }, color: '#8E8E8E' } }
+        }
+      }
+    });
+  }
 
   const statusData = [
     leads.filter(l=>l.status==='new').length,
