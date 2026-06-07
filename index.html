@@ -1881,6 +1881,49 @@
     /* ── Scroll reveal .visible alias ── */
     .reveal.visible { opacity: 1 !important; transform: translateY(0) !important; }
 
+    /* ── Hero demo — elevated to primary CTA ── */
+    .hero-demo {
+      background: rgba(255,255,255,0.04) !important;
+      border: 1px solid rgba(82,217,154,0.22) !important;
+      box-shadow: 0 0 32px rgba(82,217,154,0.1), inset 0 1px 0 rgba(255,255,255,0.04) !important;
+      border-radius: 16px !important;
+      padding: 20px 22px !important;
+      max-width: 480px !important;
+    }
+    .demo-eyebrow {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #52D99A;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .demo-btn {
+      background: #52D99A !important;
+      color: #0B1812 !important;
+      font-weight: 700 !important;
+      border-radius: 10px !important;
+      padding: 0 20px !important;
+      font-size: 0.9rem !important;
+      white-space: nowrap;
+    }
+    .demo-btn:hover {
+      background: #74C69D !important;
+      box-shadow: 0 0 20px rgba(82,217,154,0.35) !important;
+    }
+    .demo-input {
+      background: rgba(255,255,255,0.06) !important;
+      border: 1px solid rgba(82,217,154,0.18) !important;
+      color: #E8F5EE !important;
+      border-radius: 10px !important;
+      font-size: 0.95rem !important;
+    }
+    .demo-hint {
+      color: rgba(255,255,255,0.38) !important;
+      font-size: 0.75rem !important;
+      margin-top: 10px !important;
+    }
+
     /* ── HERO LCP — headline + sub always visible in initial paint ── */
     .hero h1 { opacity: 1 !important; transform: none !important; }
     .hero-sub { opacity: 1 !important; transform: none !important; }
@@ -2111,30 +2154,15 @@
     </div>
     <h1 id="heroHeadline" class="reveal reveal-d1">Stop Losing Jobs<br/>to <em>Voicemail</em></h1>
     <p class="hero-sub reveal reveal-d2">LeadPro texts your missed calls back in 60 seconds and books the appointment — while you're still on the job.</p>
-    <div class="hero-actions reveal reveal-d3">
-      <!-- old copy, remove after May 14 if no rollback needed -->
-      <!-- <a class="btn-hero" href="https://app.useleadpro.net/signup"><svg ...></svg> See It Work Free</a> -->
-      <a class="btn-hero" href="https://app.useleadpro.net/auth">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        Become a Founding Member
-      </a>
-      <a class="btn-hero-outline" href="https://app.useleadpro.net?demo=true">View Live Demo</a>
-      <a class="hero-link" href="#how">
-        See how it works
-        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
-      </a>
-    </div>
-    <!-- old copy, remove after May 14 if no rollback needed -->
-    <!-- <p class="hero-microcopy reveal reveal-d3">No credit card. Live in 10 minutes.</p> -->
-    <p class="hero-microcopy reveal reveal-d3">Done-for-you setup. Live within 24 hours.</p>
 
-    <!-- LIVE DEMO -->
-    <div class="hero-demo reveal reveal-d4">
+    <!-- LIVE DEMO — primary CTA, above buttons -->
+    <div class="hero-demo reveal reveal-d3">
+      <p class="demo-eyebrow">Try it right now — enter your number</p>
       <div class="demo-input-row">
-        <input type="tel" id="demoPhone" class="demo-input" placeholder="Enter your cell number" maxlength="20" />
-        <button type="button" id="demoBtn" class="demo-btn" onclick="startDemo()">See It Work Free</button>
+        <input type="tel" id="demoPhone" class="demo-input" placeholder="Your cell number" maxlength="20" />
+        <button type="button" id="demoBtn" class="demo-btn" onclick="startDemo()">Hear the AI →</button>
       </div>
-      <p class="demo-hint">Hear the AI answer live — +1 (302) 664-7594</p>
+      <p class="demo-hint">AI calls you from +1 (302) 664-7594 · free · takes 30 seconds</p>
       <p class="demo-confirm" id="demoConfirm"></p>
       <div class="demo-countdown-wrap" id="demoCountdownWrap" style="display:none">
         <div class="demo-countdown-bar-track"><div class="demo-countdown-bar" id="demoBar"></div></div>
@@ -2142,6 +2170,18 @@
       </div>
       <p class="demo-after" id="demoAfter"></p>
     </div>
+
+    <div class="hero-actions reveal reveal-d4">
+      <a class="btn-hero" href="https://app.useleadpro.net/auth">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Become a Founding Member
+      </a>
+      <a class="hero-link" href="#how">
+        See how it works
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+      </a>
+    </div>
+    <p class="hero-microcopy reveal reveal-d4">Done-for-you setup. Live within 24 hours.</p>
 
     <!-- old copy, remove after May 14 if no rollback needed -->
     <!-- Trust strip: No credit card required · Set up in under 10 minutes · Cancel anytime -->
