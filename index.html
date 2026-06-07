@@ -13,12 +13,13 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --green: #2D6A4F;
-      --green-mid: #2D6A4F;
-      --green-light: #74C69D;
+      --green: #7CE0A8;
+      --green-mid: #7CE0A8;
+      --green-light: #7CE0A8;
       --green-bright: #9BF5C0;
-      --green-pale: rgba(45,106,79,0.15);
-      --green-glow: rgba(45,106,79,0.18);
+      --green-deep: #1f6f47;
+      --green-pale: rgba(124,224,168,0.12);
+      --green-glow: rgba(124,224,168,0.2);
       --amber: #FFB155;
       --amber-deep: #E8893A;
       --dark: #05080a;
@@ -39,7 +40,8 @@
       font-family: 'DM Sans', sans-serif;
       color: var(--text2);
       background:
-        radial-gradient(ellipse 160% 70% at 50% -5%, rgba(82,217,154,0.24) 0%, rgba(45,106,79,0.10) 32%, transparent 65%),
+        radial-gradient(120% 70% at 50% -10%, rgba(124,224,168,0.38) 0%, rgba(124,224,168,0.10) 28%, rgba(5,8,10,0) 60%),
+        radial-gradient(80% 50% at 50% -5%, rgba(155,245,192,0.22) 0%, rgba(5,8,10,0) 55%),
         #05080a;
       background-attachment: fixed;
       line-height: 1.6;
@@ -1509,14 +1511,13 @@
     }
     .logo-mark { filter: drop-shadow(0 0 12px rgba(82,217,154,0.6)) !important; }
     .btn-primary {
-      background: #52D99A !important;
-      color: #0B1812 !important;
-      box-shadow: 0 0 20px rgba(82,217,154,0.25) !important;
+      background: linear-gradient(135deg, #9BF5C0, #7CE0A8) !important;
+      color: #04130b !important;
+      box-shadow: 0 6px 24px rgba(124,224,168,0.28) !important;
     }
     .btn-primary:hover {
-      background: #6ae6a8 !important;
-      box-shadow: 0 0 28px rgba(82,217,154,0.4) !important;
-      transform: translateY(-1px) scale(1.025) !important;
+      transform: translateY(-2px) !important;
+      box-shadow: 0 10px 32px rgba(124,224,168,0.42) !important;
     }
     .hamburger span { background: #74C69D !important; }
     .mobile-menu { background: #0A0A0A !important; }
@@ -1548,14 +1549,14 @@
     }
     .hero-sub { color: rgba(255,255,255,0.72) !important; }
     .btn-hero {
-      background: white !important;
-      color: #2D6A4F !important;
+      background: linear-gradient(135deg, #9BF5C0, #7CE0A8) !important;
+      color: #04130b !important;
       border-radius: 100px !important;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.2) !important;
+      box-shadow: 0 6px 24px rgba(124,224,168,0.28) !important;
     }
     .btn-hero:hover {
       transform: translateY(-2px) scale(1.02) !important;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.28) !important;
+      box-shadow: 0 10px 32px rgba(124,224,168,0.42) !important;
     }
     .btn-hero-outline {
       color: rgba(255,255,255,0.85) !important;
@@ -1878,6 +1879,50 @@
     .status-new { background: rgba(251,191,36,0.1) !important; color: #F59E0B !important; }
     .status-called { background: rgba(96,165,250,0.1) !important; color: #60A5FA !important; }
 
+    /* ── Sticky CTA bar — mint gradient button ── */
+    .sticky-cta-btn {
+      background: linear-gradient(135deg, #9BF5C0, #7CE0A8) !important;
+      color: #04130b !important;
+      box-shadow: 0 4px 16px rgba(124,224,168,0.25) !important;
+    }
+    .sticky-cta-btn:hover {
+      box-shadow: 0 6px 24px rgba(124,224,168,0.4) !important;
+    }
+    .sticky-cta-label strong { color: #7CE0A8 !important; }
+
+    /* ── Pricing CTA → mint gradient ── */
+    .pricing-cta {
+      background: linear-gradient(135deg, #9BF5C0, #7CE0A8) !important;
+      color: #04130b !important;
+      font-weight: 700 !important;
+      box-shadow: 0 6px 20px rgba(124,224,168,0.22) !important;
+    }
+    .pricing-cta:hover {
+      transform: translateY(-1px) !important;
+      box-shadow: 0 10px 28px rgba(124,224,168,0.35) !important;
+    }
+
+    /* ── Amber urgency — pain/problem sections ── */
+    /* Pain stat top bar and big number */
+    .pain-stat::before { background: linear-gradient(90deg, var(--amber), transparent) !important; }
+    .pain-stat-num { color: var(--amber) !important; }
+    .pain-stat-num span { color: var(--amber-deep) !important; }
+    /* Pain icon = amber */
+    .pain-icon {
+      background: rgba(255,177,85,0.1) !important;
+      border-color: rgba(255,177,85,0.22) !important;
+    }
+    .pain-icon svg { color: var(--amber) !important; }
+    /* Pain section tag = amber tint */
+    .pain .section-tag {
+      background: rgba(255,177,85,0.1) !important;
+      color: var(--amber) !important;
+    }
+    .pain .section-tag .dot { background: var(--amber) !important; }
+    /* Pain block left accent border = amber */
+    .pain-block { border-left-color: rgba(255,177,85,0.3) !important; }
+    .pain-block:hover { border-left-color: var(--amber) !important; }
+
     /* ── Scroll reveal .visible alias ── */
     .reveal.visible { opacity: 1 !important; transform: translateY(0) !important; }
 
@@ -1899,17 +1944,18 @@
       margin-bottom: 12px;
     }
     .demo-btn {
-      background: #52D99A !important;
-      color: #0B1812 !important;
+      background: linear-gradient(135deg, #9BF5C0, #7CE0A8) !important;
+      color: #04130b !important;
       font-weight: 700 !important;
       border-radius: 10px !important;
       padding: 0 20px !important;
       font-size: 0.9rem !important;
       white-space: nowrap;
+      box-shadow: 0 6px 20px rgba(124,224,168,0.25) !important;
     }
     .demo-btn:hover {
-      background: #74C69D !important;
-      box-shadow: 0 0 20px rgba(82,217,154,0.35) !important;
+      transform: translateY(-1px) !important;
+      box-shadow: 0 10px 28px rgba(124,224,168,0.38) !important;
     }
     .demo-input {
       background: rgba(255,255,255,0.06) !important;
@@ -3784,6 +3830,17 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!shown && y > 700) { shown = true; bar.classList.add('visible'); }
     else if (shown && y < 200) { shown = false; bar.classList.remove('visible'); }
   }, { passive: true });
+
+  // Keep .float-demo above the sticky bar when it's visible
+  var btn = document.querySelector('.float-demo');
+  if (btn) {
+    var obs = new MutationObserver(function() {
+      btn.style.bottom = bar.classList.contains('visible')
+        ? (28 + bar.offsetHeight) + 'px'
+        : '28px';
+    });
+    obs.observe(bar, { attributes: true, attributeFilter: ['class'] });
+  }
 })();
 </script>
 
