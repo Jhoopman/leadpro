@@ -2510,12 +2510,106 @@
       position: relative;
       z-index: 1;
     }
+
+    /* ── PERSPECTIVE HORIZON GRID (Tron/targeting HUD) ── */
+    .persp-grid {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 48vh;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .persp-grid-plane {
+      position: absolute;
+      bottom: -8%;
+      left: -65%;
+      width: 230%;
+      height: 130%;
+      transform: rotateX(74deg);
+      transform-origin: bottom center;
+      background-image:
+        linear-gradient(rgba(82,217,154,0.048) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(82,217,154,0.048) 1px, transparent 1px);
+      background-size: 88px 88px;
+      animation: gridScroll 12s linear infinite;
+      mask-image: linear-gradient(to top, rgba(0,0,0,0.35) 0%, transparent 65%);
+      -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,0.35) 0%, transparent 65%);
+    }
+    @keyframes gridScroll {
+      from { background-position: 0 0; }
+      to   { background-position: 0 88px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .persp-grid-plane { animation: none !important; }
+    }
   </style>
 </head>
 <body>
 
-<!-- Particle network canvas — replaces static SVG lines -->
+<!-- Particle network canvas -->
 <canvas id="particleNet" aria-hidden="true" style="position:fixed;inset:0;display:block;pointer-events:none;z-index:0;"></canvas>
+
+<!-- Perspective horizon grid (Tron HUD) -->
+<div class="persp-grid" aria-hidden="true">
+  <div class="persp-grid-plane"></div>
+</div>
+
+<!-- Circuit traces — PCB paths with traveling glow dots (hidden for reduced-motion) -->
+<script>if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){document.currentScript.nextElementSibling.style.display='none';}</script>
+<svg id="circuitSvg" aria-hidden="true" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice"
+     style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="ctGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Path A: top-left circuit trace -->
+  <path id="ctA" d="M -10 190 H 150 V 130 H 340 V 195 H 520 V 115 H 700 V 170 H 860" fill="none" stroke="rgba(82,217,154,0.10)" stroke-width="1"/>
+  <!-- Path B: top-right circuit trace -->
+  <path id="ctB" d="M 1450 220 H 1290 V 160 H 1110 V 230 H 940 V 155 H 780 V 210" fill="none" stroke="rgba(82,217,154,0.08)" stroke-width="1"/>
+  <!-- Path C: bottom-left circuit trace -->
+  <path id="ctC" d="M -10 710 H 180 V 760 H 360 V 695 H 560 V 750 H 700" fill="none" stroke="rgba(82,217,154,0.07)" stroke-width="1"/>
+  <!-- Path D: bottom-right circuit trace -->
+  <path id="ctD" d="M 1450 740 H 1280 V 690 H 1080 V 755 H 880 V 700 H 720" fill="none" stroke="rgba(82,217,154,0.07)" stroke-width="1"/>
+
+  <!-- Node pads at key corners -->
+  <circle cx="150"  cy="190" r="2.5" fill="rgba(82,217,154,0.18)"/>
+  <circle cx="340"  cy="130" r="2.5" fill="rgba(82,217,154,0.14)"/>
+  <circle cx="520"  cy="195" r="2.5" fill="rgba(82,217,154,0.18)"/>
+  <circle cx="700"  cy="115" r="2.5" fill="rgba(82,217,154,0.14)"/>
+  <circle cx="1290" cy="220" r="2.5" fill="rgba(82,217,154,0.14)"/>
+  <circle cx="1110" cy="160" r="2.5" fill="rgba(82,217,154,0.18)"/>
+  <circle cx="940"  cy="230" r="2.5" fill="rgba(82,217,154,0.14)"/>
+  <circle cx="180"  cy="710" r="2"   fill="rgba(82,217,154,0.12)"/>
+  <circle cx="360"  cy="760" r="2"   fill="rgba(82,217,154,0.12)"/>
+  <circle cx="1280" cy="740" r="2"   fill="rgba(82,217,154,0.12)"/>
+  <circle cx="1080" cy="690" r="2"   fill="rgba(82,217,154,0.12)"/>
+
+  <!-- Traveling glow dots along each path -->
+  <circle r="3.5" fill="#52D99A" opacity="0.75" filter="url(#ctGlow)">
+    <animateMotion dur="9s" repeatCount="indefinite" rotate="auto">
+      <mpath href="#ctA"/>
+    </animateMotion>
+  </circle>
+  <circle r="3" fill="rgba(0,230,178,0.85)" opacity="0.7" filter="url(#ctGlow)">
+    <animateMotion dur="13s" repeatCount="indefinite" begin="2s" rotate="auto">
+      <mpath href="#ctB"/>
+    </animateMotion>
+  </circle>
+  <circle r="2.5" fill="#52D99A" opacity="0.6" filter="url(#ctGlow)">
+    <animateMotion dur="11s" repeatCount="indefinite" begin="5s" rotate="auto">
+      <mpath href="#ctC"/>
+    </animateMotion>
+  </circle>
+  <circle r="2.5" fill="rgba(0,230,178,0.8)" opacity="0.55" filter="url(#ctGlow)">
+    <animateMotion dur="14s" repeatCount="indefinite" begin="1s" rotate="auto">
+      <mpath href="#ctD"/>
+    </animateMotion>
+  </circle>
+</svg>
 
 <!-- NAV -->
 <nav>
@@ -3183,6 +3277,75 @@
             <div>
               <div class="fw-confirm-text">Friday June 6 · 9:00 AM</div>
               <div class="fw-confirm-sub">Jason R. confirmed via text link · 6 min after call</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel 04 — 60-Second Text-Back -->
+      <div class="fw-panel">
+        <div class="fw-panel-num">04</div>
+        <h3 class="fw-panel-title">Text-back<br>in 60 seconds</h3>
+        <p class="fw-panel-desc">If they hang up before the AI answers, LeadPro fires a text within 60 seconds. First contractor to respond almost always wins the job.</p>
+        <div class="fw-mock" style="padding:18px;">
+          <!-- Missed call indicator -->
+          <div style="display:flex;align-items:center;gap:10px;padding-bottom:14px;border-bottom:1px solid rgba(82,217,154,0.07);margin-bottom:14px;">
+            <div style="width:34px;height:34px;border-radius:50%;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.22);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.09 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+            </div>
+            <div>
+              <div style="font-size:0.72rem;font-weight:600;color:rgba(255,255,255,0.75);">Missed call — Unknown number</div>
+              <div style="font-size:0.62rem;color:rgba(255,255,255,0.3);">2:14 PM · You were on a job</div>
+            </div>
+            <div style="margin-left:auto;font-size:0.58rem;font-weight:700;color:#f87171;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);padding:3px 8px;border-radius:999px;">MISSED</div>
+          </div>
+          <!-- Auto SMS sent -->
+          <div style="font-size:0.6rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(82,217,154,0.55);margin-bottom:10px;">LeadPro fires text · 47 seconds later</div>
+          <div class="fw-msgs">
+            <div class="fw-msg fw-msg-ai">"Hi! You just called Smith Plumbing — sorry we missed you. Want to book a service call? Click here: leadpro.io/book/smith"</div>
+            <div class="fw-msg fw-msg-user">"Yes! Thursday morning works."</div>
+            <div class="fw-msg fw-msg-ai">"Perfect — I've reserved Thursday June 8 at 9 AM for you. You'll get a confirmation text shortly. See you then!"</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel 05 — ROI Dashboard -->
+      <div class="fw-panel">
+        <div class="fw-panel-num">05</div>
+        <h3 class="fw-panel-title">Watch your<br>revenue recover</h3>
+        <p class="fw-panel-desc">Every recovered lead shows up on your dashboard with its estimated value. Most contractors see LeadPro pay for itself before the first week is out.</p>
+        <div class="fw-mock" style="padding:18px;">
+          <!-- Mini stats row -->
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;">
+            <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(82,217,154,0.1);border-radius:8px;padding:10px 8px;text-align:center;">
+              <div style="font-size:1.2rem;font-weight:800;color:#74C69D;letter-spacing:-0.02em;">24</div>
+              <div style="font-size:0.56rem;text-transform:uppercase;letter-spacing:0.07em;color:rgba(255,255,255,0.3);margin-top:2px;">Leads</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(82,217,154,0.1);border-radius:8px;padding:10px 8px;text-align:center;">
+              <div style="font-size:1.2rem;font-weight:800;color:#74C69D;letter-spacing:-0.02em;">11</div>
+              <div style="font-size:0.56rem;text-transform:uppercase;letter-spacing:0.07em;color:rgba(255,255,255,0.3);margin-top:2px;">Booked</div>
+            </div>
+            <div style="background:rgba(82,217,154,0.08);border:1px solid rgba(82,217,154,0.2);border-radius:8px;padding:10px 8px;text-align:center;">
+              <div style="font-size:1.2rem;font-weight:800;color:#52D99A;letter-spacing:-0.02em;">$8.4k</div>
+              <div style="font-size:0.56rem;text-transform:uppercase;letter-spacing:0.07em;color:rgba(82,217,154,0.5);margin-top:2px;">Recovered</div>
+            </div>
+          </div>
+          <!-- Mini lead rows -->
+          <div style="display:flex;flex-direction:column;gap:0;background:rgba(255,255,255,0.02);border:1px solid rgba(82,217,154,0.07);border-radius:8px;overflow:hidden;">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 11px;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.65rem;">
+              <span style="color:rgba(255,255,255,0.78);font-weight:500;">Marcus T.</span>
+              <span style="color:rgba(82,217,154,0.6);font-size:0.58rem;">Roof · $2,200</span>
+              <span style="background:rgba(82,217,154,0.12);color:#52D99A;font-size:0.56rem;font-weight:700;padding:2px 7px;border-radius:999px;">Booked</span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 11px;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.65rem;">
+              <span style="color:rgba(255,255,255,0.78);font-weight:500;">Sandra K.</span>
+              <span style="color:rgba(82,217,154,0.6);font-size:0.58rem;">HVAC · $850</span>
+              <span style="background:rgba(251,191,36,0.1);color:#F59E0B;font-size:0.56rem;font-weight:700;padding:2px 7px;border-radius:999px;">New</span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 11px;font-size:0.65rem;">
+              <span style="color:rgba(255,255,255,0.78);font-weight:500;">Devlin P.</span>
+              <span style="color:rgba(82,217,154,0.6);font-size:0.58rem;">Remodel · $5,400</span>
+              <span style="background:rgba(82,217,154,0.12);color:#52D99A;font-size:0.56rem;font-weight:700;padding:2px 7px;border-radius:999px;">Booked</span>
             </div>
           </div>
         </div>
