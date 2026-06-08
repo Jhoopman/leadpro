@@ -32,6 +32,15 @@
       --radius: 14px;
       --shadow: 0 4px 24px rgba(0,0,0,0.3);
       --shadow-lg: 0 16px 64px rgba(0,0,0,0.5);
+      --surface-1: #080d0a;
+      --surface-2: #0f1a13;
+      --surface-3: #141f18;
+      --card: rgba(255,255,255,0.04);
+      --card-border: rgba(82,217,154,0.10);
+      --green-glow-sm: rgba(124,224,168,0.15);
+      --green-glow-md: rgba(124,224,168,0.28);
+      --phone-bg: #0a1510;
+      --stat-float-bg: rgba(13,28,20,0.90);
     }
 
     html { scroll-behavior: smooth; }
@@ -2120,6 +2129,335 @@
       .sticky-cta-bar { transition: none !important; }
     }
   </style>
+
+  <!-- ══ BLOCK 3 — REDESIGN UPGRADES ══ -->
+  <style>
+    /* 1 · Hero badge */
+    .hero-badge {
+      background: rgba(82,217,154,0.08) !important;
+      border: 1px solid rgba(82,217,154,0.3) !important;
+      color: #74C69D !important;
+      box-shadow: 0 0 14px rgba(82,217,154,0.07) !important;
+    }
+
+    /* 2 · Hero dot-grid overlay */
+    .hero::before {
+      background:
+        radial-gradient(circle, rgba(82,217,154,0.2) 1px, transparent 1px),
+        radial-gradient(ellipse 70% 55% at 65% 38%, rgba(45,106,79,0.10) 0%, transparent 65%) !important;
+      background-size: 32px 32px, 100% 100% !important;
+      mask-image: radial-gradient(ellipse 90% 65% at 50% 0%, #000 10%, transparent 75%) !important;
+      -webkit-mask-image: radial-gradient(ellipse 90% 65% at 50% 0%, #000 10%, transparent 75%) !important;
+      opacity: 0.4 !important;
+    }
+
+    /* 3 · Phone mockup */
+    .phone-mockup-wrap {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px 0;
+    }
+    .phone-glow-bg {
+      position: absolute;
+      width: 320px; height: 320px;
+      background: radial-gradient(ellipse, rgba(82,217,154,0.2) 0%, transparent 68%);
+      filter: blur(48px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .phone-frame {
+      width: 248px; height: 506px;
+      background: var(--phone-bg);
+      border-radius: 42px;
+      border: 2px solid rgba(82,217,154,0.24);
+      box-shadow:
+        0 32px 80px rgba(0,0,0,0.65),
+        0 0 0 1px rgba(255,255,255,0.04),
+        inset 0 1px 0 rgba(255,255,255,0.07);
+      position: relative;
+      z-index: 2;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      animation: phoneFloat 6s ease-in-out infinite;
+    }
+    @keyframes phoneFloat {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    .phone-notch-bar {
+      height: 36px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 6px;
+      flex-shrink: 0;
+    }
+    .phone-notch {
+      width: 80px; height: 20px;
+      background: #05080a;
+      border-radius: 0 0 16px 16px;
+    }
+    .phone-screen {
+      flex: 1;
+      padding: 0 12px 14px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .phone-msg-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 0 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      margin-bottom: 10px;
+    }
+    .phone-header-avatar {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2D6A4F, #52D99A);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.52rem;
+      font-weight: 800;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .phone-header-info { flex: 1; min-width: 0; }
+    .phone-contact-name {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.88);
+      line-height: 1.2;
+    }
+    .phone-contact-status {
+      font-size: 0.52rem;
+      color: #52D99A;
+    }
+    .phone-msgs {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      flex: 1;
+    }
+    .phone-bubble {
+      max-width: 88%;
+      border-radius: 14px;
+      padding: 8px 11px;
+      font-size: 0.61rem;
+      line-height: 1.54;
+    }
+    .phone-bubble-ai {
+      background: rgba(45,106,79,0.38);
+      border: 1px solid rgba(82,217,154,0.14);
+      color: rgba(255,255,255,0.88);
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+    }
+    .phone-bubble-user {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.07);
+      color: rgba(255,255,255,0.6);
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+    .phone-bubble-time {
+      font-size: 0.48rem;
+      color: rgba(255,255,255,0.26);
+      margin-top: 2px;
+    }
+    .phone-typing {
+      align-self: flex-start;
+      background: rgba(45,106,79,0.28);
+      border: 1px solid rgba(82,217,154,0.12);
+      border-radius: 14px;
+      border-bottom-left-radius: 4px;
+      padding: 9px 13px;
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+    .phone-typing span {
+      width: 5px; height: 5px;
+      background: #52D99A;
+      border-radius: 50%;
+      display: inline-block;
+      animation: typingBounce 1.2s ease infinite;
+    }
+    .phone-typing span:nth-child(2) { animation-delay: 0.16s; }
+    .phone-typing span:nth-child(3) { animation-delay: 0.32s; }
+    @keyframes typingBounce {
+      0%,60%,100% { transform: translateY(0); opacity: 0.55; }
+      30% { transform: translateY(-5px); opacity: 1; }
+    }
+    .phone-stat-float {
+      position: absolute;
+      background: var(--stat-float-bg);
+      border: 1px solid rgba(82,217,154,0.2);
+      border-radius: 12px;
+      padding: 10px 14px;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.55);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      white-space: nowrap;
+      z-index: 4;
+    }
+    .phone-stat-float .psf-val {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #74C69D;
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+    .phone-stat-float .psf-label {
+      font-size: 0.56rem;
+      color: rgba(255,255,255,0.38);
+      font-weight: 600;
+      margin-top: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .psf-1 { top: 14%; left: -28px; animation: floatCard 4s ease-in-out infinite; }
+    .psf-2 { top: 46%; right: -28px; animation: floatCard 5s ease-in-out infinite 1.3s; }
+    .psf-3 { bottom: 18%; left: -22px; animation: floatCard 4.5s ease-in-out infinite 0.7s; }
+    @keyframes floatCard {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-7px); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .phone-frame { animation: none !important; }
+      .phone-stat-float { animation: none !important; }
+      .phone-typing span { animation: none !important; }
+    }
+
+    /* 4 · Logos bar */
+    .logos-bar {
+      padding: 32px 24px 48px;
+      text-align: center;
+      border-bottom: 1px solid rgba(82,217,154,0.05);
+    }
+    .logos-bar-label {
+      font-size: 0.66rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.28);
+      margin-bottom: 20px;
+    }
+    .logos-bar-grid {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px 14px;
+      max-width: 820px;
+      margin: 0 auto;
+    }
+    .logos-bar-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 11px 18px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      min-width: 96px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .logos-bar-item:hover {
+      border-color: rgba(82,217,154,0.18);
+      background: rgba(82,217,154,0.04);
+    }
+    .logos-bar-industry {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.5);
+    }
+    .logos-bar-stat {
+      font-size: 0.62rem;
+      color: #52D99A;
+      font-weight: 700;
+    }
+
+    /* 5 · Section tag border + glow */
+    .section-tag {
+      border: 1px solid rgba(116,198,157,0.22) !important;
+      box-shadow: 0 0 12px rgba(116,198,157,0.06) !important;
+    }
+
+    /* 6 · Feature card depth */
+    .feature-card {
+      box-shadow:
+        0 0 40px rgba(45,106,79,0.14),
+        0 4px 20px rgba(0,0,0,0.3),
+        inset 0 1px 0 rgba(255,255,255,0.06),
+        inset 0 -1px 0 rgba(0,0,0,0.18) !important;
+    }
+    .feature-card:hover {
+      box-shadow:
+        0 0 64px rgba(45,106,79,0.28),
+        0 16px 48px rgba(0,0,0,0.4),
+        inset 0 1px 0 rgba(255,255,255,0.08),
+        inset 0 -1px 0 rgba(0,0,0,0.22) !important;
+    }
+
+    /* 7 · Pricing featured — static glow, no pulse */
+    .pricing-card.featured {
+      animation: none !important;
+      box-shadow:
+        0 0 0 1px rgba(82,217,154,0.24),
+        0 0 56px rgba(82,217,154,0.2),
+        0 24px 64px rgba(0,0,0,0.48) !important;
+    }
+
+    /* 8 · Final CTA — richer gradient + noise layer */
+    .final-cta {
+      background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.09'/%3E%3C/svg%3E"),
+        linear-gradient(140deg, #04110A 0%, #0C3620 30%, #1A5C38 60%, #2D6A4F 100%) !important;
+      background-size: 256px 256px, cover !important;
+    }
+
+    /* 9 · Nav glassmorphism — deeper blur + inner shimmer */
+    nav {
+      backdrop-filter: blur(32px) saturate(1.5) !important;
+      -webkit-backdrop-filter: blur(32px) saturate(1.5) !important;
+      box-shadow:
+        0 0 40px rgba(82,217,154,0.1),
+        inset 0 1px 0 rgba(255,255,255,0.07),
+        inset 0 -1px 0 rgba(0,0,0,0.15) !important;
+    }
+
+    /* 10 · Testimonial avatars */
+    .testi-footer {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-top: 1px solid rgba(82,217,154,0.07);
+      padding-top: 14px;
+      margin-top: 4px;
+    }
+    .testi-avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.92);
+      flex-shrink: 0;
+    }
+    .testimonial-name {
+      border-top: none !important;
+      padding-top: 0 !important;
+      margin-top: 0 !important;
+    }
+  </style>
 </head>
 <body>
 
@@ -2234,100 +2572,60 @@
     </div>
     </div><!-- /hero-content -->
 
-    <!-- Dashboard Preview - now in right column -->
+    <!-- Phone Mockup — hero right column -->
     <div class="hero-mockup-col">
-    <div class="dashboard-preview">
-      <div class="dashboard-window">
-        <div class="window-bar">
-          <div class="window-dot"></div>
-          <div class="window-dot"></div>
-          <div class="window-dot"></div>
-          <div class="window-url">app.useleadpro.net/dashboard</div>
+      <div class="phone-mockup-wrap">
+        <div class="phone-glow-bg"></div>
+
+        <!-- Floating stat cards -->
+        <div class="phone-stat-float psf-1">
+          <div class="psf-val">247</div>
+          <div class="psf-label">Leads Recovered</div>
         </div>
-        <div class="dashboard-body">
-          <div class="db-sidebar">
-            <div class="db-sidebar-label">Navigation</div>
-            <div class="db-nav-item active">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-              Dashboard
-            </div>
-            <div class="db-nav-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-              Leads
-            </div>
-            <div class="db-nav-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.09 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
-              Phone Calls
-            </div>
-            <div class="db-nav-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              Calendar
-            </div>
-            <div class="db-nav-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M5.34 18.66l-1.41 1.41M20 12h-2M6 12H4M19.07 19.07l-1.41-1.41M5.34 5.34L3.93 3.93"/></svg>
-              Settings
-            </div>
-          </div>
-          <div class="db-main">
-            <div class="db-header">
-              <div class="db-title">Overview</div>
-              <div class="db-badge">● Live</div>
-            </div>
-            <div class="db-stats">
-              <div class="db-stat">
-                <div class="db-stat-label">New Leads</div>
-                <div class="db-stat-val" data-counter="24">24</div>
-                <div class="db-stat-delta">↑ 12% this week</div>
-              </div>
-              <div class="db-stat">
-                <div class="db-stat-label">Booked Jobs</div>
-                <div class="db-stat-val" data-counter="11">11</div>
-                <div class="db-stat-delta">↑ 8% this week</div>
-              </div>
-              <div class="db-stat">
-                <div class="db-stat-label">Est. Revenue</div>
-                <div class="db-stat-val" data-counter="8.4" data-counter-prefix="$" data-counter-suffix="k">$8.4k</div>
-                <div class="db-stat-delta">↑ 21% this week</div>
+        <div class="phone-stat-float psf-2">
+          <div class="psf-val">60s</div>
+          <div class="psf-label">Avg Response</div>
+        </div>
+        <div class="phone-stat-float psf-3">
+          <div class="psf-val">94%</div>
+          <div class="psf-label">Book Rate</div>
+        </div>
+
+        <!-- Phone frame -->
+        <div class="phone-frame">
+          <div class="phone-notch-bar"><div class="phone-notch"></div></div>
+          <div class="phone-screen">
+            <div class="phone-msg-header">
+              <div class="phone-header-avatar">LP</div>
+              <div class="phone-header-info">
+                <div class="phone-contact-name">LeadPro AI · Johnson Plumbing</div>
+                <div class="phone-contact-status">● Online now</div>
               </div>
             </div>
-            <div class="db-leads">
-              <div class="db-lead-row">
-                <div>
-                  <div class="db-lead-name">Marcus T.</div>
-                  <div class="db-lead-phone">Roof inspection · East Side</div>
-                </div>
-                <div class="db-lead-status status-booked">Booked</div>
-                <div class="db-lead-time">2m ago</div>
+            <div class="phone-msgs">
+              <div class="phone-bubble phone-bubble-ai">
+                Hi! You just tried to call Johnson Plumbing. I'm their AI assistant — want me to help you schedule a service call?
+                <div class="phone-bubble-time">just now</div>
               </div>
-              <div class="db-lead-row">
-                <div>
-                  <div class="db-lead-name">Sandra K.</div>
-                  <div class="db-lead-phone">HVAC repair · Downtown</div>
-                </div>
-                <div class="db-lead-status status-new">New</div>
-                <div class="db-lead-time">11m ago</div>
+              <div class="phone-bubble phone-bubble-user">
+                Yes please! I have a leaking pipe under my sink.
+                <div class="phone-bubble-time">just now</div>
               </div>
-              <div class="db-lead-row">
-                <div>
-                  <div class="db-lead-name">Devlin P.</div>
-                  <div class="db-lead-phone">Kitchen remodel · Westpark</div>
-                </div>
-                <div class="db-lead-status status-called">Called</div>
-                <div class="db-lead-time">34m ago</div>
+              <div class="phone-bubble phone-bubble-ai">
+                Got it — sounds urgent. What's the best time for our tech to come out? We have openings today and tomorrow morning.
+                <div class="phone-bubble-time">just now</div>
               </div>
-              <div class="db-lead-row">
-                <div>
-                  <div class="db-lead-name">Aisha M.</div>
-                  <div class="db-lead-phone">Plumbing emergency · Northview</div>
-                </div>
-                <div class="db-lead-status status-booked">Booked</div>
-                <div class="db-lead-time">1h ago</div>
+              <div class="phone-bubble phone-bubble-user">
+                Today works! Afternoon if possible.
+                <div class="phone-bubble-time">just now</div>
+              </div>
+              <div class="phone-typing">
+                <span></span><span></span><span></span>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
     </div><!-- /hero-mockup-col -->
   </div>
 </section>
@@ -2352,6 +2650,41 @@
     <span class="trust-item">Books the appointment, not just messages</span>
     <span class="trust-item hi"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>Cancel anytime</span>
     <span class="trust-item">No IT required</span>
+  </div>
+</div>
+
+<!-- LOGOS BAR — Industries we serve -->
+<div class="logos-bar" aria-label="Industries served">
+  <p class="logos-bar-label">Built for home-service contractors</p>
+  <div class="logos-bar-grid">
+    <div class="logos-bar-item">
+      <span class="logos-bar-industry">HVAC</span>
+      <span class="logos-bar-stat">↑ 40% booked</span>
+    </div>
+    <div class="logos-bar-item">
+      <span class="logos-bar-industry">Plumbing</span>
+      <span class="logos-bar-stat">60s text-back</span>
+    </div>
+    <div class="logos-bar-item">
+      <span class="logos-bar-industry">Roofing</span>
+      <span class="logos-bar-stat">24/7 coverage</span>
+    </div>
+    <div class="logos-bar-item">
+      <span class="logos-bar-industry">Electrical</span>
+      <span class="logos-bar-stat">No missed jobs</span>
+    </div>
+    <div class="logos-bar-item">
+      <span class="logos-bar-industry">Landscaping</span>
+      <span class="logos-bar-stat">Auto-schedules</span>
+    </div>
+    <div class="logos-bar-item">
+      <span class="logos-bar-industry">Solar</span>
+      <span class="logos-bar-stat">Live in 24hrs</span>
+    </div>
+    <div class="logos-bar-item">
+      <span class="logos-bar-industry">General Contracting</span>
+      <span class="logos-bar-stat">94% book rate</span>
+    </div>
   </div>
 </div>
 
@@ -2874,17 +3207,26 @@
       <div class="testimonial-card reveal reveal-d1">
         <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
         <p class="testimonial-quote">"I was losing 3-4 jobs a week to voicemail. First week with LeadPro I recovered two jobs worth $1,400. Paid for itself on day four."</p>
-        <div class="testimonial-name">Marcus T., HVAC &mdash; Richmond, VA</div>
+        <div class="testi-footer">
+          <div class="testi-avatar" style="background:#1B4332;">M</div>
+          <div class="testimonial-name">Marcus T., HVAC &mdash; Richmond, VA</div>
+        </div>
       </div>
       <div class="testimonial-card reveal reveal-d2">
         <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
         <p class="testimonial-quote">"My answering service took messages for two years. LeadPro booked 6 appointments the first month. I wish I'd switched sooner."</p>
-        <div class="testimonial-name">Derek P., Plumbing &mdash; Roanoke, VA</div>
+        <div class="testi-footer">
+          <div class="testi-avatar" style="background:#2D6A4F;">D</div>
+          <div class="testimonial-name">Derek P., Plumbing &mdash; Roanoke, VA</div>
+        </div>
       </div>
       <div class="testimonial-card reveal reveal-d3">
         <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
         <p class="testimonial-quote">"Skeptical at first &mdash; I thought my customers wouldn't want to text. They don't care. They just want someone to respond fast. LeadPro does that."</p>
-        <div class="testimonial-name">Steve H., Electrical &mdash; Lynchburg, VA</div>
+        <div class="testi-footer">
+          <div class="testi-avatar" style="background:#0D3D26;">S</div>
+          <div class="testimonial-name">Steve H., Electrical &mdash; Lynchburg, VA</div>
+        </div>
       </div>
     </div>
   </div>
