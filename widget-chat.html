@@ -279,17 +279,28 @@ html,body{height:100%;width:100%;overflow:hidden;
   z-index: 1;
 }
 
-/* LeadPro watermark — two lines for better coverage */
+/* Brand mark — deliberate design element, not a watermark */
 .is-marketing #msgs::before {
-  content: 'LeadPro';
+  content: 'LEADPRO';
   position: absolute;
-  top: 50%;
+  top: 40%;
   left: 50%;
-  transform: translate(-50%, -50%) rotate(-20deg);
-  font-size: 58px;
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  color: rgba(82,217,154,0.055);
+  transform: translateX(-50%);
+  font-size: 36px;
+  font-weight: 900;
+  letter-spacing: 0.6em;
+  text-indent: 0.6em;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(82,217,154,0.08) 15%,
+    rgba(124,224,168,0.22) 38%,
+    rgba(180,255,220,0.28) 50%,
+    rgba(124,224,168,0.22) 62%,
+    rgba(82,217,154,0.08) 85%,
+    transparent 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
   pointer-events: none;
   z-index: 0;
   white-space: nowrap;
