@@ -2514,17 +2514,8 @@
 </head>
 <body>
 
-<!-- Ambient tech geometry accent lines -->
-<svg aria-hidden="true" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-  <!-- Line 1: horizontal ~25vh, mid glow -->
-  <line x1="-100" y1="225" x2="1540" y2="225" stroke="rgba(82,217,154,0.12)" stroke-width="1" style="filter:drop-shadow(0 0 6px rgba(82,217,154,0.5))"/>
-  <!-- Line 2: diagonal top-right → bottom-left, soft glow -->
-  <line x1="1380" y1="-50" x2="60" y2="950" stroke="rgba(82,217,154,0.08)" stroke-width="1" style="filter:drop-shadow(0 0 4px rgba(82,217,154,0.35))"/>
-  <!-- Line 3: horizontal ~72vh, no glow — ambient whisper -->
-  <line x1="-100" y1="648" x2="1540" y2="648" stroke="rgba(82,217,154,0.06)" stroke-width="1"/>
-  <!-- Line 4: short diagonal accent near top-left, brightest -->
-  <line x1="-20" y1="100" x2="220" y2="20" stroke="rgba(82,217,154,0.15)" stroke-width="1.5" style="filter:drop-shadow(0 0 8px rgba(82,217,154,0.6))"/>
-</svg>
+<!-- Particle network canvas — replaces static SVG lines -->
+<canvas id="particleNet" aria-hidden="true" style="position:fixed;inset:0;display:block;pointer-events:none;z-index:0;"></canvas>
 
 <!-- NAV -->
 <nav>
@@ -4258,6 +4249,106 @@ document.addEventListener('DOMContentLoaded', function() {
     el.scrollLeft = scrollLeft - (x - startX) * 1.4;
   });
 })();
+</script>
+
+<script>
+/* ── Particle Network ── */
+(function () {
+  var canvas = document.getElementById('particleNet');
+  if (!canvas) return;
+
+  /* respect prefers-reduced-motion */
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    canvas.style.display = 'none';
+    return;
+  }
+
+  var ctx = canvas.getContext('2d');
+  var C = '82,217,154';   /* LeadPro green RGB */
+  var MAX_D = 145;        /* max connection distance */
+  var W, H, pts, raf;
+
+  function mobile() { return window.innerWidth < 768; }
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  function make() {
+    return {
+      x:  Math.random() * W,
+      y:  Math.random() * H,
+      vx: (Math.random() - 0.5) * 0.36,
+      vy: (Math.random() - 0.5) * 0.36,
+      r:  Math.random() * 1.3 + 0.5,
+      o:  Math.random() * 0.38 + 0.14
+    };
+  }
+
+  function init() {
+    resize();
+    var n = mobile() ? 38 : 68;
+    pts = [];
+    for (var i = 0; i < n; i++) pts.push(make());
+  }
+
+  function tick() {
+    ctx.clearRect(0, 0, W, H);
+    var len = pts.length;
+
+    for (var i = 0; i < len; i++) {
+      var p = pts[i];
+
+      /* move */
+      p.x += p.vx;
+      p.y += p.vy;
+      if (p.x < 0)  { p.x = 0;  p.vx *= -1; }
+      if (p.x > W)  { p.x = W;  p.vx *= -1; }
+      if (p.y < 0)  { p.y = 0;  p.vy *= -1; }
+      if (p.y > H)  { p.y = H;  p.vy *= -1; }
+
+      /* dot */
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, 6.2832);
+      ctx.fillStyle = 'rgba(' + C + ',' + p.o + ')';
+      ctx.fill();
+
+      /* connections */
+      for (var j = i + 1; j < len; j++) {
+        var q  = pts[j];
+        var dx = p.x - q.x;
+        var dy = p.y - q.y;
+        var d2 = dx * dx + dy * dy;
+        if (d2 < MAX_D * MAX_D) {
+          var alpha = (1 - Math.sqrt(d2) / MAX_D) * 0.13;
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(q.x, q.y);
+          ctx.strokeStyle = 'rgba(' + C + ',' + alpha + ')';
+          ctx.lineWidth = 0.65;
+          ctx.stroke();
+        }
+      }
+    }
+
+    raf = requestAnimationFrame(tick);
+  }
+
+  /* debounced resize */
+  var rsTimer;
+  window.addEventListener('resize', function () {
+    clearTimeout(rsTimer);
+    rsTimer = setTimeout(function () {
+      cancelAnimationFrame(raf);
+      init();
+      tick();
+    }, 200);
+  }, { passive: true });
+
+  init();
+  tick();
+}());
 </script>
 </body>
 </html>
