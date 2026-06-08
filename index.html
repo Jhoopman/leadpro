@@ -2457,6 +2457,59 @@
       padding-top: 0 !important;
       margin-top: 0 !important;
     }
+
+    /* ── PREMIUM BACKGROUND ── */
+
+    /* Multi-aurora gradient base */
+    body {
+      background:
+        /* Primary hero bloom — large emerald corona from top-center */
+        radial-gradient(ellipse 150% 72% at 50% -18%,
+          rgba(82,217,154,0.52) 0%,
+          rgba(45,106,79,0.26) 18%,
+          rgba(15,45,28,0.08) 42%,
+          transparent 60%),
+        /* Secondary aurora — cool teal-cyan top-right asymmetric accent */
+        radial-gradient(ellipse 70% 55% at 96% -6%,
+          rgba(0,230,178,0.18) 0%,
+          rgba(0,190,148,0.08) 32%,
+          transparent 56%),
+        /* Left-mid ambient — subtle depth layer */
+        radial-gradient(ellipse 52% 42% at -6% 58%,
+          rgba(45,106,79,0.10) 0%,
+          transparent 55%),
+        /* Bottom-right whisper — keeps page from feeling flat mid-scroll */
+        radial-gradient(ellipse 46% 34% at 105% 95%,
+          rgba(0,180,138,0.07) 0%,
+          transparent 55%),
+        /* Deep base — cooler black with micro green tint */
+        #020608 !important;
+      background-attachment: fixed !important;
+    }
+
+    /* Tech dot-grid + secondary aurora layer via ::before */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      /* Dot grid — 36px pitch, barely perceptible tech texture */
+      background-image:
+        radial-gradient(circle, rgba(82,217,154,0.09) 1px, transparent 1px);
+      background-size: 36px 36px;
+      /* Fade the grid out toward the center so it doesn't compete with content */
+      mask-image: radial-gradient(ellipse 85% 75% at 50% 50%, transparent 28%, rgba(0,0,0,0.5) 55%, #000 100%);
+      -webkit-mask-image: radial-gradient(ellipse 85% 75% at 50% 50%, transparent 28%, rgba(0,0,0,0.5) 55%, #000 100%);
+    }
+
+    /* Ensure all stacked sections sit above the ::before grid */
+    nav, section, footer, .fw-wrap, .vc-wrap, .trust-strip,
+    .pain-blocks, .testimonials, .final-cta, .logos-bar,
+    .founding-member, .founder-section, .sticky-cta-bar, .float-demo {
+      position: relative;
+      z-index: 1;
+    }
   </style>
 </head>
 <body>
