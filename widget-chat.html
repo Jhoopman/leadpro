@@ -279,33 +279,7 @@ html,body{height:100%;width:100%;overflow:hidden;
   z-index: 1;
 }
 
-/* Brand mark — deliberate design element, not a watermark */
-.is-marketing #msgs::before {
-  content: 'LEADPRO';
-  position: absolute;
-  top: 40%;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 36px;
-  font-weight: 900;
-  letter-spacing: 0.6em;
-  text-indent: 0.6em;
-  background: linear-gradient(90deg,
-    transparent 0%,
-    rgba(82,217,154,0.08) 15%,
-    rgba(124,224,168,0.22) 38%,
-    rgba(180,255,220,0.28) 50%,
-    rgba(124,224,168,0.22) 62%,
-    rgba(82,217,154,0.08) 85%,
-    transparent 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  pointer-events: none;
-  z-index: 0;
-  white-space: nowrap;
-  user-select: none;
-}
+.is-marketing #msgs::before { display: none; }
 
 /* ── Bubbles: glassy depth ── */
 .is-marketing .bot .lc-bubble {
