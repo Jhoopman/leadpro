@@ -53,7 +53,7 @@
     header a:hover { color: #fff; }
 
     /* ── MAIN LAYOUT ── */
-    main { max-width: 1140px; margin: 0 auto; padding: 32px 24px 64px; }
+    main { padding: 32px 24px 64px; }
 
     h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 4px; }
     .subtitle { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
@@ -159,7 +159,9 @@
       background: var(--white);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      overflow: hidden;
+      overflow-x: hidden;
+      overflow-y: auto;
+      max-height: calc(100vh - 300px);
       box-shadow: var(--shadow);
     }
     table { width: 100%; border-collapse: collapse; }
@@ -175,7 +177,11 @@
       border-bottom: 1px solid var(--border);
       white-space: nowrap;
     }
-    td { padding: 13px 14px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
+    td { padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 15px; vertical-align: middle; }
+    th { padding: 11px 16px; }
+    /* Business name column 35%; score column centered bold 18px */
+    th:first-child, td:first-child { width: 35%; }
+    th:nth-child(5), td:nth-child(5) { width: 80px; text-align: center; font-weight: 700; }
     tr:last-child td { border-bottom: none; }
     tr.called { opacity: 0.42; }
     tr.called td:first-child::before { content: '✓ '; color: var(--green-mid); font-weight: 700; }
@@ -189,7 +195,7 @@
       height: 38px;
       border-radius: 50%;
       font-weight: 700;
-      font-size: 14px;
+      font-size: 18px;
       color: #fff;
       flex-shrink: 0;
     }
@@ -672,36 +678,96 @@ async function runSearch() {
   document.getElementById('errorBanner').style.display = 'none';
   showLoading(location, industry);
 
-  try {
-    const res = await fetch('/api/prospector', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ location, industry })
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Server error');
-    currentResults = data.results || [];
-    savedLeadIdx.clear();
-    renderResults(currentResults, location, industry);
-  } catch(e) {
-    showError(e.message);
-    document.getElementById('resultsArea').innerHTML = '';
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Search';
+  const MAX_RETRIES    = 3;
+  const RETRY_DELAY_MS = 5000;
+  const TIMEOUT_MS     = 45000;
+  let lastErr = null;
+
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    if (attempt > 1) {
+      showLoading(location, industry, 'Search is taking longer than usual — retrying…');
+      await new Promise(r => setTimeout(r, RETRY_DELAY_MS));
+    }
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
+    try {
+      const res = await fetch('/api/prospector', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ location, industry }),
+        signal: controller.signal,
+      });
+      clearTimeout(timer);
+
+      const data = await res.json().catch(() => ({}));
+      console.log('[Prospector] attempt', attempt, 'status', res.status, 'results', (data.results || []).length, data);
+
+      // Partial or full results — show immediately and stop retrying
+      if (data.results && data.results.length > 0) {
+        currentResults = data.results;
+        savedLeadIdx.clear();
+        renderResults(currentResults, location, industry);
+        btn.disabled = false;
+        btn.textContent = 'Search';
+        return;
+      }
+
+      if (!res.ok) {
+        const msg = res.status >= 500
+          ? 'Server error — try again in a moment'
+          : (data.error || 'Server error — try again in a moment');
+        console.error('[Prospector] attempt', attempt, 'HTTP', res.status, data);
+        lastErr = new Error(msg);
+        continue;
+      }
+
+      // 200 but zero results
+      currentResults = [];
+      savedLeadIdx.clear();
+      btn.disabled = false;
+      btn.textContent = 'Search';
+      document.getElementById('resultsArea').innerHTML = `
+        <div class="state-box">
+          <div class="icon">😕</div>
+          <h3>No contractors found</h3>
+          <p>No contractors found — try a nearby city.</p>
+        </div>`;
+      showError('No contractors found — try a nearby city');
+      return;
+
+    } catch (e) {
+      clearTimeout(timer);
+      console.error('[Prospector] attempt', attempt, 'exception:', e.name, e.message, e.stack);
+      if (e.name === 'AbortError') {
+        lastErr = new Error('Search is taking longer than usual — retrying…');
+      } else if (e instanceof TypeError) {
+        lastErr = new Error('Network error — check your connection');
+      } else {
+        lastErr = new Error('Server error — try again in a moment');
+      }
+    }
   }
+
+  // All retries exhausted
+  showError(lastErr ? lastErr.message : 'Server error — try again in a moment');
+  document.getElementById('resultsArea').innerHTML = '';
+  btn.disabled = false;
+  btn.textContent = 'Search';
 }
 
 document.getElementById('locationInput').addEventListener('keydown', e => {
   if (e.key === 'Enter') runSearch();
 });
 
-function showLoading(location, industry) {
+function showLoading(location, industry, msg) {
+  const sub = msg || 'Scraping all sites in parallel. Usually done in 10–20 seconds.';
   document.getElementById('resultsArea').innerHTML = `
     <div class="state-box">
       <div class="spinner"></div>
       <h3>Scanning ${industry} contractors in ${location}…</h3>
-      <p>Scraping all sites in parallel. Usually done in 10–20 seconds.</p>
+      <p>${sub}</p>
     </div>`;
 }
 

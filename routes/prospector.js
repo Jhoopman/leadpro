@@ -61,12 +61,36 @@ router.post('/api/prospector', prospectorLimit, catchAsync(async (req, res) => {
   const { location, industry } = req.body;
   if (!location || !industry) return res.status(400).json({ error: 'Missing location or industry' });
 
-  const query     = encodeURIComponent(`${industry} contractors in ${location}`);
-  const searchRes = await googlePlacesRequest(
-    `textsearch/json?query=${query}&type=establishment&key=${cfg.google.placesApiKey}`
-  );
+  console.log(`[prospector] search start: "${industry}" in "${location}"`);
 
-  if (searchRes.status !== 'OK' && searchRes.status !== 'ZERO_RESULTS') {
+  const searchTimeout = setTimeout(() => {
+    if (!res.headersSent) {
+      console.error(`[prospector] 30s timeout: "${industry}" in "${location}"`);
+      res.status(504).json({ error: 'Search timed out — try again', results: [] });
+    }
+  }, 30000);
+
+  const query = encodeURIComponent(`${industry} contractors in ${location}`);
+  let searchRes;
+  try {
+    searchRes = await googlePlacesRequest(
+      `textsearch/json?query=${query}&type=establishment&key=${cfg.google.placesApiKey}`
+    );
+  } catch (e) {
+    clearTimeout(searchTimeout);
+    console.error('[prospector] Places text search error:', e.message);
+    return res.json({ results: [] });
+  }
+
+  if (searchRes.status === 'ZERO_RESULTS') {
+    clearTimeout(searchTimeout);
+    console.log(`[prospector] ZERO_RESULTS for "${industry}" in "${location}"`);
+    return res.json({ results: [] });
+  }
+
+  if (searchRes.status !== 'OK') {
+    clearTimeout(searchTimeout);
+    console.error('[prospector] Places API error:', searchRes.status, searchRes.error_message);
     return res.status(500).json({ error: 'Places API: ' + searchRes.status, details: searchRes.error_message });
   }
 
@@ -128,7 +152,8 @@ router.post('/api/prospector', prospectorLimit, catchAsync(async (req, res) => {
     .map(r => r.value);
 
   results.sort((a, b) => b.score - a.score);
-  console.log(`[prospector] Found ${results.length} results for "${industry}" in "${location}"`);
+  clearTimeout(searchTimeout);
+  console.log(`[prospector] search done: ${results.length} results for "${industry}" in "${location}"`);
   res.json({ results });
 }));
 
