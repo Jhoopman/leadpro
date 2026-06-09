@@ -231,18 +231,28 @@ app.post('/api/demo-call', _demoCallLimit, async (req, res) => {
   _demoPhoneExpiry.set(formattedPhone, now + 24 * 60 * 60 * 1000);
 
   try {
-    const response = await fetch('https://api.vapi.ai/call/phone', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.VAPI_API_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        assistantId: '2b011515-2315-4cd5-8784-d8dd92bb8fc0',
-        customer: { number: formattedPhone },
-        phoneNumberId: '360b7e08-4cc7-462b-906a-688853bf3ddd'
-      })
-    });
+    console.log('[demo-call] VAPI_API_KEY present:', !!process.env.VAPI_API_KEY);
+    console.log('[demo-call] Attempting fetch to Vapi...');
+
+    let response;
+    try {
+      response = await fetch('https://api.vapi.ai/call/phone', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.VAPI_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          assistantId: '2b011515-2315-4cd5-8784-d8dd92bb8fc0',
+          customer: { number: formattedPhone },
+          phoneNumberId: '360b7e08-4cc7-462b-906a-688853bf3ddd'
+        })
+      });
+      console.log('[demo-call] fetch completed, status:', response.status);
+    } catch (fetchErr) {
+      console.error('[demo-call] fetch THREW:', fetchErr.message, fetchErr.stack);
+      return res.status(500).json({ error: 'Fetch failed', detail: fetchErr.message });
+    }
 
     console.log('[demo-call] Vapi response status:', response.status);
     const rawBody = await response.text();
