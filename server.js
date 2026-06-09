@@ -206,6 +206,60 @@ app.use('/', require('./routes/twilio').router);
 app.use('/', require('./routes/vapi'));
 app.use('/', require('./routes/consent'));
 
+// ── Demo call trigger ──────────────────────────────────────────
+const _demoCallLimit = _rl({ maxRequests: 3, windowMs: 60 * 60 * 1000, message: 'Too many demo requests — try again in an hour.' });
+const _demoPhoneExpiry = new Map(); // phone → expiresAt (in-memory dedup, single instance)
+const _E164 = /^\+1[2-9]\d{9}$/;
+
+app.post('/api/demo-call', _demoCallLimit, async (req, res) => {
+  const { phone } = req.body;
+  if (!phone) return res.status(400).json({ error: 'Phone number required' });
+
+  // Sanitize — digits only, then format as E.164
+  const digits = phone.replace(/\D/g, '');
+  if (digits.length < 10) return res.status(400).json({ error: 'Invalid phone number' });
+  const formattedPhone = '+1' + digits.slice(-10);
+
+  if (!_E164.test(formattedPhone)) return res.status(400).json({ error: 'Invalid US phone number' });
+
+  // Per-phone 24h dedup
+  const now = Date.now();
+  const expiry = _demoPhoneExpiry.get(formattedPhone);
+  if (expiry && now < expiry) {
+    return res.status(429).json({ error: 'A demo call was already requested for this number — try again tomorrow.' });
+  }
+  _demoPhoneExpiry.set(formattedPhone, now + 24 * 60 * 60 * 1000);
+
+  try {
+    const response = await fetch('https://api.vapi.ai/call/phone', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.VAPI_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        assistantId: '2b011515-2315-4cd5-8784-d8dd92bb8fc0',
+        customer: { number: formattedPhone },
+        phoneNumberId: '360b7e08-4cc7-462b-906a-688853bf3ddd'
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error('Vapi call error:', data);
+      return res.status(500).json({ error: 'Failed to initiate call', detail: data });
+    }
+
+    console.log(`Demo call triggered → ...${formattedPhone.slice(-4)}`);
+    res.json({ success: true, callId: data.id });
+
+  } catch (e) {
+    console.error('Demo call error:', e.message);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // ── ERROR HANDLING ────────────────────────────────────────────────────────────
 
 const Sentry = require('@sentry/node');

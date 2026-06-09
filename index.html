@@ -317,6 +317,81 @@
     .hero-trust span { display: flex; align-items: center; gap: 6px; }
     .hero-trust svg { width: 14px; height: 14px; fill: #4ade80; }
 
+    /* ── Hero Call Input ── */
+    .hero-call-wrap {
+      margin-bottom: 20px;
+    }
+    .hero-call-input-row {
+      display: flex;
+      gap: 8px;
+      align-items: stretch;
+      max-width: 460px;
+    }
+    .hero-phone-input-wrap {
+      position: relative;
+      flex: 1;
+    }
+    .phone-input-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--green-light);
+      pointer-events: none;
+    }
+    #heroPhone {
+      width: 100%;
+      height: 52px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border, #1f1f1f);
+      border-radius: 12px;
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      padding: 0 16px 0 42px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    #heroPhone::placeholder { color: #666; }
+    #heroPhone:focus { border-color: var(--green-light); }
+    .btn-call-now {
+      height: 52px;
+      padding: 0 22px;
+      background: var(--green, #2D6A4F);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s cubic-bezier(0.16,1,0.3,1);
+      flex-shrink: 0;
+    }
+    .btn-call-now:hover {
+      background: #3a7a5f;
+      transform: translateY(-1px);
+    }
+    .btn-call-now:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .hero-call-note {
+      font-size: 0.75rem;
+      color: var(--muted, #aaa);
+      margin-top: 8px;
+      padding-left: 2px;
+    }
+    .hero-call-note.success { color: var(--green-light); }
+    .hero-call-note.error { color: #f87171; }
+
+    @media (max-width: 480px) {
+      .hero-call-input-row { flex-direction: column; }
+      .btn-call-now { width: 100%; }
+    }
+
     /* Dashboard Preview */
     .dashboard-preview {
       margin: 0 auto;
@@ -2693,6 +2768,26 @@
       <p class="demo-after" id="demoAfter"></p>
     </div>
 
+      <!-- Call Me Now -->
+      <div class="hero-call-wrap reveal reveal-d3">
+        <div class="hero-call-input-row">
+          <div class="hero-phone-input-wrap">
+            <svg class="phone-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.09 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+            <input
+              type="tel"
+              id="heroPhone"
+              placeholder="Enter your cell number"
+              maxlength="14"
+              autocomplete="tel"
+            />
+          </div>
+          <button class="btn-call-now" id="callNowBtn" onclick="triggerDemoCall()">
+            Call me right now
+          </button>
+        </div>
+        <p class="hero-call-note" id="callNowMsg">Free demo — AI calls you in seconds</p>
+      </div>
+
     <a class="hero-link reveal reveal-d4" href="#how" style="display:inline-flex;align-items:center;gap:6px;margin-top:8px;">
       See how it works
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
@@ -4512,6 +4607,68 @@ document.addEventListener('DOMContentLoaded', function() {
   init();
   tick();
 }());
+
+// ── Demo call trigger ──────────────────────────────────────────
+function formatPhoneInput(e) {
+  let val = e.target.value.replace(/\D/g, '');
+  if (val.length > 10) val = val.slice(0, 10);
+  if (val.length >= 7) val = `(${val.slice(0,3)}) ${val.slice(3,6)}-${val.slice(6)}`;
+  else if (val.length >= 4) val = `(${val.slice(0,3)}) ${val.slice(3)}`;
+  else if (val.length > 0) val = `(${val}`;
+  e.target.value = val;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const input = document.getElementById('heroPhone');
+  if (input) input.addEventListener('input', formatPhoneInput);
+});
+
+async function triggerDemoCall() {
+  const input = document.getElementById('heroPhone');
+  const btn = document.getElementById('callNowBtn');
+  const msg = document.getElementById('callNowMsg');
+  const phone = input ? input.value : '';
+
+  if (!phone || phone.replace(/\D/g,'').length < 10) {
+    msg.textContent = 'Please enter a valid 10-digit US number.';
+    msg.className = 'hero-call-note error';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Calling...';
+  msg.textContent = 'Connecting — your phone will ring in seconds...';
+  msg.className = 'hero-call-note';
+
+  try {
+    const res = await fetch('/api/demo-call', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone })
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      btn.textContent = '✓ Call incoming!';
+      msg.textContent = 'Sarah is calling you now — answer to experience LeadPro live.';
+      msg.className = 'hero-call-note success';
+      input.value = '';
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.textContent = 'Call me right now';
+        msg.textContent = 'Free demo — AI calls you in seconds';
+        msg.className = 'hero-call-note';
+      }, 15000);
+    } else {
+      throw new Error(data.error || 'Unknown error');
+    }
+  } catch (e) {
+    btn.disabled = false;
+    btn.textContent = 'Call me right now';
+    msg.textContent = 'Something went wrong — try again or call (302) 664-7594 directly.';
+    msg.className = 'hero-call-note error';
+  }
+}
 </script>
 </body>
 </html>
