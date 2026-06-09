@@ -165,8 +165,9 @@ app.use('/', require('./routes/sms-consent'));
 // Marketing landing page
 app.get('/',       (_, res) => res.sendFile(path.join(__dirname, 'index.html')));
 // Sub-brand pages
-app.get('/design', (_, res) => res.sendFile(path.join(__dirname, 'design.html')));
-app.get('/agents', (_, res) => res.sendFile(path.join(__dirname, 'agents.html')));
+app.get('/design',     (_, res) => res.sendFile(path.join(__dirname, 'design.html')));
+app.get('/agents',     (_, res) => res.sendFile(path.join(__dirname, 'agents.html')));
+app.get('/marketing',  (_, res) => res.sendFile(path.join(__dirname, 'marketing.html')));
 // PWA dashboard
 app.get('/app', (_, res) => res.sendFile(path.join(__dirname, 'LeadPro_Full_App.html')));
 app.get('/prospector', (_, res) => res.sendFile(path.join(__dirname, 'prospector.html')));
@@ -301,6 +302,31 @@ app.post('/api/design-lead', async (req, res) => {
     res.json({ success: true });
   } catch (e) {
     console.error('[design-lead]', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post('/api/marketing-lead', async (req, res) => {
+  const { name, biz, phone, email: userEmail, services, pkg } = req.body || {};
+  if (!name || !phone) return res.status(400).json({ error: 'Name and phone required' });
+  try {
+    await _email.send(
+      cfg.alertEmail,
+      `New MARKETING inquiry: ${name} — ${biz || 'unknown biz'}`,
+      `<div style="font-family:sans-serif;max-width:480px">
+        <h2 style="color:#FF6B4A">LeadPro Marketing Lead</h2>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Business:</strong> ${biz || '—'}</p>
+        <p><strong>Phone:</strong> ${phone}</p>
+        <p><strong>Email:</strong> ${userEmail || '—'}</p>
+        <p><strong>Services interested in:</strong> ${services || '—'}</p>
+        <p><strong>Package:</strong> ${pkg || '—'}</p>
+      </div>`
+    );
+    console.log(`[marketing-lead] ${name} — ${phone}`);
+    res.json({ success: true });
+  } catch (e) {
+    console.error('[marketing-lead]', e.message);
     res.status(500).json({ error: e.message });
   }
 });
