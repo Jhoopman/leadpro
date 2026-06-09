@@ -30,6 +30,12 @@ function requirePlan(minPlan) {
       return res.status(401).json({ error: 'Authentication required' });
     }
 
+    // INTERNAL ACCOUNT — skip billing
+    // is_internal accounts bypass all Stripe checks and get full pro access, always.
+    if (c.is_internal === true) {
+      return next();
+    }
+
     const now = new Date();
 
     // ── TRIAL IN PROGRESS — allow everything ──────────────────────────────────
