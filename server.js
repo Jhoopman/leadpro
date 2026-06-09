@@ -244,7 +244,11 @@ app.post('/api/demo-call', _demoCallLimit, async (req, res) => {
       })
     });
 
-    const data = await response.json();
+    console.log('[demo-call] Vapi response status:', response.status);
+    const rawBody = await response.text();
+    console.log('[demo-call] Vapi raw response:', rawBody);
+
+    const data = JSON.parse(rawBody);
 
     if (!response.ok) {
       console.error('Vapi call error:', data);
@@ -255,7 +259,7 @@ app.post('/api/demo-call', _demoCallLimit, async (req, res) => {
     res.json({ success: true, callId: data.id });
 
   } catch (e) {
-    console.error('Demo call error:', e.message);
+    console.error('Demo call error FULL:', JSON.stringify(e, Object.getOwnPropertyNames(e)));
     res.status(500).json({ error: 'Server error' });
   }
 });
