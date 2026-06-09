@@ -163,7 +163,10 @@ app.get('/text',    (_, res) => res.sendFile(path.join(__dirname, 'text.html')))
 app.use('/', require('./routes/sms-consent'));
 
 // Marketing landing page
-app.get('/',    (_, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get('/',       (_, res) => res.sendFile(path.join(__dirname, 'index.html')));
+// Sub-brand pages
+app.get('/design', (_, res) => res.sendFile(path.join(__dirname, 'design.html')));
+app.get('/agents', (_, res) => res.sendFile(path.join(__dirname, 'agents.html')));
 // PWA dashboard
 app.get('/app', (_, res) => res.sendFile(path.join(__dirname, 'LeadPro_Full_App.html')));
 app.get('/prospector', (_, res) => res.sendFile(path.join(__dirname, 'prospector.html')));
@@ -271,6 +274,59 @@ app.post('/api/demo-call', _demoCallLimit, async (req, res) => {
   } catch (e) {
     console.error('Demo call error FULL:', JSON.stringify(e, Object.getOwnPropertyNames(e)));
     res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// ── SUB-BRAND LEAD CAPTURE ────────────────────────────────────────────────────
+
+const _email = require('./services/email');
+
+app.post('/api/design-lead', async (req, res) => {
+  const { name, biz, phone, email: userEmail, budget } = req.body || {};
+  if (!name || !phone) return res.status(400).json({ error: 'Name and phone required' });
+  try {
+    await _email.send(
+      cfg.alertEmail,
+      `New DESIGN inquiry: ${name} — ${biz || 'unknown biz'}`,
+      `<div style="font-family:sans-serif;max-width:480px">
+        <h2 style="color:#C9A96E">LeadPro Design Lead</h2>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Business:</strong> ${biz || '—'}</p>
+        <p><strong>Phone:</strong> ${phone}</p>
+        <p><strong>Email:</strong> ${userEmail || '—'}</p>
+        <p><strong>Package:</strong> ${budget || '—'}</p>
+      </div>`
+    );
+    console.log(`[design-lead] ${name} — ${phone}`);
+    res.json({ success: true });
+  } catch (e) {
+    console.error('[design-lead]', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post('/api/agent-lead', async (req, res) => {
+  const { name, biz, phone, email: userEmail, desc } = req.body || {};
+  if (!name || !phone) return res.status(400).json({ error: 'Name and phone required' });
+  try {
+    await _email.send(
+      cfg.alertEmail,
+      `New AGENTS inquiry: ${name} — ${biz || 'unknown biz'}`,
+      `<div style="font-family:sans-serif;max-width:480px">
+        <h2 style="color:#818CF8">LeadPro Agents Lead</h2>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Business:</strong> ${biz || '—'}</p>
+        <p><strong>Phone:</strong> ${phone}</p>
+        <p><strong>Email:</strong> ${userEmail || '—'}</p>
+        <p><strong>Description:</strong> ${desc || '—'}</p>
+        <p><strong>Package:</strong> ${req.body.package || '—'}</p>
+      </div>`
+    );
+    console.log(`[agent-lead] ${name} — ${phone}`);
+    res.json({ success: true });
+  } catch (e) {
+    console.error('[agent-lead]', e.message);
+    res.status(500).json({ error: e.message });
   }
 });
 

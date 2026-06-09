@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LeadPro Design — Premium Websites for Contractors</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --d-bg: #FAF8F5; --d-surface: #FFFFFF; --d-surface-2: #F5F2ED;
+      --d-text: #1A1208; --d-text-2: #6B5E4E;
+      --d-gold: #C9A96E; --d-gold-dark: #A8844A;
+      --d-border: rgba(201,169,110,0.25); --d-shadow: 0 4px 32px rgba(26,18,8,0.08);
+      --d-radius: 16px;
+    }
+    body { font-family: 'DM Sans', sans-serif; background: var(--d-bg); color: var(--d-text); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+    h1,h2,h3 { font-family: 'Playfair Display', serif; }
+    em { font-style: italic; color: var(--d-gold); }
+
+    /* NAV */
+    .d-nav { position: sticky; top: 0; z-index: 100; background: rgba(250,248,245,0.9); backdrop-filter: blur(20px); border-bottom: 1px solid var(--d-border); padding: 0 24px; }
+    .nav-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; gap: 32px; height: 64px; }
+    .d-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--d-text); font-size: 1rem; }
+    .d-logo strong { color: var(--d-gold); }
+    .d-logo-mark { width: 32px; height: 32px; background: var(--d-gold); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 800; color: white; }
+    .d-nav-links { display: flex; gap: 28px; list-style: none; margin-left: auto; }
+    .d-nav-links a { text-decoration: none; color: var(--d-text-2); font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
+    .d-nav-links a:hover { color: var(--d-gold); }
+
+    /* BUTTONS */
+    .d-btn-primary { background: var(--d-text); color: white; padding: 12px 24px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 0.9rem; transition: all 0.2s; display: inline-block; }
+    .d-btn-primary:hover { background: #2D1F0A; transform: translateY(-1px); }
+    .d-btn-ghost { color: var(--d-text-2); text-decoration: none; font-weight: 600; font-size: 0.9rem; padding: 12px 0; }
+    .d-btn-outline { display: block; text-align: center; border: 2px solid var(--d-border); color: var(--d-text); padding: 12px 24px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 0.9rem; transition: all 0.2s; margin-top: auto; }
+    .d-btn-outline:hover { border-color: var(--d-gold); color: var(--d-gold); }
+    .d-btn-gold { display: block; text-align: center; background: var(--d-gold); color: white; padding: 12px 24px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 0.9rem; transition: all 0.2s; margin-top: auto; border: none; cursor: pointer; font-family: inherit; }
+    .d-btn-gold:hover { background: var(--d-gold-dark); transform: translateY(-1px); }
+
+    /* HERO */
+    .d-hero { padding: 100px 24px 80px; text-align: center; background: linear-gradient(160deg, #FAF8F5 0%, #F0EBE1 100%); }
+    .d-hero-inner { max-width: 700px; margin: 0 auto; }
+    .d-hero-tag { display: inline-block; background: rgba(201,169,110,0.12); border: 1px solid var(--d-border); border-radius: 999px; padding: 5px 14px; font-size: 0.75rem; font-weight: 700; color: var(--d-gold-dark); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 20px; }
+    .d-hero-title { font-size: clamp(2.5rem, 6vw, 4rem); line-height: 1.15; color: var(--d-text); margin-bottom: 20px; }
+    .d-hero-sub { font-size: 1.1rem; color: var(--d-text-2); max-width: 520px; margin: 0 auto 36px; line-height: 1.7; }
+    .d-hero-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 48px; }
+    .d-hero-stats { display: flex; align-items: center; justify-content: center; gap: 24px; flex-wrap: wrap; }
+    .d-stat { text-align: center; }
+    .d-stat strong { display: block; font-size: 1.4rem; font-weight: 800; color: var(--d-text); font-family: 'Playfair Display', serif; }
+    .d-stat span { font-size: 0.78rem; color: var(--d-text-2); }
+    .d-stat-divider { width: 1px; height: 32px; background: var(--d-border); }
+
+    /* SECTIONS */
+    .d-section { padding: 80px 24px; }
+    .d-section-alt { background: var(--d-surface-2); }
+    .d-container { max-width: 1100px; margin: 0 auto; }
+    .d-section-tag { display: inline-block; background: rgba(201,169,110,0.1); border: 1px solid var(--d-border); border-radius: 999px; padding: 4px 12px; font-size: 0.7rem; font-weight: 700; color: var(--d-gold-dark); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px; }
+    .d-section-title { font-size: clamp(1.8rem, 4vw, 2.8rem); line-height: 1.2; margin-bottom: 48px; }
+
+    /* FEATURES GRID */
+    .d-features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+    .d-feature-card { background: var(--d-surface); border: 1px solid var(--d-border); border-radius: var(--d-radius); padding: 28px; transition: all 0.25s; }
+    .d-feature-card:hover { transform: translateY(-3px); box-shadow: var(--d-shadow); border-color: var(--d-gold); }
+    .d-feature-icon { font-size: 1.4rem; margin-bottom: 12px; }
+    .d-feature-card h3 { font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+    .d-feature-card p { font-size: 0.88rem; color: var(--d-text-2); line-height: 1.6; }
+
+    /* PROCESS */
+    .d-process-steps { display: flex; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
+    .d-step { flex: 1; min-width: 180px; }
+    .d-step-num { font-size: 2.5rem; font-weight: 800; color: var(--d-gold); opacity: 0.4; font-family: 'Playfair Display', serif; line-height: 1; margin-bottom: 8px; }
+    .d-step-content h3 { font-family: 'DM Sans', sans-serif; font-weight: 700; margin-bottom: 6px; }
+    .d-step-content p { font-size: 0.88rem; color: var(--d-text-2); }
+    .d-step-arrow { font-size: 1.5rem; color: var(--d-border); margin-top: 20px; flex-shrink: 0; }
+
+    /* PRICING */
+    .d-pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; align-items: start; }
+    .d-pricing-card { background: var(--d-surface); border: 1px solid var(--d-border); border-radius: var(--d-radius); padding: 32px; display: flex; flex-direction: column; position: relative; }
+    .d-pricing-featured { border-color: var(--d-gold); box-shadow: 0 8px 40px rgba(201,169,110,0.2); }
+    .d-pricing-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--d-gold); color: white; font-size: 0.7rem; font-weight: 700; padding: 4px 12px; border-radius: 999px; white-space: nowrap; }
+    .d-pricing-tier { font-size: 0.8rem; font-weight: 700; color: var(--d-text-2); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+    .d-pricing-price { font-size: 2.8rem; font-weight: 800; color: var(--d-text); font-family: 'Playfair Display', serif; line-height: 1; }
+    .d-pricing-note { font-size: 0.78rem; color: var(--d-text-2); margin-bottom: 20px; }
+    .d-pricing-list { list-style: none; margin-bottom: 24px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+    .d-pricing-list li { font-size: 0.88rem; color: var(--d-text-2); padding-left: 18px; position: relative; }
+    .d-pricing-list li::before { content: '✓'; position: absolute; left: 0; color: var(--d-gold); font-weight: 700; }
+
+    /* CTA / CONTACT */
+    .d-cta { padding: 80px 24px; background: linear-gradient(135deg, #1A1208, #2D1F0A); text-align: center; }
+    .d-cta-title { font-size: clamp(1.8rem, 4vw, 2.8rem); color: white; margin-bottom: 12px; }
+    .d-cta-sub { color: rgba(255,255,255,0.6); margin-bottom: 40px; font-size: 1rem; }
+    .d-contact-form { max-width: 480px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+    .d-contact-form input, .d-contact-form select {
+      width: 100%; padding: 14px 16px; background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(201,169,110,0.2); border-radius: 10px;
+      color: white; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; outline: none;
+    }
+    .d-contact-form input::placeholder { color: rgba(255,255,255,0.35); }
+    .d-contact-form select { color: rgba(255,255,255,0.7); }
+    .d-contact-form select option { background: #1A1208; color: white; }
+    .d-contact-form input:focus, .d-contact-form select:focus { border-color: var(--d-gold); }
+    .d-submit { width: 100%; padding: 14px; font-size: 1rem; }
+    .d-form-note { font-size: 0.78rem; color: rgba(255,255,255,0.4); }
+
+    /* FOOTER */
+    .d-footer { padding: 24px; border-top: 1px solid var(--d-border); }
+    .d-footer .d-container { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: var(--d-text-2); flex-wrap: wrap; gap: 12px; }
+    .d-footer-back { color: var(--d-gold); text-decoration: none; font-weight: 600; }
+
+    @media (max-width: 768px) {
+      .d-nav-links { display: none; }
+      .d-process-steps { flex-direction: column; }
+      .d-step-arrow { display: none; }
+      .d-hero-stats { gap: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="d-nav">
+  <div class="nav-inner">
+    <a class="d-logo" href="/">
+      <div class="d-logo-mark">LP</div>
+      <span>LeadPro <strong>Design</strong></span>
+    </a>
+    <ul class="d-nav-links">
+      <li><a href="#work">Work</a></li>
+      <li><a href="#process">Process</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+    </ul>
+    <a class="d-btn-primary" href="#contact">Get a quote</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="d-hero">
+  <div class="d-hero-inner">
+    <div class="d-hero-tag">Premium Web Design</div>
+    <h1 class="d-hero-title">Websites that work<br/>as hard as <em>you do.</em></h1>
+    <p class="d-hero-sub">We build high-end, conversion-focused websites for contractors and home service businesses. Not templates. Not DIY. Done-for-you, fast.</p>
+    <div class="d-hero-actions">
+      <a class="d-btn-primary" href="#contact">Start your project</a>
+      <a class="d-btn-ghost" href="#work">See our work</a>
+    </div>
+    <div class="d-hero-stats">
+      <div class="d-stat"><strong>10 days</strong><span>avg delivery</span></div>
+      <div class="d-stat-divider"></div>
+      <div class="d-stat"><strong>$2k–$5k</strong><span>one-time investment</span></div>
+      <div class="d-stat-divider"></div>
+      <div class="d-stat"><strong>100%</strong><span>done for you</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- WHAT YOU GET -->
+<section class="d-section" id="work">
+  <div class="d-container">
+    <div class="d-section-tag">What's included</div>
+    <h2 class="d-section-title">Everything a contractor<br/>needs to win online.</h2>
+    <div class="d-features-grid">
+      <div class="d-feature-card">
+        <div class="d-feature-icon">✦</div>
+        <h3>Custom design</h3>
+        <p>Built from scratch around your brand, colors, and trade. No templates, no cookie-cutter layouts.</p>
+      </div>
+      <div class="d-feature-card">
+        <div class="d-feature-icon">⚡</div>
+        <h3>Mobile-first &amp; fast</h3>
+        <p>90+ PageSpeed score out of the box. Your customers are on phones — your site needs to be too.</p>
+      </div>
+      <div class="d-feature-card">
+        <div class="d-feature-icon">📞</div>
+        <h3>Lead capture built in</h3>
+        <p>Click-to-call, contact forms, and optional LeadPro AI chat widget — every visitor is a potential job.</p>
+      </div>
+      <div class="d-feature-card">
+        <div class="d-feature-icon">🔍</div>
+        <h3>SEO foundation</h3>
+        <p>Local SEO structure, Google Business optimization, and schema markup so customers can find you.</p>
+      </div>
+      <div class="d-feature-card">
+        <div class="d-feature-icon">✏️</div>
+        <h3>Copywriting included</h3>
+        <p>We write every word. You just approve it. No staring at a blank page wondering what to say.</p>
+      </div>
+      <div class="d-feature-card">
+        <div class="d-feature-icon">🚀</div>
+        <h3>Live in 10 days</h3>
+        <p>Fast turnaround without cutting corners. We've built the process so you don't wait months.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section class="d-section d-section-alt" id="process">
+  <div class="d-container">
+    <div class="d-section-tag">How it works</div>
+    <h2 class="d-section-title">Simple. Fast. Done.</h2>
+    <div class="d-process-steps">
+      <div class="d-step">
+        <div class="d-step-num">01</div>
+        <div class="d-step-content">
+          <h3>Discovery call</h3>
+          <p>30 minutes with Josiah. We learn your business, trade, market, and goals.</p>
+        </div>
+      </div>
+      <div class="d-step-arrow">→</div>
+      <div class="d-step">
+        <div class="d-step-num">02</div>
+        <div class="d-step-content">
+          <h3>Design &amp; copy</h3>
+          <p>We build the site and write every word. You get a preview link to review.</p>
+        </div>
+      </div>
+      <div class="d-step-arrow">→</div>
+      <div class="d-step">
+        <div class="d-step-num">03</div>
+        <div class="d-step-content">
+          <h3>Revisions</h3>
+          <p>Two rounds of revisions included. We get it right before going live.</p>
+        </div>
+      </div>
+      <div class="d-step-arrow">→</div>
+      <div class="d-step">
+        <div class="d-step-num">04</div>
+        <div class="d-step-content">
+          <h3>Launch</h3>
+          <p>We handle hosting setup, domain, and go-live. You get a site that works.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="d-section" id="pricing">
+  <div class="d-container">
+    <div class="d-section-tag">Pricing</div>
+    <h2 class="d-section-title">One price. No surprises.</h2>
+    <div class="d-pricing-grid">
+      <div class="d-pricing-card">
+        <div class="d-pricing-tier">Starter Site</div>
+        <div class="d-pricing-price">$2,000</div>
+        <div class="d-pricing-note">one-time</div>
+        <ul class="d-pricing-list">
+          <li>Up to 5 pages</li>
+          <li>Mobile-first design</li>
+          <li>Contact form + click-to-call</li>
+          <li>Basic SEO setup</li>
+          <li>2 rounds of revisions</li>
+          <li>Delivered in 10 days</li>
+        </ul>
+        <a class="d-btn-outline" href="#contact">Get started</a>
+      </div>
+      <div class="d-pricing-card d-pricing-featured">
+        <div class="d-pricing-badge">Most popular</div>
+        <div class="d-pricing-tier">Pro Site</div>
+        <div class="d-pricing-price">$3,500</div>
+        <div class="d-pricing-note">one-time</div>
+        <ul class="d-pricing-list">
+          <li>Up to 10 pages</li>
+          <li>Custom design system</li>
+          <li>Full copywriting included</li>
+          <li>Local SEO + schema markup</li>
+          <li>LeadPro chat widget included</li>
+          <li>Google Business optimization</li>
+          <li>3 rounds of revisions</li>
+          <li>Delivered in 10 days</li>
+        </ul>
+        <a class="d-btn-gold" href="#contact">Get started</a>
+      </div>
+      <div class="d-pricing-card">
+        <div class="d-pricing-tier">Premium Site</div>
+        <div class="d-pricing-price">$5,000</div>
+        <div class="d-pricing-note">one-time</div>
+        <ul class="d-pricing-list">
+          <li>Unlimited pages</li>
+          <li>Custom animations &amp; interactions</li>
+          <li>Full copywriting + brand voice</li>
+          <li>Advanced SEO strategy</li>
+          <li>LeadPro AI receptionist included</li>
+          <li>Photo direction &amp; sourcing</li>
+          <li>Unlimited revisions</li>
+          <li>Priority delivery — 7 days</li>
+        </ul>
+        <a class="d-btn-outline" href="#contact">Get started</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT / CTA -->
+<section class="d-cta" id="contact">
+  <div class="d-container">
+    <h2 class="d-cta-title">Ready to look as good<br/>as the work you do?</h2>
+    <p class="d-cta-sub">Tell us about your business and we'll get back to you within 24 hours.</p>
+    <div class="d-contact-form">
+      <input type="text" placeholder="Your name" id="d-name"/>
+      <input type="text" placeholder="Business name &amp; trade (e.g. Green's HVAC)" id="d-biz"/>
+      <input type="tel" placeholder="Phone number" id="d-phone"/>
+      <input type="email" placeholder="Email" id="d-email"/>
+      <select id="d-budget">
+        <option value="">Which package interests you?</option>
+        <option>Starter Site — $2,000</option>
+        <option>Pro Site — $3,500</option>
+        <option>Premium Site — $5,000</option>
+        <option>Not sure yet — let's talk</option>
+      </select>
+      <button class="d-btn-gold d-submit" onclick="submitDesignLead()">Send my request →</button>
+      <p class="d-form-note" id="d-form-msg">No commitment. We'll reach out to schedule a free discovery call.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="d-footer">
+  <div class="d-container">
+    <a href="/" class="d-footer-back">← Back to LeadPro</a>
+    <span>© 2025 LeadPro Design</span>
+  </div>
+</footer>
+
+<script>
+async function submitDesignLead() {
+  const name   = document.getElementById('d-name').value.trim();
+  const biz    = document.getElementById('d-biz').value.trim();
+  const phone  = document.getElementById('d-phone').value.trim();
+  const email  = document.getElementById('d-email').value.trim();
+  const budget = document.getElementById('d-budget').value;
+  const msg    = document.getElementById('d-form-msg');
+
+  if (!name || !phone) {
+    msg.textContent = 'Please enter your name and phone number.';
+    msg.style.color = '#e53e3e';
+    return;
+  }
+
+  try {
+    await fetch('/api/design-lead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, biz, phone, email, budget, source: 'design-page' })
+    });
+    msg.textContent = '✓ Received! Josiah will reach out within 24 hours.';
+    msg.style.color = '#C9A96E';
+  } catch(e) {
+    msg.textContent = 'Something went wrong — call (302) 664-7594 directly.';
+    msg.style.color = '#e53e3e';
+  }
+}
+</script>
+</body>
+</html>

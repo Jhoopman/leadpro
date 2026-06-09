@@ -137,6 +137,34 @@
       transition: color 0.2s cubic-bezier(0.32,0.72,0,1);
     }
     .nav-links a:hover { color: #52D99A; }
+    .nav-divider {
+      width: 1px;
+      height: 16px;
+      background: rgba(255,255,255,0.1);
+      margin: 0 4px;
+      list-style: none;
+    }
+    .nav-subbrand {
+      font-weight: 700 !important;
+      font-size: 0.8rem !important;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 4px 10px !important;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+    .nav-design {
+      color: #C9A96E !important;
+      background: rgba(201,169,110,0.08);
+      border: 1px solid rgba(201,169,110,0.2);
+    }
+    .nav-design:hover { background: rgba(201,169,110,0.15) !important; }
+    .nav-agents {
+      color: #818CF8 !important;
+      background: rgba(129,140,248,0.08);
+      border: 1px solid rgba(129,140,248,0.2);
+    }
+    .nav-agents:hover { background: rgba(129,140,248,0.15) !important; }
     .nav-cta {
       display: flex;
       align-items: center;
@@ -2701,6 +2729,9 @@
       <li><a href="#pricing">Pricing</a></li>
       <li><a href="#faq">FAQ</a></li>
       <li><a href="#contact">Contact</a></li>
+      <li class="nav-divider"></li>
+      <li><a href="/design" class="nav-subbrand nav-design">Design</a></li>
+      <li><a href="/agents" class="nav-subbrand nav-agents">Agents</a></li>
     </ul>
     <div class="nav-cta">
       <a class="btn-ghost" href="https://app.useleadpro.net/auth">Log in</a>
@@ -2725,6 +2756,8 @@
   <a href="#pricing" onclick="document.getElementById('mobileMenu').classList.remove('open')">Pricing</a>
   <a href="#faq" onclick="document.getElementById('mobileMenu').classList.remove('open')">FAQ</a>
   <a href="#contact" onclick="document.getElementById('mobileMenu').classList.remove('open')">Contact</a>
+  <a href="/design" style="color:#C9A96E; font-weight:700;">✦ LeadPro Design</a>
+  <a href="/agents" style="color:#818CF8; font-weight:700;">⬡ LeadPro Agents</a>
   <!-- old copy, remove after May 14 if no rollback needed -->
   <!-- <a href="https://app.useleadpro.net/signup" style="color: var(--green); margin-top: 12px;">Start free trial →</a> -->
   <a href="https://app.useleadpro.net/auth" style="color: var(--green); margin-top: 12px;">Become a Founding Member →</a>
