@@ -3,143 +3,650 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Get a Text from LeadPro</title>
-  <meta name="description" content="Opt in to receive a text message back from LeadPro." />
+  <title>Text Message Opt-In — Josiah E Hoopman</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'DM Sans', sans-serif; background: #0A0A0A; color: #e5e5e5; line-height: 1.75; -webkit-font-smoothing: antialiased; }
-    nav { background: #111111; border-bottom: 1px solid #1f1f1f; padding: 0 24px; height: 64px; display: flex; align-items: center; }
-    .logo { display: flex; align-items: center; gap: 8px; text-decoration: none; font-weight: 700; font-size: 1.2rem; color: #74C69D; }
-    .logo-mark { width: 30px; height: 30px; background: #2D6A4F; border-radius: 7px; display: flex; align-items: center; justify-content: center; }
-    main { max-width: 520px; margin: 0 auto; padding: 64px 24px 96px; }
-    h1 { font-size: 2rem; font-weight: 700; color: #ffffff; margin-bottom: 12px; }
-    .subtitle { color: #aaaaaa; margin-bottom: 40px; }
-    label { display: block; font-size: 0.9rem; color: #aaaaaa; margin-bottom: 6px; }
-    input[type="text"], input[type="tel"] {
-      width: 100%; padding: 12px 14px; background: #1a1a1a; border: 1px solid #2a2a2a;
-      border-radius: 8px; color: #e5e5e5; font-family: inherit; font-size: 1rem;
-      margin-bottom: 20px; outline: none; transition: border-color 0.15s;
+
+    :root {
+      --bg:         #0B1812;
+      --emerald:    #52D99A;
+      --em-10:      rgba(82,217,154,0.10);
+      --em-14:      rgba(82,217,154,0.14);
+      --em-20:      rgba(82,217,154,0.20);
+      --em-30:      rgba(82,217,154,0.30);
+      --text:       #EFF8F2;
+      --muted:      rgba(239,248,242,0.55);
+      --ease:       cubic-bezier(0.32,0.72,0,1);
     }
-    input[type="text"]:focus, input[type="tel"]:focus { border-color: #74C69D; }
-    .consent-block { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px; }
-    .consent-block input[type="checkbox"] { margin-top: 4px; width: 16px; height: 16px; flex-shrink: 0; accent-color: #74C69D; cursor: pointer; }
-    .consent-label { font-size: 0.83rem; color: #888888; line-height: 1.6; }
-    .legal-links { font-size: 0.82rem; color: #555; margin-bottom: 28px; padding-left: 28px; }
-    .legal-links a { color: #74C69D; text-decoration: none; }
-    .legal-links a:hover { text-decoration: underline; }
-    button[type="submit"] {
-      width: 100%; padding: 14px; background: #2D6A4F; color: #ffffff;
-      border: none; border-radius: 8px; font-family: inherit; font-size: 1rem;
-      font-weight: 600; cursor: pointer; transition: background 0.15s, opacity 0.15s;
+
+    html, body {
+      min-height: 100%;
+      background: var(--bg);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
-    button[type="submit"]:enabled:hover { background: #3a8a65; }
-    button[type="submit"]:disabled { opacity: 0.4; cursor: not-allowed; }
-    .msg { margin-top: 20px; font-size: 0.9rem; min-height: 1.4em; }
-    .msg.ok { color: #74C69D; }
-    .msg.err { color: #e05c5c; }
-    a { color: #74C69D; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    footer { border-top: 1px solid #1f1f1f; padding: 24px; text-align: center; font-size: 0.82rem; color: #555; }
-    footer a { color: #555; margin: 0 10px; }
-    footer a:hover { color: #74C69D; }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 3rem 1rem;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Ambient radial mesh */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 90% 55% at 50% -5%,  rgba(82,217,154,0.13) 0%, transparent 65%),
+        radial-gradient(ellipse 45% 45% at 85% 85%,  rgba(30,90,55,0.09)   0%, transparent 55%),
+        radial-gradient(ellipse 55% 45% at  8% 92%,  rgba(18,55,30,0.07)   0%, transparent 55%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Noise grain */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.035;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Layout ── */
+    .page {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 460px;
+    }
+
+    /* ── Double-Bezel Card ── */
+    .card-outer {
+      border-radius: 2rem;
+      background: rgba(11,24,18,0.72);
+      border: 1px solid var(--em-14);
+      padding: 0.375rem;
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      box-shadow:
+        inset 0 0 0 1px rgba(82,217,154,0.04),
+        0 40px 90px rgba(0,0,0,0.55),
+        0 0 70px rgba(82,217,154,0.04);
+      opacity: 0;
+      transform: translateY(1.75rem) scale(0.992);
+      transition:
+        opacity 750ms var(--ease),
+        transform 750ms var(--ease);
+    }
+
+    .card-outer.visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .card-inner {
+      border-radius: calc(2rem - 0.375rem);
+      background: rgba(9,18,13,0.88);
+      box-shadow: inset 0 1px 1px rgba(255,255,255,0.055);
+      padding: 2.75rem 2.25rem 2.25rem;
+    }
+
+    /* ── Eyebrow ── */
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      border-radius: 9999px;
+      background: var(--em-10);
+      border: 1px solid var(--em-30);
+      padding: 0.25rem 0.875rem 0.25rem 0.5rem;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--emerald);
+      margin-bottom: 1.375rem;
+    }
+
+    .eyebrow-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 9999px;
+      background: var(--emerald);
+      animation: blink 2.2s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; transform: scale(1);    }
+      50%       { opacity: 0.45; transform: scale(0.8); }
+    }
+
+    /* ── Headings ── */
+    h1 {
+      font-size: clamp(1.6rem, 4.5vw, 2rem);
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      line-height: 1.12;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      font-size: 0.875rem;
+      line-height: 1.65;
+      color: var(--muted);
+      margin-bottom: 2rem;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--em-14) 30%, var(--em-14) 70%, transparent);
+      margin-bottom: 1.75rem;
+    }
+
+    /* ── Field groups ── */
+    .form-group {
+      margin-bottom: 1.125rem;
+    }
+
+    label.field-label {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+    }
+
+    input[type="text"],
+    input[type="tel"] {
+      width: 100%;
+      background: rgba(82,217,154,0.04);
+      border: 1px solid var(--em-14);
+      border-radius: 0.6875rem;
+      padding: 0.8125rem 1rem;
+      font-family: inherit;
+      font-size: 0.9375rem;
+      font-weight: 400;
+      color: var(--text);
+      outline: none;
+      transition:
+        border-color 380ms var(--ease),
+        background   380ms var(--ease),
+        box-shadow   380ms var(--ease);
+    }
+
+    input[type="text"]::placeholder,
+    input[type="tel"]::placeholder {
+      color: rgba(239,248,242,0.22);
+    }
+
+    input[type="text"]:hover,
+    input[type="tel"]:hover {
+      border-color: var(--em-20);
+    }
+
+    input[type="text"]:focus,
+    input[type="tel"]:focus {
+      border-color: var(--em-30);
+      background: rgba(82,217,154,0.07);
+      box-shadow: 0 0 0 3px rgba(82,217,154,0.08);
+    }
+
+    input.invalid {
+      border-color: rgba(248,113,113,0.5) !important;
+    }
+
+    /* ── Consent block ── */
+    .consent-wrap {
+      margin: 1.5rem 0 0.25rem;
+      border-radius: 0.9375rem;
+      background: rgba(82,217,154,0.035);
+      border: 1px solid var(--em-10);
+      padding: 1rem 1rem 0.875rem;
+    }
+
+    .consent-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+
+    /* Custom checkbox */
+    input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      flex-shrink: 0;
+      width: 1.125rem;
+      height: 1.125rem;
+      border-radius: 0.3rem;
+      border: 1.5px solid rgba(82,217,154,0.32);
+      background: rgba(82,217,154,0.04);
+      cursor: pointer;
+      margin-top: 0.125rem;
+      position: relative;
+      transition:
+        border-color 280ms var(--ease),
+        background   280ms var(--ease),
+        box-shadow   280ms var(--ease);
+    }
+
+    input[type="checkbox"]::after {
+      content: '';
+      position: absolute;
+      display: none;
+      left: 0.27rem;
+      top: 0.08rem;
+      width: 0.3rem;
+      height: 0.58rem;
+      border: 2px solid #071008;
+      border-top: none;
+      border-left: none;
+      transform: rotate(45deg);
+    }
+
+    input[type="checkbox"]:checked {
+      background: var(--emerald);
+      border-color: var(--emerald);
+      box-shadow: 0 0 0 3px rgba(82,217,154,0.18);
+    }
+
+    input[type="checkbox"]:checked::after {
+      display: block;
+    }
+
+    input[type="checkbox"]:focus-visible {
+      outline: 2px solid var(--emerald);
+      outline-offset: 2px;
+    }
+
+    .consent-text {
+      font-size: 0.8125rem;
+      line-height: 1.65;
+      color: rgba(239,248,242,0.7);
+    }
+
+    .consent-text strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    /* ── Policy links ── */
+    .policy-links {
+      display: flex;
+      gap: 1.5rem;
+      margin: 1rem 0 1.625rem;
+      flex-wrap: wrap;
+    }
+
+    .policy-links a {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--emerald);
+      text-decoration: none;
+      opacity: 0.75;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: opacity 300ms var(--ease);
+    }
+
+    .policy-links a:hover { opacity: 1; }
+
+    .policy-links a::after {
+      content: '↗';
+      font-size: 0.6875rem;
+    }
+
+    /* ── Error messages ── */
+    .error-msg {
+      font-size: 0.7375rem;
+      color: #f87171;
+      margin-top: 0.35rem;
+      display: none;
+    }
+    .error-msg.show { display: block; }
+
+    .submit-error {
+      font-size: 0.8125rem;
+      color: #f87171;
+      margin-bottom: 0.75rem;
+      display: none;
+    }
+    .submit-error.show { display: block; }
+
+    /* ── Submit button (pill + inner icon wrapper) ── */
+    .btn-submit {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-radius: 9999px;
+      background: var(--emerald);
+      border: none;
+      padding: 0.8125rem 0.75rem 0.8125rem 1.625rem;
+      font-family: inherit;
+      font-size: 0.9375rem;
+      font-weight: 700;
+      color: #071008;
+      cursor: pointer;
+      letter-spacing: -0.01em;
+      box-shadow: 0 0 32px rgba(82,217,154,0.22), 0 4px 18px rgba(0,0,0,0.28);
+      transition:
+        transform   600ms var(--ease),
+        box-shadow  600ms var(--ease),
+        opacity     350ms var(--ease);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.42;
+      cursor: not-allowed;
+    }
+
+    .btn-submit:not(:disabled):hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 48px rgba(82,217,154,0.32), 0 10px 28px rgba(0,0,0,0.32);
+    }
+
+    .btn-submit:not(:disabled):active {
+      transform: scale(0.975);
+      transition-duration: 120ms;
+    }
+
+    .btn-icon {
+      width: 2.125rem;
+      height: 2.125rem;
+      border-radius: 9999px;
+      background: rgba(7,16,8,0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: transform 420ms var(--ease);
+    }
+
+    .btn-submit:not(:disabled):hover .btn-icon {
+      transform: translate(2px, -2px);
+    }
+
+    /* Arrow SVG */
+    .arrow-svg { display: block; }
+
+    /* Spinner */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      width: 0.9rem;
+      height: 0.9rem;
+      border: 2px solid rgba(7,16,8,0.25);
+      border-top-color: #071008;
+      border-radius: 9999px;
+      animation: spin 650ms linear infinite;
+    }
+
+    /* ── Success ── */
+    .success-view {
+      text-align: center;
+      padding: 0.5rem 0 0.25rem;
+      display: none;
+    }
+
+    .success-icon-wrap {
+      width: 4.5rem;
+      height: 4.5rem;
+      border-radius: 9999px;
+      background: var(--em-10);
+      border: 1px solid var(--em-30);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.375rem;
+      box-shadow: 0 0 40px rgba(82,217,154,0.1);
+    }
+
+    .success-title {
+      font-size: 1.375rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      margin-bottom: 0.5rem;
+    }
+
+    .success-body {
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.65;
+      max-width: 22rem;
+      margin: 0 auto;
+    }
+
+    /* ── Footer ── */
+    .footer-note {
+      text-align: center;
+      font-size: 0.6875rem;
+      color: rgba(239,248,242,0.22);
+      margin-top: 1.375rem;
+      line-height: 1.7;
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 480px) {
+      body { padding: 1.5rem 0.875rem; align-items: flex-start; }
+      .card-inner { padding: 2rem 1.25rem 1.75rem; }
+      h1 { font-size: 1.5rem; }
+    }
   </style>
 </head>
 <body>
-<nav>
-  <a class="logo" href="/">
-    <span class="logo-mark">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 13L8 3L13 13H3Z" fill="#74C69D"/></svg>
-    </span>
-    LeadPro
-  </a>
-</nav>
 
-<main>
-  <h1>Get a text back from LeadPro.</h1>
-  <p class="subtitle">Enter your number and we'll text you back about your request.</p>
+  <div class="page">
 
-  <form id="opt-in-form" novalidate>
-    <label for="name">Name (optional)</label>
-    <input type="text" id="name" name="name" placeholder="Your name" autocomplete="name" />
+    <!-- Double-Bezel Card -->
+    <div class="card-outer" id="card">
+      <div class="card-inner">
 
-    <label for="phone">Phone number <span style="color:#e05c5c">*</span></label>
-    <input type="tel" id="phone" name="phone" placeholder="+1 (555) 000-0000" autocomplete="tel" required />
+        <!-- Eyebrow badge -->
+        <div class="eyebrow">
+          <span class="eyebrow-dot"></span>
+          SMS Opt-In
+        </div>
 
-    <div class="consent-block">
-      <input type="checkbox" id="consent" name="consent" />
-      <label class="consent-label" for="consent">I agree to receive text messages from LeadPro about my request, appointment scheduling, and related follow-ups. Message frequency varies. Message and data rates may apply. Reply HELP for help, STOP to cancel.</label>
+        <!-- Heading -->
+        <h1>Josiah E Hoopman</h1>
+        <p class="subtitle">Sign up to receive text message updates. Your privacy is respected — unsubscribe any time.</p>
+
+        <div class="divider"></div>
+
+        <!-- Form -->
+        <div id="form-view">
+          <form id="opt-in-form" novalidate>
+
+            <div class="form-group">
+              <label class="field-label" for="name">Full Name</label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                placeholder="Jane Smith"
+                autocomplete="name"
+                required
+              />
+              <p class="error-msg" id="name-error">Please enter your name.</p>
+            </div>
+
+            <div class="form-group">
+              <label class="field-label" for="phone">Phone Number</label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                placeholder="+1 (555) 000-0000"
+                autocomplete="tel"
+                required
+              />
+              <p class="error-msg" id="phone-error">Please enter a valid phone number.</p>
+            </div>
+
+            <!-- Consent checkbox — unchecked by default per TCR/A2P requirement -->
+            <div class="consent-wrap">
+              <div class="consent-row">
+                <input type="checkbox" id="consent" name="consent" />
+                <label class="consent-text" for="consent">
+                  I agree to receive text messages from <strong>Josiah E Hoopman</strong>.
+                  Message frequency varies. Msg &amp; data rates may apply.
+                  Reply HELP for help, STOP to cancel.
+                </label>
+              </div>
+              <p class="error-msg" id="consent-error">You must agree to receive messages to continue.</p>
+            </div>
+
+            <!-- Policy links -->
+            <div class="policy-links">
+              <a href="https://useleadpro.net/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+              <a href="https://useleadpro.net/terms"   target="_blank" rel="noopener noreferrer">Terms of Service</a>
+            </div>
+
+            <!-- Submit error -->
+            <p class="submit-error" id="submit-error"></p>
+
+            <!-- Opt In button -->
+            <button type="submit" class="btn-submit" id="submit-btn" disabled>
+              <span id="btn-label">Opt In</span>
+              <span class="btn-icon" id="btn-icon">
+                <svg class="arrow-svg" width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M2.5 7.5H12.5M12.5 7.5L8.5 3.5M12.5 7.5L8.5 11.5" stroke="#071008" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+            </button>
+
+          </form>
+        </div>
+
+        <!-- Success state -->
+        <div class="success-view" id="success-view">
+          <div class="success-icon-wrap">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M5.25 14L11.083 19.833L22.75 8.167" stroke="#52D99A" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h2 class="success-title">You're all set!</h2>
+          <p class="success-body">You'll now receive text messages from Josiah E Hoopman. Reply STOP at any time to unsubscribe.</p>
+        </div>
+
+      </div>
     </div>
 
-    <p class="legal-links">
-      <a href="/privacy">Privacy Policy</a> &nbsp;&middot;&nbsp; <a href="/terms">Terms of Service</a>
-    </p>
+    <p class="footer-note">© 2025 Josiah E Hoopman. All rights reserved.</p>
+  </div>
 
-    <button type="submit" id="submit-btn" disabled>Send my number</button>
-    <p class="msg" id="msg" aria-live="polite"></p>
-  </form>
-</main>
-
-<footer>
-  <p>&copy; 2026 LeadPro, Inc. &nbsp;|&nbsp; <a href="/">Home</a> <a href="/privacy">Privacy Policy</a> <a href="/terms">Terms of Service</a> <a href="/text">SMS Opt-In</a></p>
-</footer>
-
-<script>
-  const checkbox  = document.getElementById('consent');
-  const submitBtn = document.getElementById('submit-btn');
-  const msg       = document.getElementById('msg');
-
-  const CONSENT_TEXT = 'I agree to receive text messages from LeadPro about my request, appointment scheduling, and related follow-ups. Message frequency varies. Message and data rates may apply. Reply HELP for help, STOP to cancel.';
-
-  checkbox.addEventListener('change', () => {
-    submitBtn.disabled = !checkbox.checked;
-  });
-
-  document.getElementById('opt-in-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    msg.textContent = '';
-    msg.className = 'msg';
-
-    const phone = document.getElementById('phone').value.trim();
-    const name  = document.getElementById('name').value.trim();
-
-    if (!phone) {
-      msg.textContent = 'Please enter your phone number.';
-      msg.className = 'msg err';
-      return;
-    }
-    if (!checkbox.checked) {
-      msg.textContent = 'Please check the consent box to continue.';
-      msg.className = 'msg err';
-      return;
-    }
-
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Sending…';
-
-    try {
-      const res = await fetch('/api/sms-consent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, phone, consent: true, consent_text: CONSENT_TEXT }),
+  <script>
+    (function () {
+      // Entrance animation
+      requestAnimationFrame(function () {
+        setTimeout(function () {
+          document.getElementById('card').classList.add('visible');
+        }, 50);
       });
-      const data = await res.json();
-      if (res.ok && data.success) {
-        msg.textContent = "You’re all set! You’ll receive a text shortly.";
-        msg.className = 'msg ok';
-        document.getElementById('opt-in-form').reset();
-        submitBtn.disabled = true;
-      } else {
-        throw new Error(data.error || 'Something went wrong.');
+
+      var form       = document.getElementById('opt-in-form');
+      var consentEl  = document.getElementById('consent');
+      var submitBtn  = document.getElementById('submit-btn');
+      var btnLabel   = document.getElementById('btn-label');
+      var btnIcon    = document.getElementById('btn-icon');
+      var submitErr  = document.getElementById('submit-error');
+
+      var arrowSVG =
+        '<svg class="arrow-svg" width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+        '<path d="M2.5 7.5H12.5M12.5 7.5L8.5 3.5M12.5 7.5L8.5 11.5" stroke="#071008" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '</svg>';
+
+      // Enable submit only when consent is checked
+      consentEl.addEventListener('change', function () {
+        submitBtn.disabled = !consentEl.checked;
+      });
+
+      function showError(id, show) {
+        var el = document.getElementById(id);
+        if (el) el.classList.toggle('show', show);
       }
-    } catch (err) {
-      msg.textContent = err.message || 'Something went wrong. Please try again.';
-      msg.className = 'msg err';
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Send my number';
-    }
-  });
-</script>
+
+      function markInvalid(id, invalid) {
+        var el = document.getElementById(id);
+        if (el) el.classList.toggle('invalid', invalid);
+      }
+
+      function validate() {
+        var name  = document.getElementById('name').value.trim();
+        var phone = document.getElementById('phone').value.trim();
+        var digits = phone.replace(/\D/g, '');
+        var ok = true;
+
+        showError('name-error',    !name);
+        markInvalid('name',        !name);
+        if (!name) ok = false;
+
+        var badPhone = !phone || digits.length < 10;
+        showError('phone-error',   badPhone);
+        markInvalid('phone',       badPhone);
+        if (badPhone) ok = false;
+
+        showError('consent-error', !consentEl.checked);
+        if (!consentEl.checked) ok = false;
+
+        return ok;
+      }
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        submitErr.classList.remove('show');
+
+        if (!validate()) return;
+
+        // Loading state
+        submitBtn.disabled = true;
+        btnLabel.textContent = 'Sending…';
+        btnIcon.innerHTML = '<span class="spinner"></span>';
+
+        var payload = {
+          name:    document.getElementById('name').value.trim(),
+          phone:   document.getElementById('phone').value.trim(),
+          consent: true,
+          source:  'text-page'
+        };
+
+        fetch('https://app.useleadpro.net/api/sms-consent', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify(payload)
+        })
+        .then(function (res) {
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          document.getElementById('form-view').style.display   = 'none';
+          document.getElementById('success-view').style.display = 'block';
+        })
+        .catch(function () {
+          submitErr.textContent = 'Something went wrong — please try again.';
+          submitErr.classList.add('show');
+          btnLabel.textContent  = 'Opt In';
+          btnIcon.innerHTML     = arrowSVG;
+          submitBtn.disabled    = false;
+        });
+      });
+    })();
+  </script>
+
 </body>
 </html>
