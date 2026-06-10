@@ -101,31 +101,36 @@ function scoreContractor(analysis) {
   const missing = [];
 
   if (!analysis.hasWebsite) {
-    score += 35;
+    // No web presence at all — strongest lead signal
+    score += 50;
     missing.push('No website');
   } else {
-    if (!analysis.hasChatWidget) {
-      score += 30;
-      missing.push('No chat widget');
-    }
+    // Has a website — dock for quality gaps
     if (!analysis.hasSSL) {
-      score += 10;
+      score += 15;
       missing.push('No SSL');
     }
     if (!analysis.hasMobileViewport) {
-      score += 8;
-      missing.push('No mobile viewport');
+      score += 15;
+      missing.push('Not mobile-friendly');
+    }
+    if (!analysis.hasChatWidget) {
+      // Almost universal gap — minor weight so it doesn't inflate every score
+      score += 10;
+      missing.push('No chat widget');
     }
   }
 
   if (!analysis.hasPhone) {
-    score += 12;
+    score += 15;
     missing.push('No phone listed');
   }
 
   if (analysis.rating && analysis.rating < 4.0) {
-    score += 5;
+    score += 10;
     missing.push('Low Google rating');
+  } else if (analysis.rating && analysis.rating < 3.5) {
+    score += 5; // extra dock for really low ratings
   }
 
   return { score: Math.min(score, 100), missing };
