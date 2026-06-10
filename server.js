@@ -187,14 +187,26 @@ app.post('/api',             requireAuth);
 app.use('/api/agent-config', requireAuth);
 app.use('/api/test-agent',   requireAuth);
 app.post('/auth/google/disconnect', requireAuth);
-app.use('/api/prospector',   requireAuth);   // prospector wasn't previously auth-gated
+// INTERNAL KEY BYPASS — desktop Marketing Hub only.
+// Replaces the separate requireAuth + requirePlan('pro') for /api/prospector.
+// All other routes are unaffected.
+app.use('/api/prospector', (req, res, next) => {
+  const internalKey = req.headers['x-internal-key'];
+  if (internalKey && internalKey === process.env.INTERNAL_API_KEY) {
+    return next(); // INTERNAL KEY BYPASS — authenticated, skip plan gate
+  }
+  // Normal path: verify Bearer token then enforce Pro plan
+  requireAuth(req, res, (err) => {
+    if (err) return next(err);
+    requirePlan('pro')(req, res, next);
+  });
+});
 
 // Plan gates — always after requireAuth (reads req.contractor, no extra DB calls)
 app.post('/api',              requirePlan('starter'));   // /api chat proxy → Starter+
 app.use('/send-confirmation', requirePlan('starter'));
 app.use('/calendar',          requirePlan('starter'));
 app.use('/billing-portal',    requirePlan('starter'));
-app.use('/api/prospector',    requirePlan('pro'));
 
 // ── ROUTE MODULES ─────────────────────────────────────────────────────────────
 
