@@ -23,6 +23,11 @@ router.post('/create-checkout-session', checkoutLimit, catchAsync(async (req, re
   if (!req.contractor) return res.status(401).json({ error: 'Please sign in first' });
   if (!cfg.stripe.secretKey) return res.status(503).json({ error: 'Billing not configured' });
 
+  // INTERNAL ACCOUNT — skip billing
+  if (req.contractor.is_internal === true) {
+    return res.status(200).json({ internal: true, message: 'Internal account — billing not required' });
+  }
+
   const { plan, contractorId, successUrl, cancelUrl } = req.body;
   if (!plan || !contractorId) return res.status(400).json({ error: 'Missing plan or contractorId' });
 
@@ -196,6 +201,11 @@ router.post('/stripe-webhook', async (req, res) => {
 // GET /billing-portal?contractorId=X
 router.get('/billing-portal', catchAsync(async (req, res) => {
   if (!cfg.stripe.secretKey) return res.status(503).json({ error: 'Billing not configured' });
+
+  // INTERNAL ACCOUNT — skip billing
+  if (req.contractor?.is_internal === true) {
+    return res.status(200).json({ internal: true, message: 'Internal account — no billing portal' });
+  }
 
   const contractorId = req.query.contractorId;
   if (!contractorId) return res.status(400).json({ error: 'Missing contractorId' });
