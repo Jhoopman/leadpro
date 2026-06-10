@@ -645,16 +645,32 @@ let selectedCampaignId = null;     // selection inside save modal
 
 /* ── SUPABASE AUTH INIT ─────────────────────────────────────────────────────── */
 (async function initAuth() {
+  // 1. Try Supabase native session (accounts using Supabase SDK directly)
   try {
     const cfg = await fetch('/config').then(r => r.json());
-    if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) return;
-    const sb = supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
-    const { data: { session } } = await sb.auth.getSession();
-    if (session) currentUser = session.user;
+    if (cfg.supabaseUrl && cfg.supabaseAnonKey) {
+      const sbClient = supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
+      const { data: { session } } = await sbClient.auth.getSession();
+      if (session) { currentUser = session.user; return; }
+    }
   } catch(e) {
-    console.warn('[Prospector] Auth init failed:', e.message);
+    console.warn('[Prospector] Auth init (Supabase) failed:', e.message);
   }
+  // 2. Fall back to the custom JWT stored by the main LeadPro app.
+  //    The main app persists the token under leadpro_token, not under Supabase's
+  //    own session keys, so getSession() above always returns null for these users.
+  const token = localStorage.getItem('leadpro_token');
+  const id    = localStorage.getItem('leadpro_contractor_id');
+  if (token && id) currentUser = { id };
 })();
+
+/* ── AUTH HEADERS ───────────────────────────────────────────────────────────── */
+function authHeaders() {
+  const token = localStorage.getItem('leadpro_token');
+  const h = { 'Content-Type': 'application/json' };
+  if (token) h['Authorization'] = 'Bearer ' + token;
+  return h;
+}
 
 /* ── TABS ───────────────────────────────────────────────────────────────────── */
 function switchTab(tab) {
@@ -695,7 +711,7 @@ async function runSearch() {
     try {
       const res = await fetch('/api/prospector', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders(),
         body: JSON.stringify({ location, industry }),
         signal: controller.signal,
       });

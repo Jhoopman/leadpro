@@ -235,6 +235,22 @@ router.post('/auth/login', authLimit, catchAsync(async (req, res) => {
   });
 }));
 
+// ── FORGOT PASSWORD ───────────────────────────────────────────────────────────
+// POST /auth/forgot-password
+// Sends a Supabase password-reset email. Always returns 200 to prevent
+// email enumeration — the client never learns whether the address exists.
+
+router.post('/auth/forgot-password', authLimit, catchAsync(async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email is required' });
+
+  await anonSupabase.auth.resetPasswordForEmail(email.toLowerCase().trim(), {
+    redirectTo: 'https://app.useleadpro.net/auth',
+  }).catch(e => console.warn('[auth/forgot-password] resetPasswordForEmail:', e.message));
+
+  res.json({ ok: true });
+}));
+
 // ── LOGOUT ────────────────────────────────────────────────────────────────────
 // POST /auth/logout
 // Best-effort server-side invalidation. Client must also remove localStorage tokens.

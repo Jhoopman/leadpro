@@ -2577,9 +2577,15 @@ async function afterLogin() {
     showOnboardingScreen();
     return;
   }
-  // Show legacy setup wizard for accounts that haven't completed basic setup
+  // Show legacy setup wizard only when required profile fields are still missing.
+  // Accounts that already have business_name + trade + service_area skip onboarding
+  // regardless of the onboarding_done flag — prevents re-triggering on every login.
   if (contractorProfile && !contractorProfile.onboarding_done) {
-    showOnboarding();
+    const hasProfile =
+      contractorProfile.business_name?.trim() &&
+      contractorProfile.trade?.trim() &&
+      contractorProfile.service_area?.trim();
+    if (!hasProfile) showOnboarding();
   }
 }
 
