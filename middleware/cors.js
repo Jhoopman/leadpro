@@ -87,7 +87,7 @@ async function resolveOrigin(origin) {
 
 function corsMiddleware(req, res, next) {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Internal-Key');
 
   // C) Public paths — open to the world
   if (PUBLIC_PATHS.has(req.path)) {
@@ -102,6 +102,23 @@ function corsMiddleware(req, res, next) {
   if (!origin) {
     if (req.method === 'OPTIONS') { res.sendStatus(204); return; }
     return next();
+  }
+
+  // 'null' origin = file:// (desktop Marketing Hub). Allow only when the
+  // request carries X-Internal-Key (actual request) or declares it in the
+  // preflight Access-Control-Request-Headers. The route-level bypass still
+  // validates the key value; CORS just needs to let the request through.
+  if (origin === 'null') {
+    const hasKey = req.headers['x-internal-key'] ||
+      (req.headers['access-control-request-headers'] || '').toLowerCase().includes('x-internal-key');
+    if (hasKey) {
+      res.setHeader('Access-Control-Allow-Origin', 'null');
+      res.setHeader('Vary', 'Origin');
+      if (req.method === 'OPTIONS') { res.sendStatus(204); return; }
+      return next();
+    }
+    console.warn(`[CORS] REJECTED null-origin without internal key path=${req.path}`);
+    return res.status(403).json({ error: 'Origin not allowed', origin });
   }
 
   resolveOrigin(origin)
