@@ -65,10 +65,10 @@ router.post('/api/prospector', prospectorLimit, catchAsync(async (req, res) => {
 
   const searchTimeout = setTimeout(() => {
     if (!res.headersSent) {
-      console.error(`[prospector] 30s timeout: "${industry}" in "${location}"`);
+      console.error(`[prospector] 55s timeout: "${industry}" in "${location}"`);
       res.status(504).json({ error: 'Search timed out — try again', results: [] });
     }
-  }, 30000);
+  }, 55000);
 
   const query = encodeURIComponent(`${industry} contractors in ${location}`);
   let searchRes;
@@ -94,7 +94,24 @@ router.post('/api/prospector', prospectorLimit, catchAsync(async (req, res) => {
     return res.status(500).json({ error: 'Places API: ' + searchRes.status, details: searchRes.error_message });
   }
 
-  const places = (searchRes.results || []).slice(0, 10);
+  // Collect page 1 then fetch page 2 if available (Google requires a ~2s delay before using next_page_token)
+  let allPlaces = [...(searchRes.results || [])];
+  if (searchRes.next_page_token) {
+    try {
+      await new Promise(r => setTimeout(r, 2000));
+      const page2 = await googlePlacesRequest(
+        `textsearch/json?pagetoken=${encodeURIComponent(searchRes.next_page_token)}&key=${cfg.google.placesApiKey}`
+      );
+      if (page2.status === 'OK') {
+        allPlaces = allPlaces.concat(page2.results || []);
+        console.log(`[prospector] page 2 fetched: +${(page2.results||[]).length} places`);
+      }
+    } catch (e) {
+      console.log('[prospector] page 2 fetch failed (non-fatal):', e.message);
+    }
+  }
+
+  const places = allPlaces.slice(0, 40);
 
   // Run all places in parallel — each resolves to a result object
   const settled = await Promise.allSettled(places.map(async place => {
