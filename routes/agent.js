@@ -294,13 +294,14 @@ router.post('/vapi-webhook', (req, res) => {
 // ── AGENT SYSTEM PROMPT BUILDER ──────────────────────────────────────────────
 
 function buildAgentSystemPrompt(c) {
-  const ownerName   = (c.owner_name    || '').trim() || 'our team';
+  const p           = c.profile || {};
+  const ownerName   = (c.owner_name    || p.owner_name   || '').trim() || 'our team';
   const bizName     = (c.business_name || '').trim() || 'our company';
   const trade       = (c.trade         || '').trim() || 'home services';
-  const serviceArea = (c.service_area  || '').trim() || 'your area';
-  const hours       = (c.hours         || '').trim() || 'Monday–Friday 7am–6pm';
+  const serviceArea = (c.service_area  || p.service_area || '').trim() || 'your area';
+  const hours       = (p.hours         || '').trim() || 'Monday–Friday 7am–6pm';
   const services    = (c.services      || '').trim() || 'general home services';
-  const bookingLink = (c.booking_link  || '').trim() || 'we will call you back shortly';
+  const bookingLink = (c.booking_link  || p.booking_url  || '').trim() || 'we will call you back shortly';
 
   return `You are ${ownerName}'s virtual assistant at ${bizName}, a ${trade} company serving ${serviceArea}.
 
@@ -345,10 +346,14 @@ router.post('/api/agent-config', catchAsync(async (req, res) => {
 
   const { data, error } = await supabase
     .from('contractors')
-    .select('business_name, owner_name, trade, service_area, hours, services, booking_link')
+    .select('business_name, owner_name, trade, service_area, services, booking_link, profile')
     .eq('id', contractorId)
     .single();
 
+  if (error) {
+    console.error('[widget] contractor lookup failed — contractorId:', contractorId, '| error:', error.message);
+    return res.status(500).json({ error: 'Database error during contractor lookup' });
+  }
   if (!data) return res.status(404).json({ error: 'Contractor not found' });
 
   res.json({ systemPrompt: buildAgentSystemPrompt(data) });
@@ -363,10 +368,14 @@ router.post('/api/test-agent', catchAsync(async (req, res) => {
 
   const { data, error } = await supabase
     .from('contractors')
-    .select('business_name, owner_name, trade, service_area, hours, services, booking_link')
+    .select('business_name, owner_name, trade, service_area, services, booking_link, profile')
     .eq('id', contractorId)
     .single();
 
+  if (error) {
+    console.error('[widget] contractor lookup failed — contractorId:', contractorId, '| error:', error.message);
+    return res.status(500).json({ error: 'Database error during contractor lookup' });
+  }
   if (!data) return res.status(404).json({ error: 'Contractor not found' });
 
   const payload = JSON.stringify({

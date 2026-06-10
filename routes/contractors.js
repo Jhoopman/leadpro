@@ -37,13 +37,21 @@ function sendSms(to, body) {
 
 // GET /contractor/:id — widget fetches contractor profile by widget_id
 router.get('/contractor/:id', contractorLookupLimit, catchAsync(async (req, res) => {
+  const widgetId = req.params.id;
+  console.log('[widget] looking up widget_id:', widgetId);
+
   const { data, error } = await supabase
     .from('contractors')
     .select('id, business_name, services, google_connected')
-    .eq('widget_id', req.params.id)
+    .eq('widget_id', widgetId)
     .single();
 
-  if (error || !data) return res.status(404).json({ error: 'Contractor not found' });
+  console.log('[widget] contractor result:', data);
+
+  if (error || !data) {
+    console.error('[widget] contractor lookup failed — widget_id:', widgetId, '| error:', error?.message);
+    return res.status(404).json({ error: 'Contractor not found' });
+  }
   res.json(data);
 }));
 
