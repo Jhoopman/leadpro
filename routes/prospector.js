@@ -58,7 +58,7 @@ router.post('/api/prospector', prospectorLimit, catchAsync(async (req, res) => {
     return res.status(503).json({ error: 'GOOGLE_PLACES_API_KEY not configured' });
   }
 
-  const { location, industry } = req.body;
+  const { location, industry, min_score = 0 } = req.body;
   if (!location || !industry) return res.status(400).json({ error: 'Missing location or industry' });
 
   console.log(`[prospector] search start: "${industry}" in "${location}"`);
@@ -169,9 +169,11 @@ router.post('/api/prospector', prospectorLimit, catchAsync(async (req, res) => {
     .map(r => r.value);
 
   results.sort((a, b) => b.score - a.score);
+  const threshold = Math.max(0, Math.min(100, Number(min_score) || 0));
+  const filtered = threshold > 0 ? results.filter(r => r.score >= threshold) : results;
   clearTimeout(searchTimeout);
-  console.log(`[prospector] search done: ${results.length} results for "${industry}" in "${location}"`);
-  res.json({ results });
+  console.log(`[prospector] search done: ${results.length} total, ${filtered.length} above score ${threshold} for "${industry}" in "${location}"`);
+  res.json({ results: filtered });
 }));
 
 // ── CAMPAIGN ROUTES ───────────────────────────────────────────────────────────

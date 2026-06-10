@@ -403,8 +403,8 @@ table.rt { width:100%; border-collapse:collapse; font-size:14px; }
             <input type="number" id="p-rad" value="25" min="1" max="100">
           </div>
           <div class="fg fg-sm">
-            <label>Min Score</label>
-            <input type="number" id="p-min" value="5" min="1" max="10">
+            <label>Min Score (0–100)</label>
+            <input type="number" id="p-min" value="30" min="0" max="100">
           </div>
         </div>
       </div>
@@ -761,7 +761,7 @@ async function runProspector() {
     location: loc,
     industry: ind || 'home services',
     radius: parseInt(document.getElementById('p-rad').value) || 25,
-    min_score: parseInt(document.getElementById('p-min').value) || 5,
+    min_score: parseInt(document.getElementById('p-min').value) || 0,
   };
   try {
     const res = await fetchRetry(API, {
