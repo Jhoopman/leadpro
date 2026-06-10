@@ -7,7 +7,7 @@ const express        = require('express');
 const router         = express.Router();
 const { createClient } = require('@supabase/supabase-js');
 const supabase       = require('../services/supabase');
-const email          = require('../services/email');
+const emailService   = require('../services/email');
 const cfg            = require('../config');
 const { catchAsync } = require('../middleware/errorHandler');
 const { authLimit }  = require('../middleware/rateLimit');
@@ -100,7 +100,7 @@ router.post('/auth/signup', authLimit, catchAsync(async (req, res) => {
 
     // WELCOME EMAIL — fire-and-forget; never block or fail signup
     const ownerName = business_name.trim();
-    email.send(
+    emailService.send(
       cleanEmail,
       'You\'re in — here\'s what happens next 🎉',
       `<!DOCTYPE html>
