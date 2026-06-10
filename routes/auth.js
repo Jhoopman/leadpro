@@ -7,6 +7,7 @@ const express        = require('express');
 const router         = express.Router();
 const { createClient } = require('@supabase/supabase-js');
 const supabase       = require('../services/supabase');
+const email          = require('../services/email');
 const cfg            = require('../config');
 const { catchAsync } = require('../middleware/errorHandler');
 const { authLimit }  = require('../middleware/rateLimit');
@@ -96,6 +97,71 @@ router.post('/auth/signup', authLimit, catchAsync(async (req, res) => {
       { code: insertErr.code, hint: insertErr.hint });
   } else {
     console.log('[auth/signup] step 2 OK — contractor row inserted');
+
+    // WELCOME EMAIL — fire-and-forget; never block or fail signup
+    const ownerName = business_name.trim();
+    email.send(
+      cleanEmail,
+      'You\'re in — here\'s what happens next 🎉',
+      `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#0B1812;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0B1812;padding:40px 0">
+    <tr><td align="center">
+      <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#0f2018;border:1px solid #1e3a28;border-radius:12px;overflow:hidden">
+        <tr><td style="padding:32px 36px 24px">
+          <p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#52D99A">LeadPro</p>
+          <h1 style="margin:0 0 24px;font-size:22px;font-weight:700;color:#ffffff;line-height:1.25">Welcome, ${ownerName} 👋</h1>
+          <p style="margin:0 0 20px;font-size:15px;color:#a8c5b0;line-height:1.6">Here's what's happening right now:</p>
+
+          <table cellpadding="0" cellspacing="0" style="width:100%;margin-bottom:28px">
+            <tr><td style="padding:8px 0;border-bottom:1px solid #1a3024">
+              <span style="color:#52D99A;font-size:15px">✅</span>
+              <span style="font-size:14px;color:#e8f5ee;margin-left:10px">Your account is live</span>
+            </td></tr>
+            <tr><td style="padding:8px 0;border-bottom:1px solid #1a3024">
+              <span style="color:#52D99A;font-size:15px">⚙️</span>
+              <span style="font-size:14px;color:#e8f5ee;margin-left:10px">We're configuring your AI receptionist</span>
+            </td></tr>
+            <tr><td style="padding:8px 0;border-bottom:1px solid #1a3024">
+              <span style="color:#52D99A;font-size:15px">📱</span>
+              <span style="font-size:14px;color:#e8f5ee;margin-left:10px">Your dedicated phone number is being assigned</span>
+            </td></tr>
+            <tr><td style="padding:8px 0">
+              <span style="color:#52D99A;font-size:15px">🔗</span>
+              <span style="font-size:14px;color:#e8f5ee;margin-left:10px">Your chat widget is ready to install</span>
+            </td></tr>
+          </table>
+
+          <p style="margin:0 0 12px;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#52D99A">What to do right now</p>
+          <table cellpadding="0" cellspacing="0" style="width:100%;margin-bottom:28px">
+            <tr><td style="padding:8px 0;border-bottom:1px solid #1a3024;font-size:14px;color:#a8c5b0;line-height:1.55">
+              <strong style="color:#ffffff">1.</strong> Add your widget to your website — copy the code from your dashboard under <strong style="color:#ffffff">"Widget"</strong>
+            </td></tr>
+            <tr><td style="padding:8px 0;border-bottom:1px solid #1a3024;font-size:14px;color:#a8c5b0;line-height:1.55">
+              <strong style="color:#ffffff">2.</strong> Forward your business number to your LeadPro number — we'll send it within 24 hours
+            </td></tr>
+            <tr><td style="padding:8px 0;font-size:14px;color:#a8c5b0;line-height:1.55">
+              <strong style="color:#ffffff">3.</strong> Reply to this email with any questions — Josiah responds personally
+            </td></tr>
+          </table>
+
+          <p style="margin:0 0 24px;font-size:14px;color:#a8c5b0;line-height:1.6">You'll receive a second email within 24 hours with your dedicated phone number and go-live confirmation.</p>
+
+          <p style="margin:0;font-size:14px;color:#a8c5b0;line-height:1.7">Talk soon,<br>
+          <strong style="color:#ffffff">Josiah Hoopman</strong><br>
+          <span style="color:#52D99A">LeadPro</span></p>
+        </td></tr>
+        <tr><td style="padding:16px 36px;border-top:1px solid #1a3024;background:#0B1812">
+          <p style="margin:0;font-size:11px;color:#3d6650;text-align:center">© LeadPro · <a href="https://useleadpro.net" style="color:#3d6650;text-decoration:none">useleadpro.net</a></p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`
+    ).catch(err => console.error('[signup] welcome email failed:', err.message));
   }
 
   // ── Step 3: Issue session ──
