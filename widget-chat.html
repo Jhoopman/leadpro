@@ -217,6 +217,99 @@ html,body{height:100%;width:100%;overflow:hidden;
 }
 
 /* ══════════════════════════════════════════
+   DESIGN-PAGE THEME  (widget lp_xmqqcgar)
+   Applied via .is-design class on <body>
+   Matches the warm cream/gold /design page.
+   ══════════════════════════════════════════ */
+
+.is-design #wrap { background: #FAFAF8; }
+
+.is-design #hdr {
+  background: #1a1a2e;
+  border-bottom: 1px solid rgba(201,168,76,0.2);
+  box-shadow: 0 1px 0 rgba(201,168,76,0.1);
+}
+.is-design .lc-name { color: #F0EAD6; letter-spacing: 0.01em; }
+.is-design .lc-status { color: rgba(255,255,255,0.42); }
+.is-design .lc-dot { background: #C9A84C; animation: lc-pulse 2s ease-in-out infinite; }
+.is-design .lc-av {
+  background: rgba(201,168,76,0.12);
+  border: 1px solid rgba(201,168,76,0.25);
+}
+.is-design .lc-av svg { fill: rgba(201,168,76,0.88); }
+.is-design #lc-powered { color: rgba(255,255,255,0.22); }
+
+.is-design #msgs { background: #FAFAF8; }
+
+.is-design .bot .lc-bubble {
+  background: #F5F2EC;
+  color: #1A1208;
+  border: 1px solid rgba(201,168,76,0.14);
+}
+.is-design .user .lc-bubble {
+  background: #1a1a2e;
+  color: rgba(255,255,255,0.92);
+  border: none;
+}
+.is-design .lc-ts { color: #A89070; }
+
+.is-design #lc-typing {
+  background: #F5F2EC;
+  border: 1px solid rgba(201,168,76,0.14);
+}
+.is-design #lc-typing span { background: #C9A84C; }
+
+.is-design #bar {
+  background: #FFFFFF;
+  border-top: 1px solid rgba(201,168,76,0.18);
+}
+.is-design #lc-inp {
+  background: #F5F2EC;
+  border: 1.5px solid rgba(201,168,76,0.2);
+  color: #1A1208;
+}
+.is-design #lc-inp::placeholder { color: #A89070; }
+.is-design #lc-inp:focus {
+  border-color: #C9A84C;
+  box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
+  background: #FFFFFF;
+}
+.is-design #lc-sbtn {
+  background: #C9A84C;
+  box-shadow: 0 2px 8px rgba(201,168,76,0.3);
+}
+.is-design #lc-sbtn:hover {
+  background: #A8844A;
+  box-shadow: 0 4px 14px rgba(201,168,76,0.4);
+  transform: scale(1.06);
+}
+.is-design #lc-sbtn svg { fill: rgba(255,255,255,0.95); }
+
+.is-design .lc-qr-btn {
+  background: rgba(201,168,76,0.08);
+  color: #A8844A;
+  border: 1.5px solid rgba(201,168,76,0.3);
+}
+.is-design .lc-qr-btn:hover {
+  background: rgba(201,168,76,0.15);
+  opacity: 1;
+}
+
+.is-design #lc-success {
+  background: linear-gradient(135deg, #FDF8EE, #FAF4E3);
+  border-color: rgba(201,168,76,0.28);
+}
+.is-design #lc-success .lc-sc-title { color: #1A1208; }
+.is-design #lc-success .lc-sc-sub { color: #6B5E4E; }
+.is-design #lc-success .lc-check { background: #C9A84C; }
+.is-design .lc-field label { color: #A8844A; }
+.is-design .lc-field span { color: #1A1208; }
+
+.is-design .lc-attr { color: #C9A84C; }
+
+.is-design #lc-err { background: #fdecea; color: #a32d2d; border-color: rgba(163,45,45,0.12); }
+
+/* ══════════════════════════════════════════
    MARKETING-PAGE THEME  (widget lp_rdzvuqld)
    Applied via .is-marketing class on <body>
    Contractor widgets are NEVER affected.
@@ -435,6 +528,10 @@ var BASE       = window.location.origin;
 var params     = new URLSearchParams(window.location.search);
 var WIDGET_ID  = params.get('id') || '';
 
+// Design-page widget gets the warm cream/gold theme
+if (WIDGET_ID === 'lp_xmqqcgar') {
+  document.body.classList.add('is-design');
+}
 // Marketing-page widget gets the dark-aurora brand theme
 if (WIDGET_ID === 'lp_rdzvuqld') {
   document.body.classList.add('is-marketing');
