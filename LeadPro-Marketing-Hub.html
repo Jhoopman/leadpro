@@ -136,6 +136,12 @@ label { font-size:11px; font-weight:700; color:var(--muted); text-transform:uppe
 .btn-xs { padding:3px 8px; font-size:11px; border-radius:5px; }
 .btn-pipe { background:var(--red-dim); color:var(--red-2); border:1px solid var(--red-border); padding:5px 11px; font-size:12px; border-radius:6px; cursor:pointer; font-family:'DM Sans',sans-serif; font-weight:600; transition:all 0.12s; }
 .btn-pipe:hover { background:rgba(255,59,59,0.22); }
+.script-btn { background:rgba(82,217,154,0.06); color:#52D99A; border:1px solid rgba(82,217,154,0.3); padding:5px 11px; font-size:12px; border-radius:6px; cursor:pointer; font-family:'DM Sans',sans-serif; font-weight:600; transition:all 0.12s; white-space:nowrap; }
+.script-btn:hover { background:rgba(82,217,154,0.14); border-color:rgba(82,217,154,0.55); }
+.script-body { font-size:13.5px; line-height:1.75; }
+.script-body .sh { color:#52D99A; font-family:'DM Sans',sans-serif; font-weight:700; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; display:block; margin-top:18px; margin-bottom:5px; padding-bottom:4px; border-bottom:1px solid rgba(82,217,154,0.15); }
+.script-body .sl { font-family:'Courier New',monospace; color:rgba(240,240,245,0.88); display:block; font-size:13px; }
+.script-loading { display:flex; align-items:center; gap:12px; color:var(--muted); font-size:13.5px; padding:24px 0; }
 
 /* ── Scores ── */
 .score-ring {
@@ -624,6 +630,23 @@ table.rt { width:100%; border-collapse:collapse; font-size:14px; }
   </div>
 </div>
 
+<!-- Script modal -->
+<div class="overlay" id="modal-script">
+  <div class="modal" style="width:620px">
+    <div class="modal-hdr">
+      <h3 id="script-mname" style="font-size:16px"></h3>
+      <button class="mx" onclick="closeModal('modal-script')">✕</button>
+    </div>
+    <div id="script-mbody">
+      <div class="script-loading"><div class="spinner"></div>Generating your script…</div>
+    </div>
+    <div id="script-actions" style="display:none;gap:10px;margin-top:20px;flex-wrap:wrap">
+      <button class="btn btn-ghost btn-sm" onclick="copyScript()">📋 Copy Script</button>
+      <button class="btn btn-red btn-sm" onclick="pipelineWithScript()">→ Pipeline + Script</button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div class="toast" id="toast"><div class="toast-bar"></div><span id="toast-msg"></span></div>
 
@@ -633,6 +656,7 @@ table.rt { width:100%; border-collapse:collapse; font-size:14px; }
 // ═══════════════════════════════════════════════════════════
 const API    = 'https://app.useleadpro.net/api/prospector';
 const IKEY   = 'leadpro-hub-2024';
+const ANT_KEY = ''; // paste your sk-ant-... Anthropic API key here
 const K_PIPE = 'lp_pipeline';
 const K_CAMP = 'lp_campaigns';
 const K_CONT = 'lp_content';
@@ -813,7 +837,7 @@ function renderTable(rows, loc) {
       <td>${siteEl}</td>
       <td class="col-score"><div class="score-ring ${cls} score-sm">${sc}</div></td>
       <td style="font-size:12.5px;color:var(--muted)">${rating}</td>
-      <td><button class="btn-pipe" onclick='addToPipeline(${lead})'>→ Pipeline</button></td>
+      <td><div style="display:flex;gap:6px;align-items:center"><button class="btn-pipe" onclick='addToPipeline(${lead})'>→ Pipeline</button><button class="script-btn" onclick='openScript(${lead})'>📞 Script</button></div></td>
     </tr>`;
   }).join('');
   document.getElementById('p-results').innerHTML = `
@@ -837,6 +861,92 @@ function addToPipeline(lead) {
   ls.set(K_PIPE, pipe);
   updateAgentBadge();
   toast(`${lead.name} added to Pipeline`);
+}
+
+// ─── SCRIPT GENERATOR ───────────────────────────────────────
+let _scriptLead = null, _scriptText = '';
+
+async function openScript(lead) {
+  _scriptLead = lead;
+  _scriptText = '';
+  document.getElementById('script-mname').textContent = `Cold Call Script — ${lead.name}`;
+  document.getElementById('script-mbody').innerHTML = `<div class="script-loading"><div class="spinner"></div>Generating your script…</div>`;
+  document.getElementById('script-actions').style.display = 'none';
+  document.getElementById('modal-script').classList.add('open');
+
+  if (!ANT_KEY) {
+    document.getElementById('script-mbody').innerHTML = `<div style="color:var(--orange);font-size:13.5px;padding:10px 0">⚠️ No Anthropic API key set. Paste your <code style="background:var(--surface-2);padding:2px 5px;border-radius:4px">sk-ant-...</code> key into the <code style="background:var(--surface-2);padding:2px 5px;border-radius:4px">ANT_KEY</code> constant at the top of the script.</div>`;
+    return;
+  }
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANT_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: `You are a cold call script writer for LeadPro, an AI receptionist tool for contractors. Write punchy, conversational scripts — not robotic. The caller is Josiah from LeadPro. Format with clear sections: OPENER, PAIN POINT, PITCH, HANDLE OBJECTIONS, CLOSE. Keep the whole script under 90 seconds spoken.`,
+        messages: [{
+          role: 'user',
+          content: `Write a cold call script for this lead:\nBusiness: ${lead.name}\nTrade: ${lead.trade || 'contractor'}\nCity: ${lead.city || 'their area'}\nScore: ${lead.score}/100\nWebsite: ${lead.website || 'no website found'}\n\nPersonalize it specifically for their trade and city. Make the pain point real for a ${lead.trade || 'contractor'}.`
+        }]
+      })
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `Anthropic API error ${res.status}`);
+    }
+    const data = await res.json();
+    _scriptText = data.content?.[0]?.text || '';
+    renderScript(_scriptText);
+    document.getElementById('script-actions').style.display = 'flex';
+  } catch(e) {
+    document.getElementById('script-mbody').innerHTML = `<div style="color:var(--orange);font-size:13.5px;padding:10px 0">⚠️ ${e.message}</div>`;
+  }
+}
+
+function renderScript(text) {
+  const SECTION_RE = /^[\*\_\s]*(OPENER|PAIN POINT|PITCH|HANDLE OBJECTIONS|CLOSE)\s*:?[\*\_\s]*$/i;
+  const lines = text.split('\n');
+  let html = '';
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) { html += '<br>'; continue; }
+    if (SECTION_RE.test(trimmed)) {
+      html += `<span class="sh">${trimmed.replace(/[\*\_]/g,'').replace(/:$/,'').trim()}</span>`;
+    } else {
+      html += `<span class="sl">${trimmed.replace(/\*\*/g,'').replace(/</g,'&lt;')}</span>\n`;
+    }
+  }
+  document.getElementById('script-mbody').innerHTML = `<div class="script-body">${html}</div>`;
+}
+
+function copyScript() {
+  if (!_scriptText) return;
+  navigator.clipboard.writeText(_scriptText)
+    .then(() => toast('Script copied to clipboard!'))
+    .catch(() => toast('Copy failed — try selecting and copying manually'));
+}
+
+function pipelineWithScript() {
+  if (!_scriptLead || !_scriptText) return;
+  const pipe = ls.get(K_PIPE);
+  pipe.push({
+    id: uid(), stage: 'New', added: Date.now(), stageAt: Date.now(),
+    name: _scriptLead.name, trade: _scriptLead.trade, city: _scriptLead.city,
+    website: _scriptLead.website, phone: _scriptLead.phone, score: _scriptLead.score,
+    notes: [{ text: '📞 Cold Call Script:\n\n' + _scriptText, at: Date.now() }]
+  });
+  ls.set(K_PIPE, pipe);
+  updateAgentBadge();
+  closeModal('modal-script');
+  toast(`${_scriptLead.name} added to Pipeline with script`);
 }
 
 // ═══════════════════════════════════════════════════════════
