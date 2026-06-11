@@ -39,6 +39,8 @@ app.get(/^\/.env($|\.)/, (_, res) => res.status(404).end());
 
 // ── STATIC FILES ──────────────────────────────────────────────────────────────
 
+app.use('/assets', express.static(path.join(__dirname, 'assets')));
+
 app.get('/widget.js',         (_, res) => res.sendFile(path.join(__dirname, 'widget.js')));
 app.get('/widget-chat.html',  (_, res) => res.sendFile(path.join(__dirname, 'widget-chat.html')));
 app.get('/manifest.json',     (_, res) => res.sendFile(path.join(__dirname, 'manifest.json')));

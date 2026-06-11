@@ -126,51 +126,53 @@
     .nav-links {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 12px;
       list-style: none;
     }
     .nav-links a {
       text-decoration: none;
-      color: rgba(255,255,255,0.78);
-      font-size: 0.8125rem;
+      color: rgba(255,255,255,0.72);
+      font-size: 0.8rem;
       font-weight: 500;
+      white-space: nowrap;
       transition: color 0.2s cubic-bezier(0.32,0.72,0,1);
     }
     .nav-links a:hover { color: #52D99A; }
     .nav-divider {
       width: 1px;
-      height: 16px;
+      height: 14px;
       background: rgba(255,255,255,0.1);
-      margin: 0 4px;
+      margin: 0 2px;
       list-style: none;
     }
     .nav-subbrand {
-      font-weight: 700 !important;
+      font-weight: 600 !important;
       font-size: 0.75rem !important;
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
-      padding: 4px 8px !important;
-      border-radius: 6px;
-      transition: background 0.2s;
+      letter-spacing: 0.01em;
+      padding: 4px 10px !important;
+      border-radius: 20px;
+      white-space: nowrap;
+      transition: background 0.18s, transform 0.18s;
     }
+    .nav-subbrand:hover { transform: translateY(-1px); }
     .nav-design {
       color: #C9A96E !important;
-      background: rgba(201,169,110,0.08);
-      border: 1px solid rgba(201,169,110,0.2);
+      background: rgba(201,169,110,0.1);
+      border: 1px solid rgba(201,169,110,0.25);
     }
-    .nav-design:hover { background: rgba(201,169,110,0.15) !important; }
+    .nav-design:hover { background: rgba(201,169,110,0.18) !important; }
     .nav-agents {
       color: #818CF8 !important;
-      background: rgba(129,140,248,0.08);
-      border: 1px solid rgba(129,140,248,0.2);
+      background: rgba(129,140,248,0.1);
+      border: 1px solid rgba(129,140,248,0.25);
     }
-    .nav-agents:hover { background: rgba(129,140,248,0.15) !important; }
+    .nav-agents:hover { background: rgba(129,140,248,0.18) !important; }
     .nav-marketing {
       color: #FF6B4A !important;
-      background: rgba(255,107,74,0.08);
-      border: 1px solid rgba(255,107,74,0.2);
+      background: rgba(255,107,74,0.1);
+      border: 1px solid rgba(255,107,74,0.25);
     }
-    .nav-marketing:hover { background: rgba(255,107,74,0.15) !important; }
+    .nav-marketing:hover { background: rgba(255,107,74,0.18) !important; }
     .nav-cta {
       display: flex;
       align-items: center;
@@ -2727,7 +2729,7 @@
 <nav>
   <div class="nav-inner">
     <a class="logo" href="#">
-      <img src="leadpro-core-icon.png" alt="LeadPro" style="height:32px;width:auto;flex-shrink:0;">
+      <img src="/assets/leadpro-core-icon.png" alt="LeadPro" style="height:32px;width:auto;flex-shrink:0;">
       <span class="logo-text">LeadPro</span>
     </a>
     <ul class="nav-links">
@@ -4103,7 +4105,7 @@ document.getElementById('contactForm').addEventListener('submit', async function
     <div class="footer-top">
       <div class="footer-brand">
         <a class="logo" href="#">
-          <img src="leadpro-core-icon.png" alt="LeadPro" style="height:32px;width:auto;flex-shrink:0;">
+          <img src="/assets/leadpro-core-icon.png" alt="LeadPro" style="height:32px;width:auto;flex-shrink:0;">
           LeadPro
         </a>
         <p>AI scheduling that answers every call, books every job, and never sleeps. Built by a college athlete who spent 2 years in the trades — LeadPro was built for contractors by someone who knows the business.</p>
