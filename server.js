@@ -204,6 +204,63 @@ app.use('/api/prospector', (req, res, next) => {
   });
 });
 
+// INTERNAL KEY BYPASS — Marketing Hub script generator.
+// Calls Anthropic on behalf of the desktop Hub; key never leaves the server.
+app.post('/api/generate-script', (req, res) => {
+  if (req.headers['x-internal-key'] !== process.env.INTERNAL_API_KEY) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  if (!cfg.anthropicApiKey) {
+    return res.status(503).json({ error: 'ANTHROPIC_API_KEY not configured' });
+  }
+
+  const { business_name = '', owner_name = '', trade = '', city = '', score = 0, website = '' } = req.body || {};
+
+  const payload = JSON.stringify({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 1000,
+    system: 'You are a cold call script writer for LeadPro, an AI receptionist tool for contractors. Write punchy, conversational scripts — not robotic. The caller is Josiah from LeadPro. Format with clear labeled sections: OPENER, PAIN POINT, PITCH, OBJECTIONS, CLOSE. Keep the whole script under 90 seconds spoken.',
+    messages: [{
+      role: 'user',
+      content: `Write a cold call script for this lead:\nBusiness: ${business_name}\nOwner: ${owner_name || 'the owner'}\nTrade: ${trade}\nCity: ${city}\nScore: ${score}/100\nWebsite: ${website || 'no website listed'}\n\nPersonalize for their specific trade and city. Make the pain point real for a ${trade} contractor.`,
+    }],
+  });
+
+  const https = require('https');
+  const apiReq = https.request({
+    hostname: 'api.anthropic.com',
+    path:     '/v1/messages',
+    method:   'POST',
+    headers: {
+      'Content-Type':      'application/json',
+      'Content-Length':    Buffer.byteLength(payload),
+      'x-api-key':         cfg.anthropicApiKey,
+      'anthropic-version': '2023-06-01',
+    },
+  }, apiRes => {
+    let d = '';
+    apiRes.on('data', c => d += c);
+    apiRes.on('end', () => {
+      try {
+        const body = JSON.parse(d);
+        if (apiRes.statusCode !== 200) {
+          console.error('[generate-script] Anthropic error', apiRes.statusCode, d.slice(0, 200));
+          return res.status(502).json({ error: body.error?.message || 'Anthropic error' });
+        }
+        res.json({ script: body.content?.[0]?.text || '' });
+      } catch (e) {
+        res.status(500).json({ error: 'Failed to parse Anthropic response' });
+      }
+    });
+  });
+  apiReq.on('error', e => {
+    console.error('[generate-script] request error:', e.message);
+    res.status(500).json({ error: e.message });
+  });
+  apiReq.write(payload);
+  apiReq.end();
+});
+
 // Plan gates — always after requireAuth (reads req.contractor, no extra DB calls)
 app.post('/api',              requirePlan('starter'));   // /api chat proxy → Starter+
 app.use('/send-confirmation', requirePlan('starter'));
