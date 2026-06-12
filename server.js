@@ -184,6 +184,7 @@ function setHubCookie(res) {
 app.post('/admin/hub-auth', (req, res) => {
   const { password } = req.body || {};
   const expected = cfg.hubPassword;
+  console.log('[hub-auth] expected len:', expected.length, '| received len:', (password||'').length, '| match:', password === expected);
   if (!expected || !password || password !== expected) {
     return res.status(401).json({ ok: false });
   }

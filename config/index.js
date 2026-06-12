@@ -43,7 +43,7 @@ module.exports = {
   diagnosticToken: process.env.DIAGNOSTIC_TOKEN || '',
 
   // Marketing Hub — private admin route password
-  hubPassword: process.env.HUB_PASSWORD || '',
+  hubPassword: (process.env.HUB_PASSWORD || '').trim(),
 
   alertPhone: process.env.ALERT_PHONE || '',
 
