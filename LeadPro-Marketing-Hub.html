@@ -667,6 +667,20 @@ table.rt { width:100%; border-collapse:collapse; font-size:14px; }
         </div>
         <div class="fg"><label>Min Score</label><input type="number" id="sched-score" value="40" min="0" max="100"></div>
       </div>
+      <div class="mf-row">
+        <div class="fg"><label>Schedule</label>
+          <select id="sched-freq">
+            <option>Daily</option>
+            <option>Every 3 days</option>
+            <option selected>Weekly</option>
+          </select>
+        </div>
+        <div class="fg" style="justify-content:flex-end;padding-bottom:2px">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text);padding-top:20px">
+            <input type="checkbox" id="sched-active"> Auto-run active
+          </label>
+        </div>
+      </div>
     </div>
     <div class="mfooter">
       <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-scheduler')">Cancel</button>
@@ -697,6 +711,7 @@ table.rt { width:100%; border-collapse:collapse; font-size:14px; }
     <div id="summary-body"></div>
     <div class="mfooter" style="margin-top:20px">
       <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-summary')">Close</button>
+      <button id="sum-send-btn" class="btn btn-red btn-sm" onclick="sendWeeklySummaryEmail()">📧 Send Email</button>
     </div>
   </div>
 </div>
@@ -715,8 +730,14 @@ const K_CAMP = 'lp_campaigns';
 const K_CONT = 'lp_content';
 const K_TOTS = 'lp_total_leads';
 const K_LOG  = 'lp_agent_log';
-const K_SCHED = 'lp_sched_config';
-const K_SEQS  = 'lp_sequences';
+const K_SCHED      = 'lp_sched_config';
+const K_SEQS       = 'lp_sequences';
+const K_SEQS_CFG   = 'lp_seqs_cfg';
+const K_SEQ_STATE  = 'lp_seq_state';
+const K_SUM_CFG    = 'lp_summary_cfg';
+const RESCORE_URL  = 'https://app.useleadpro.net/api/rescore-lead';
+const SEQ_URL      = 'https://app.useleadpro.net/api/send-sequence';
+const SUMMARY_URL  = 'https://app.useleadpro.net/api/send-weekly-summary';
 const STAGES = ['New','Emailed','Followed Up','Replied','Closed'];
 const STAGE_COLORS = { 'New':'rgba(255,255,255,0.25)', 'Emailed':'#3B82F6', 'Followed Up':'#F59E0B', 'Replied':'#22C55E', 'Closed':'#FF3B3B' };
 const PLAT_COLORS  = { Facebook:'#1877F2', Instagram:'#E1306C', LinkedIn:'#0A66C2', Email:'#FF3B3B' };
@@ -851,6 +872,7 @@ async function runProspector() {
     const data = await res.json();
     const rows = Array.isArray(data) ? data : (data.results || data.leads || []);
     ls.setN(K_TOTS, ls.getN(K_TOTS) + rows.length);
+    window._lastRows = rows;
     renderTable(rows, loc);
     addAgentLog('Prospector', `Scanned ${loc} — ${rows.length} lead${rows.length !== 1 ? 's' : ''} found`);
   } catch(e) {
@@ -912,9 +934,11 @@ function renderTable(rows, loc) {
 
 function addToPipeline(lead) {
   const pipe = ls.get(K_PIPE);
-  pipe.push({ id:uid(), stage:'New', added:Date.now(), stageAt:Date.now(), name:lead.name, trade:lead.trade, city:lead.city, website:lead.website, phone:lead.phone, score:lead.score, notes:[] });
+  const newLead = { id:uid(), stage:'New', added:Date.now(), stageAt:Date.now(), name:lead.name, trade:lead.trade, city:lead.city, website:lead.website, phone:lead.phone, score:lead.score, notes:[] };
+  pipe.push(newLead);
   ls.set(K_PIPE, pipe);
   updateAgentBadge();
+  triggerSequenceStep1({ ...lead, id: newLead.id });
   toast(`${lead.name} added to Pipeline`);
 }
 
@@ -1005,18 +1029,29 @@ function openSchedulerConfig() {
   document.getElementById('sched-loc').value = cfg.location || '';
   document.getElementById('sched-ind').value = cfg.industry || '';
   document.getElementById('sched-score').value = cfg.min_score || 40;
+  document.getElementById('sched-freq').value = cfg.schedule || 'Weekly';
+  document.getElementById('sched-active').checked = !!cfg.active;
   document.getElementById('modal-scheduler').classList.add('open');
 }
 function saveSchedulerConfig() {
   const loc = document.getElementById('sched-loc').value.trim();
   if (!loc) { toast('Enter a location first.'); return; }
-  const cfg = { location: loc, industry: document.getElementById('sched-ind').value, min_score: parseInt(document.getElementById('sched-score').value) || 40, savedAt: Date.now() };
+  const prev = JSON.parse(localStorage.getItem(K_SCHED) || '{}');
+  const cfg = {
+    location: loc,
+    industry: document.getElementById('sched-ind').value,
+    min_score: parseInt(document.getElementById('sched-score').value) || 40,
+    schedule: document.getElementById('sched-freq').value,
+    active: document.getElementById('sched-active').checked,
+    savedAt: Date.now(),
+    lastRun: prev.lastRun || null,
+  };
   localStorage.setItem(K_SCHED, JSON.stringify(cfg));
   closeModal('modal-scheduler');
-  toast('Scheduler configured — click Run Now to scan!');
+  toast(`Scheduler ${cfg.active ? 'active' : 'saved'} — ${cfg.schedule.toLowerCase()} for ${loc}`);
   renderAgents();
 }
-function runScheduledScan() {
+async function runScheduledScan() {
   const cfg = JSON.parse(localStorage.getItem(K_SCHED) || '{}');
   if (!cfg.location) { toast('Save a location first.'); return; }
   closeModal('modal-scheduler');
@@ -1030,7 +1065,40 @@ function runScheduledScan() {
   cfg.lastRun = Date.now();
   localStorage.setItem(K_SCHED, JSON.stringify(cfg));
   addAgentLog('Prospector Scheduler', `Scan triggered for ${cfg.location}`);
-  runProspector();
+  window._lastRows = null;
+  await runProspector();
+  // Auto-save new leads to pipeline (dedup by name+city)
+  if (window._lastRows && window._lastRows.length) {
+    const pipe = ls.get(K_PIPE);
+    const existing = new Set(pipe.map(l => `${(l.name||'').toLowerCase()}|${(l.city||'').toLowerCase()}`));
+    let added = 0;
+    for (const r of window._lastRows) {
+      const name = r.name || r.business_name || '';
+      const city = r.city || r.vicinity || r.location || '';
+      if (!name) continue;
+      const key = `${name.toLowerCase()}|${city.toLowerCase()}`;
+      if (!existing.has(key)) {
+        pipe.push({ id:uid(), stage:'New', added:Date.now(), stageAt:Date.now(), name, trade:r.industry||r.trade||'', city, website:r.website||'', phone:r.phone||'', score:normScore(r.score??0), notes:[] });
+        existing.add(key);
+        added++;
+      }
+    }
+    if (added > 0) {
+      ls.set(K_PIPE, pipe); updateAgentBadge();
+      addAgentLog('Prospector Scheduler', `Auto-saved ${added} new lead${added!==1?'s':''} from ${cfg.location}`);
+      toast(`Scheduler: ${added} new lead${added!==1?'s':''} added to pipeline`);
+    }
+  }
+}
+function checkScheduler() {
+  const cfg = JSON.parse(localStorage.getItem(K_SCHED) || '{}');
+  if (!cfg.active || !cfg.location) return;
+  const intervals = { 'Daily': 86400000, 'Every 3 days': 3*86400000, 'Weekly': 7*86400000 };
+  const interval = intervals[cfg.schedule] || intervals['Weekly'];
+  if (Date.now() - (cfg.lastRun || 0) >= interval) {
+    addAgentLog('Prospector Scheduler', `Auto-run triggered for ${cfg.location}`);
+    runScheduledScan();
+  }
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1039,28 +1107,37 @@ function runScheduledScan() {
 async function runRescorer() {
   const pipe = ls.get(K_PIPE);
   if (!pipe.length) { toast('No leads in pipeline to rescore.'); return; }
+  const withSites = pipe.filter(l => l.website && l.website.length > 4);
+  if (!withSites.length) { toast('No pipeline leads have websites to rescore.'); return; }
   const btn = document.getElementById('rescore-btn');
-  if (btn) { btn.disabled = true; btn.textContent = '⏳ Rescoring…'; }
-  const seen = new Map();
-  pipe.filter(l => l.city && l.city !== '—').forEach(l => seen.set(`${l.city}|${l.trade||'home services'}`, { city: l.city, trade: l.trade||'home services' }));
-  const combos = [...seen.values()].slice(0, 3);
-  let updated = 0;
-  for (const combo of combos) {
+  if (btn) { btn.disabled = true; btn.textContent = `⏳ 0/${withSites.length}…`; }
+  const pipe2 = ls.get(K_PIPE);
+  let improved = 0, dropped = 0, done = 0;
+  for (const lead of withSites) {
+    done++;
+    if (btn) btn.textContent = `⏳ ${done}/${withSites.length}…`;
     try {
-      const res = await fetch(API, { method:'POST', headers:{ 'Content-Type':'application/json', 'X-Internal-Key':IKEY }, body:JSON.stringify({ location:combo.city, industry:combo.trade, min_score:0 }) });
+      const res = await fetch(RESCORE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Internal-Key': IKEY },
+        body: JSON.stringify({ website: lead.website, phone: lead.phone || '' }),
+      });
       if (!res.ok) continue;
       const data = await res.json();
-      const results = Array.isArray(data) ? data : (data.results || []);
-      const pipe2 = ls.get(K_PIPE);
-      results.forEach(r => {
-        const match = pipe2.find(l => l.name && r.name && l.name.toLowerCase() === r.name.toLowerCase());
-        if (match) { const ns = normScore(r.score ?? r.lead_score ?? 0); if (match.score !== ns) { match.score = ns; updated++; } }
-      });
-      ls.set(K_PIPE, pipe2);
+      const match = pipe2.find(l => l.id === lead.id);
+      if (match && typeof data.score === 'number') {
+        const old = match.score || 0;
+        if (data.score > old) improved++;
+        else if (data.score < old) dropped++;
+        match.score = data.score;
+        if (data.missing) match.missing = data.missing;
+      }
     } catch(e) { /* non-fatal */ }
   }
-  addAgentLog('Lead Re-Scorer', `Rescored ${pipe.length} leads — ${updated} updated`);
-  toast(`Rescoring done — ${updated} score${updated !== 1 ? 's' : ''} updated`);
+  ls.set(K_PIPE, pipe2);
+  const msg = `${withSites.length} rescored — ${improved} improved, ${dropped} dropped`;
+  addAgentLog('Lead Re-Scorer', msg);
+  toast(`Done: ${msg}`);
   if (btn) { btn.disabled = false; btn.textContent = '🎯 Run Now'; }
   renderAgents();
 }
@@ -1096,7 +1173,25 @@ function openWeeklySummary() {
     </div>
     ${staleLeads > 0
       ? `<div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:8px;padding:10px 14px;font-size:13px;color:#F59E0B">⚠️ ${staleLeads} lead${staleLeads>1?'s':''} stale — no movement in 3+ days.</div>`
-      : `<div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.15);border-radius:8px;padding:10px 14px;font-size:13px;color:#22C55E">✓ Pipeline healthy — no stale leads this week.</div>`}`;
+      : `<div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.15);border-radius:8px;padding:10px 14px;font-size:13px;color:#22C55E">✓ Pipeline healthy — no stale leads this week.</div>`}
+    <div class="di" style="border:1px solid var(--border-2);margin-top:16px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:10px">Email Settings</div>
+      <div class="mf-row">
+        <div class="fg"><label>Send to</label><input type="email" id="sum-email" value="${(JSON.parse(localStorage.getItem(K_SUM_CFG)||'{}').email||'jehoopman@gmail.com')}" placeholder="your@email.com"></div>
+        <div class="fg"><label>Send day</label>
+          <select id="sum-day">
+            <option>Monday</option>
+            <option>Friday</option>
+          </select>
+        </div>
+      </div>
+      <label style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:13px;cursor:pointer;color:var(--text)">
+        <input type="checkbox" id="sum-active" ${JSON.parse(localStorage.getItem(K_SUM_CFG)||'{}').active?'checked':''}> Auto-send on selected day when Hub is open
+      </label>
+    </div>`;
+  const sumCfgLoad = JSON.parse(localStorage.getItem(K_SUM_CFG) || '{}');
+  const sumDayEl = document.getElementById('sum-day');
+  if (sumDayEl) sumDayEl.value = sumCfgLoad.day || 'Monday';
   document.getElementById('modal-summary').classList.add('open');
   addAgentLog('Weekly Summary', `Report generated — ${newLeads} new, ${closedLeads} closed`);
 }
@@ -1112,9 +1207,29 @@ const DEFAULT_SEQS = {
 };
 function openSequences() {
   const saved = JSON.parse(localStorage.getItem(K_SEQS) || '{}');
+  const seqCfg = JSON.parse(localStorage.getItem(K_SEQS_CFG) || '{}');
   const stages = STAGES.filter(s => s !== 'Closed');
   document.getElementById('sequences-body').innerHTML = `
-    <p style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.5">Per-stage email templates. Use <code style="background:var(--surface-3);padding:1px 5px;border-radius:3px;font-size:11.5px">{{name}}</code>, <code style="background:var(--surface-3);padding:1px 5px;border-radius:3px;font-size:11.5px">{{trade}}</code>, <code style="background:var(--surface-3);padding:1px 5px;border-radius:3px;font-size:11.5px">{{city}}</code> as variables.</p>
+    <div class="di" style="border:1px solid var(--border-2);margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div style="font-size:13.5px;font-weight:600;color:var(--text)">Auto-send on pipeline add</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:3px">Fires Step 1 when a lead enters the pipeline</div>
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text);flex-shrink:0;margin-left:12px">
+          <input type="checkbox" id="seq-active" ${seqCfg.active?'checked':''}> Active
+        </label>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:12px">
+        <span style="font-size:12.5px;color:var(--muted)">Follow-up steps:</span>
+        <select id="seq-steps" style="font-size:12.5px;padding:4px 10px">
+          <option value="1" ${(!seqCfg.steps||seqCfg.steps===1)?'selected':''}>1 — Day 0 only</option>
+          <option value="2" ${seqCfg.steps===2?'selected':''}>2 — Day 0 + Day 3</option>
+          <option value="3" ${seqCfg.steps===3?'selected':''}>3 — Day 0, 3, and 7</option>
+        </select>
+      </div>
+    </div>
+    <p style="font-size:12.5px;color:var(--muted);margin-bottom:14px;line-height:1.5">Templates for each stage. Use <code style="background:var(--surface-3);padding:1px 5px;border-radius:3px;font-size:11.5px">{{name}}</code>, <code style="background:var(--surface-3);padding:1px 5px;border-radius:3px;font-size:11.5px">{{trade}}</code>, <code style="background:var(--surface-3);padding:1px 5px;border-radius:3px;font-size:11.5px">{{city}}</code>.</p>
     <div style="display:flex;flex-direction:column;gap:12px">
       ${stages.map(stage => {
         const s = saved[stage] || DEFAULT_SEQS[stage] || { subject:'', body:'' };
@@ -1145,8 +1260,14 @@ function saveSequences() {
     };
   });
   localStorage.setItem(K_SEQS, JSON.stringify(saved));
+  const seqCfg = {
+    active: document.getElementById('seq-active')?.checked || false,
+    steps: parseInt(document.getElementById('seq-steps')?.value || '1'),
+    savedAt: Date.now(),
+  };
+  localStorage.setItem(K_SEQS_CFG, JSON.stringify(seqCfg));
   closeModal('modal-sequences');
-  toast('Email sequences saved!');
+  toast(`Sequences saved — ${seqCfg.active ? `active (${seqCfg.steps} step${seqCfg.steps>1?'s':''})` : 'paused'}`);
   renderAgents();
 }
 function copySeqTemplate(stage, lead) {
@@ -1157,6 +1278,131 @@ function copySeqTemplate(stage, lead) {
   navigator.clipboard.writeText(`Subject: ${fill(seq.subject)}\n\n${fill(seq.body)}`)
     .then(() => toast(`"${stage}" template copied!`))
     .catch(() => toast('Copy failed'));
+}
+
+// ═══════════════════════════════════════════════════════════
+//  SEQUENCE TRIGGER + FOLLOW-UPS
+// ═══════════════════════════════════════════════════════════
+function triggerSequenceStep1(lead) {
+  const seqCfg = JSON.parse(localStorage.getItem(K_SEQS_CFG) || '{}');
+  if (!seqCfg.active) return;
+  const seqs = JSON.parse(localStorage.getItem(K_SEQS) || '{}');
+  const step1 = seqs['New'] || DEFAULT_SEQS['New'] || {};
+  if (!step1.subject) return;
+  const name = lead.name||'', trade = lead.trade||'', city = lead.city||'';
+  const fill = s => (s||'').replace(/\{\{name\}\}/g,name).replace(/\{\{trade\}\}/g,trade).replace(/\{\{city\}\}/g,city);
+  const to = lead.email || '';
+  const entryId = lead.id || uid();
+  const base = { id: entryId, leadName: name, leadEmail: to, leadTrade: trade, leadCity: city };
+  const state = ls.get(K_SEQ_STATE);
+  state.push({ ...base, step: 1, scheduledAt: Date.now(), sentAt: null });
+  if ((seqCfg.steps||1) >= 2) state.push({ ...base, step: 2, scheduledAt: Date.now() + 3*86400000, sentAt: null });
+  if ((seqCfg.steps||1) >= 3) state.push({ ...base, step: 3, scheduledAt: Date.now() + 7*86400000, sentAt: null });
+  ls.set(K_SEQ_STATE, state);
+  if (!to) { addAgentLog('Email Sequences', `${name} added — no email on file`); return; }
+  fetch(SEQ_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Internal-Key': IKEY },
+    body: JSON.stringify({ to, subject: fill(step1.subject), body: fill(step1.body), lead_name: name }),
+  }).then(r => r.json()).then(d => {
+    const s = ls.get(K_SEQ_STATE);
+    const e = s.find(x => x.id === entryId && x.step === 1);
+    if (e) { e.sentAt = d.sent ? Date.now() : null; ls.set(K_SEQ_STATE, s); }
+    addAgentLog('Email Sequences', d.sent ? `Step 1 sent to ${to}` : `No send: ${d.reason||d.error||'error'}`);
+    renderAgents();
+  }).catch(err => addAgentLog('Email Sequences', `Send failed: ${err.message}`));
+}
+
+async function checkSequenceFollowUps() {
+  const seqCfg = JSON.parse(localStorage.getItem(K_SEQS_CFG) || '{}');
+  if (!seqCfg.active || (seqCfg.steps||1) < 2) return;
+  const seqs = JSON.parse(localStorage.getItem(K_SEQS) || '{}');
+  const state = ls.get(K_SEQ_STATE);
+  const pending = state.filter(e => !e.sentAt && e.leadEmail && e.step > 1 && e.scheduledAt <= Date.now());
+  for (const entry of pending) {
+    const stage = entry.step === 2 ? 'Emailed' : 'Followed Up';
+    const seq = seqs[stage] || DEFAULT_SEQS[stage] || {};
+    if (!seq.subject) continue;
+    const fill = s => (s||'').replace(/\{\{name\}\}/g,entry.leadName||'').replace(/\{\{trade\}\}/g,entry.leadTrade||'').replace(/\{\{city\}\}/g,entry.leadCity||'');
+    try {
+      const r = await fetch(SEQ_URL, { method:'POST', headers:{'Content-Type':'application/json','X-Internal-Key':IKEY}, body:JSON.stringify({ to:entry.leadEmail, subject:fill(seq.subject), body:fill(seq.body), lead_name:entry.leadName }) });
+      const d = await r.json();
+      entry.sentAt = d.sent ? Date.now() : null;
+      addAgentLog('Email Sequences', d.sent ? `Step ${entry.step} auto-sent to ${entry.leadEmail}` : `Step ${entry.step} failed: ${d.error||d.reason}`);
+    } catch(e) { /* non-fatal */ }
+  }
+  ls.set(K_SEQ_STATE, state);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  WEEKLY SUMMARY — EMAIL SEND + AUTO-SEND
+// ═══════════════════════════════════════════════════════════
+async function sendWeeklySummaryEmail() {
+  const to = document.getElementById('sum-email')?.value.trim();
+  const day = document.getElementById('sum-day')?.value || 'Monday';
+  const active = document.getElementById('sum-active')?.checked || false;
+  if (!to || !to.includes('@')) { toast('Enter a valid email.'); return; }
+  localStorage.setItem(K_SUM_CFG, JSON.stringify({ email: to, day, active, updatedAt: Date.now() }));
+  const pipe = ls.get(K_PIPE), cont = ls.get(K_CONT);
+  const weekAgo = Date.now() - 7 * 86400000;
+  const weekAgoStr = new Date(weekAgo).toISOString().slice(0,10);
+  const summary = {
+    newLeads:    pipe.filter(l => l.added > weekAgo).length,
+    movedLeads:  pipe.filter(l => l.stageAt && l.stageAt > weekAgo && l.stageAt !== l.added).length,
+    closedLeads: pipe.filter(l => l.stage === 'Closed' && l.stageAt && l.stageAt > weekAgo).length,
+    posted:      cont.filter(c => c.status==='Posted' && c.date && c.date >= weekAgoStr).length,
+    staleLeads:  pipe.filter(l => l.stage !== 'Closed' && (Date.now()-(l.stageAt||l.added)) > 3*86400000).length,
+    topLead:     pipe.filter(l => l.added > weekAgo).sort((a,b) => (b.score||0)-(a.score||0))[0] || null,
+  };
+  const btn = document.getElementById('sum-send-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Sending…'; }
+  try {
+    const res = await fetch(SUMMARY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Internal-Key': IKEY },
+      body: JSON.stringify({ to, summary }),
+    });
+    const d = await res.json();
+    if (d.sent) {
+      toast(`Weekly summary sent to ${to}!`);
+      addAgentLog('Weekly Summary', `Email sent to ${to}`);
+      localStorage.setItem('lp_sum_last', Date.now().toString());
+      renderAgents();
+    } else {
+      toast(`Send failed: ${d.error || d.reason || 'Unknown error'}`);
+    }
+  } catch(e) {
+    toast(`Send failed: ${e.message}`);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '📧 Send Email'; }
+  }
+}
+
+function checkWeeklySummary() {
+  const cfg = JSON.parse(localStorage.getItem(K_SUM_CFG) || '{}');
+  if (!cfg.active || !cfg.email) return;
+  const dayNums = { 'Monday': 1, 'Friday': 5 };
+  if (new Date().getDay() !== (dayNums[cfg.day] || 1)) return;
+  const lastRaw = localStorage.getItem('lp_sum_last');
+  if (lastRaw) {
+    const lastDate = new Date(parseInt(lastRaw)).toISOString().slice(0,10);
+    if (lastDate === new Date().toISOString().slice(0,10)) return; // already sent today
+  }
+  const pipe = ls.get(K_PIPE), cont = ls.get(K_CONT);
+  const weekAgo = Date.now() - 7 * 86400000;
+  const weekAgoStr = new Date(weekAgo).toISOString().slice(0,10);
+  const summary = {
+    newLeads:    pipe.filter(l => l.added > weekAgo).length,
+    movedLeads:  pipe.filter(l => l.stageAt && l.stageAt > weekAgo && l.stageAt !== l.added).length,
+    closedLeads: pipe.filter(l => l.stage === 'Closed' && l.stageAt && l.stageAt > weekAgo).length,
+    posted:      cont.filter(c => c.status==='Posted' && c.date && c.date >= weekAgoStr).length,
+    staleLeads:  pipe.filter(l => l.stage !== 'Closed' && (Date.now()-(l.stageAt||l.added)) > 3*86400000).length,
+    topLead:     pipe.filter(l => l.added > weekAgo).sort((a,b) => (b.score||0)-(a.score||0))[0] || null,
+  };
+  fetch(SUMMARY_URL, { method:'POST', headers:{'Content-Type':'application/json','X-Internal-Key':IKEY}, body:JSON.stringify({ to:cfg.email, summary }) })
+    .then(r => r.json()).then(d => {
+      if (d.sent) { localStorage.setItem('lp_sum_last', Date.now().toString()); addAgentLog('Weekly Summary', `Auto-sent to ${cfg.email}`); }
+    }).catch(() => {});
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1636,6 +1882,10 @@ function goContent() {
 // ═══════════════════════════════════════════════════════════
 initCal();
 updateAgentBadge();
+checkScheduler();
+checkWeeklySummary();
+checkSequenceFollowUps();
+setInterval(checkScheduler, 5 * 60 * 1000); // re-check scheduler every 5 min
 </script>
 </body>
 </html>

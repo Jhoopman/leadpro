@@ -261,6 +261,121 @@ app.post('/api/generate-script', (req, res) => {
   apiReq.end();
 });
 
+// INTERNAL KEY BYPASS — re-score a single known lead by website URL
+app.post('/api/rescore-lead', async (req, res) => {
+  if (req.headers['x-internal-key'] !== process.env.INTERNAL_API_KEY) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  const { website = '', phone = '' } = req.body || {};
+  const scraper = require('./services/scraper');
+  const analysis = {
+    hasWebsite: !!website, hasChatWidget: false, hasPhone: !!phone,
+    websiteQualityScore: 0, hasSSL: false, hasMobileViewport: false, rating: null,
+  };
+  if (website) {
+    try {
+      const siteUrl = website.startsWith('http') ? website : 'https://' + website;
+      const { html, finalUrl } = await scraper.fetchPageHTML(siteUrl);
+      analysis.hasChatWidget = scraper.checkChatWidget(html);
+      if (!analysis.hasPhone) analysis.hasPhone = scraper.checkPhoneNumber(html);
+      const q = scraper.checkWebsiteQuality(html, finalUrl);
+      analysis.hasSSL = q.hasSSL;
+      analysis.hasMobileViewport = q.hasMobileViewport;
+      analysis.websiteQualityScore = q.score;
+    } catch (e) {
+      console.log('[rescore-lead] fetch error:', website, e.message);
+    }
+  }
+  const { score, missing } = scraper.scoreContractor(analysis);
+  res.json({ score, missing, factors: analysis });
+});
+
+// INTERNAL KEY BYPASS — send an email sequence step via Resend
+app.post('/api/send-sequence', async (req, res) => {
+  if (req.headers['x-internal-key'] !== process.env.INTERNAL_API_KEY) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  const { to = '', subject = '', body = '', lead_name = '' } = req.body || {};
+  if (!to || !to.includes('@')) {
+    console.log('[send-sequence] no valid email for lead:', lead_name || '(unknown)');
+    return res.json({ sent: false, reason: 'no_email' });
+  }
+  if (!cfg.resendApiKey) {
+    return res.status(503).json({ sent: false, error: 'RESEND_API_KEY not configured' });
+  }
+  try {
+    const emailSvc = require('./services/email');
+    const html = `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:520px;margin:0 auto;padding:32px 24px;color:#1a1a1a">
+      ${body.split('\n').filter(l=>l.trim()).map(l=>`<p style="margin:0 0 14px;line-height:1.65;font-size:15px">${l.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</p>`).join('')}
+      <hr style="border:none;border-top:1px solid #e8e8e6;margin:28px 0">
+      <p style="font-size:12px;color:#aaa;margin:0">Sent via LeadPro &nbsp;&middot;&nbsp; <a href="https://useleadpro.net" style="color:#2d7a4e;text-decoration:none">useleadpro.net</a></p>
+    </div>`;
+    await emailSvc.send(to, subject, html);
+    res.json({ sent: true });
+  } catch (e) {
+    console.error('[send-sequence] Resend error:', e.message);
+    res.status(500).json({ sent: false, error: e.message });
+  }
+});
+
+// INTERNAL KEY BYPASS — send weekly summary email via Resend
+app.post('/api/send-weekly-summary', async (req, res) => {
+  if (req.headers['x-internal-key'] !== process.env.INTERNAL_API_KEY) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  const { to = '', summary = {} } = req.body || {};
+  if (!to) return res.status(400).json({ error: 'to required' });
+  if (!cfg.resendApiKey) {
+    return res.status(503).json({ sent: false, error: 'RESEND_API_KEY not configured' });
+  }
+  const { newLeads=0, movedLeads=0, closedLeads=0, posted=0, staleLeads=0, topLead=null } = summary;
+  const date = new Date().toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
+  const html = `
+<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:540px;margin:0 auto;background:#0A0A0A;color:#f0f0f5">
+  <div style="background:linear-gradient(135deg,#0d2818,#0A0A0A);border-bottom:1px solid rgba(45,122,78,0.25);padding:28px 32px">
+    <p style="font-size:11px;font-weight:700;color:#2d7a4e;letter-spacing:0.1em;text-transform:uppercase;margin:0 0 6px">LeadPro · Weekly Report</p>
+    <h1 style="font-size:22px;font-weight:700;color:#f0f0f5;margin:0">${date}</h1>
+  </div>
+  <div style="padding:28px 32px">
+    <table style="width:100%;border-collapse:separate;border-spacing:8px">
+      <tr>
+        <td style="background:#161616;border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:16px;width:50%">
+          <div style="font-size:11px;color:#555;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.07em">New Leads</div>
+          <div style="font-size:26px;font-weight:800;color:#52D99A">${newLeads}</div>
+        </td>
+        <td style="background:#161616;border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:16px;width:50%">
+          <div style="font-size:11px;color:#555;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.07em">Leads Moved</div>
+          <div style="font-size:26px;font-weight:800;color:#3B82F6">${movedLeads}</div>
+        </td>
+      </tr>
+      <tr>
+        <td style="background:#161616;border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:16px">
+          <div style="font-size:11px;color:#555;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.07em">Deals Closed</div>
+          <div style="font-size:26px;font-weight:800;color:#FF3B3B">${closedLeads}</div>
+        </td>
+        <td style="background:#161616;border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:16px">
+          <div style="font-size:11px;color:#555;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.07em">Content Posted</div>
+          <div style="font-size:26px;font-weight:800;color:#F59E0B">${posted}</div>
+        </td>
+      </tr>
+    </table>
+    ${topLead ? `<div style="background:#161616;border:1px solid rgba(82,217,154,0.18);border-radius:10px;padding:16px;margin-top:16px"><div style="font-size:11px;color:#2d7a4e;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px">Top Lead</div><div style="font-size:16px;font-weight:700;color:#f0f0f5">${topLead.name||'—'}</div><div style="font-size:13px;color:#666;margin-top:2px">${topLead.trade||''} · ${topLead.city||''} · Score ${topLead.score||0}</div></div>` : ''}
+    ${staleLeads > 0 ? `<div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.18);border-radius:8px;padding:12px 16px;margin-top:16px;font-size:13.5px;color:#F59E0B">⚠️ ${staleLeads} lead${staleLeads>1?'s':''} need follow-up — no movement in 3+ days.</div>` : ''}
+  </div>
+  <div style="padding:16px 32px 24px;border-top:1px solid rgba(255,255,255,0.05)">
+    <p style="font-size:12px;color:#444;margin:0;text-align:center"><a href="https://app.useleadpro.net" style="color:#2d7a4e;text-decoration:none">Open Dashboard</a> &nbsp;·&nbsp; LeadPro</p>
+  </div>
+</div>`;
+  try {
+    const emailSvc = require('./services/email');
+    await emailSvc.send(to, `LeadPro Weekly — ${date}`, html);
+    res.json({ sent: true });
+  } catch (e) {
+    console.error('[send-weekly-summary] error:', e.message);
+    res.status(500).json({ sent: false, error: e.message });
+  }
+});
+
 // Plan gates — always after requireAuth (reads req.contractor, no extra DB calls)
 app.post('/api',              requirePlan('starter'));   // /api chat proxy → Starter+
 app.use('/send-confirmation', requirePlan('starter'));
