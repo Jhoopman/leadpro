@@ -42,6 +42,9 @@ module.exports = {
   // Admin diagnostic token — set on Render, never commit a real value
   diagnosticToken: process.env.DIAGNOSTIC_TOKEN || '',
 
+  // Marketing Hub — private admin route password
+  hubPassword: process.env.HUB_PASSWORD || '',
+
   alertPhone: process.env.ALERT_PHONE || '',
 
   google: {

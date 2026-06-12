@@ -8,7 +8,8 @@ const express = require('express');
 const path    = require('path');
 const fs      = require('fs');
 
-const cfg = require('./config');
+const cfg    = require('./config');
+const crypto = require('crypto');
 
 // ── APP ───────────────────────────────────────────────────────────────────────
 
@@ -145,6 +146,75 @@ app.get('/api/health/db', healthDbLimit, async (req, res) => {
 
   const allOk = Object.values(results).every(r => r.ok);
   res.status(allOk ? 200 : 503).json({ ok: allOk, ts: new Date().toISOString(), ...results });
+});
+
+// ── ADMIN HUB ─────────────────────────────────────────────────────────────────
+// Private route — never document publicly. Returns 404 (not 401) to obscure existence.
+
+function signHubToken(ts) {
+  return crypto.createHmac('sha256', process.env.HUB_PASSWORD || 'hub-no-pass').update(ts).digest('hex');
+}
+
+function verifyHubCookie(cookieHeader) {
+  if (!cookieHeader) return false;
+  const match = cookieHeader.split(';').map(c => c.trim()).find(c => c.startsWith('hub_session='));
+  if (!match) return false;
+  try {
+    const val = decodeURIComponent(match.slice('hub_session='.length));
+    const [ts, sig] = val.split('.');
+    if (!ts || !sig) return false;
+    if (Date.now() - parseInt(ts, 10) > 30 * 24 * 60 * 60 * 1000) return false;
+    const expected = signHubToken(ts);
+    const sigBuf = Buffer.from(sig,      'hex');
+    const expBuf = Buffer.from(expected, 'hex');
+    if (sigBuf.length !== expBuf.length) return false;
+    return crypto.timingSafeEqual(sigBuf, expBuf);
+  } catch { return false; }
+}
+
+function setHubCookie(res) {
+  const ts    = Date.now().toString();
+  const token = `${ts}.${signHubToken(ts)}`;
+  res.setHeader('Set-Cookie',
+    `hub_session=${encodeURIComponent(token)}; HttpOnly; Secure; SameSite=Strict; Max-Age=${30 * 24 * 60 * 60}; Path=/admin`
+  );
+}
+
+// POST /admin/hub-auth — validate HUB_PASSWORD env var, issue hub_session cookie
+app.post('/admin/hub-auth', (req, res) => {
+  const { password } = req.body || {};
+  const expected = cfg.hubPassword;
+  if (!expected || !password || password !== expected) {
+    return res.status(401).json({ ok: false });
+  }
+  setHubCookie(res);
+  res.json({ ok: true });
+});
+
+// GET /admin/hub — serve Marketing Hub HTML (404 to unauthenticated)
+// Layer 1: X-Internal-Key header (curl/programmatic)
+// Layer 1b: ?key= query param (Chrome shortcut bootstrap → sets cookie, redirects clean)
+// Layer 2: valid hub_session cookie (browser sessions after bootstrap)
+app.get('/admin/hub', (req, res) => {
+  const validKey = process.env.INTERNAL_API_KEY;
+
+  // INTERNAL KEY BYPASS — header (programmatic access)
+  if (req.headers['x-internal-key'] === validKey) {
+    return res.sendFile(path.join(__dirname, 'LeadPro-Marketing-Hub.html'));
+  }
+
+  // INTERNAL KEY BYPASS — query param bootstrap: set cookie → redirect to clean URL
+  if (req.query.key && req.query.key === validKey) {
+    setHubCookie(res);
+    return res.redirect(302, '/admin/hub');
+  }
+
+  // Cookie layer — valid signed hub_session
+  if (verifyHubCookie(req.headers.cookie)) {
+    return res.sendFile(path.join(__dirname, 'LeadPro-Marketing-Hub.html'));
+  }
+
+  res.status(404).end();
 });
 
 // ── HTML ROUTES ───────────────────────────────────────────────────────────────

@@ -333,9 +333,33 @@ table.rt { width:100%; border-collapse:collapse; font-size:14px; }
 .note-item { background:var(--surface-2); border-radius:6px; padding:9px 12px; }
 .note-text { font-size:13px; color:rgba(240,240,245,0.75); line-height:1.5; }
 .note-time { font-size:10.5px; color:rgba(240,240,245,0.28); margin-top:3px; }
+
+/* ── HUB LOCK SCREEN ────────────────────────────────── */
+@keyframes hub-shake {
+  0%,100% { transform:translateX(0); }
+  20%,60%  { transform:translateX(-8px); }
+  40%,80%  { transform:translateX(8px); }
+}
+.hub-shake { animation:hub-shake 0.4s ease; }
+#hub-pass:focus { border-color:rgba(108,92,231,0.6) !important; box-shadow:0 0 0 3px rgba(108,92,231,0.15); }
 </style>
 </head>
 <body>
+
+<!-- ── HUB LOCK SCREEN ───────────────────────────────────────────────────── -->
+<div id="hub-lock" style="display:none;position:fixed;inset:0;background:#060608;z-index:99999;flex-direction:column;align-items:center;justify-content:center;gap:20px;">
+  <img src="/assets/leadpro-marketing-icon.png" alt="LeadPro" style="height:52px;width:auto;margin-bottom:8px;">
+  <div style="font-size:23px;font-weight:700;color:#f0f0f5;letter-spacing:-0.02em;">Marketing Hub</div>
+  <div style="font-size:13px;color:rgba(240,240,245,0.4);margin-top:-8px;">Private — enter password to continue</div>
+  <input type="password" id="hub-pass" autocomplete="current-password" placeholder="Password"
+    style="background:#13131a;border:1px solid rgba(240,240,245,0.12);border-radius:10px;color:#f0f0f5;font-size:15px;padding:13px 16px;width:272px;outline:none;transition:border-color .2s,box-shadow .2s;margin-top:8px;"
+    onkeydown="if(event.key==='Enter')hubUnlock()">
+  <button onclick="hubUnlock()" id="hub-btn"
+    style="background:linear-gradient(135deg,#6c5ce7,#a29bfe);border:none;border-radius:10px;color:#fff;cursor:pointer;font-size:14px;font-weight:600;padding:12px 48px;letter-spacing:0.01em;width:272px;">
+    Enter
+  </button>
+  <div id="hub-err" style="display:none;color:#ff7675;font-size:13px;min-height:18px;"></div>
+</div>
 
 <!-- ── SIDEBAR ──────────────────────────── -->
 <aside class="sb">
@@ -720,6 +744,53 @@ table.rt { width:100%; border-collapse:collapse; font-size:14px; }
 <div class="toast" id="toast"><div class="toast-bar"></div><span id="toast-msg"></span></div>
 
 <script>
+// ═══════════════════════════════════════════════════════════
+//  HUB LOCK SCREEN
+// ═══════════════════════════════════════════════════════════
+(function() {
+  const el = document.getElementById('hub-lock');
+  if (localStorage.getItem('lp_hub_auth') !== '1') {
+    el.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('hub-pass').focus(), 60);
+  }
+})();
+
+async function hubUnlock() {
+  const pw  = document.getElementById('hub-pass').value;
+  const err = document.getElementById('hub-err');
+  const inp = document.getElementById('hub-pass');
+  const btn = document.getElementById('hub-btn');
+  if (!pw) return;
+  err.style.display = 'none';
+  btn.disabled = true; btn.textContent = '…';
+  try {
+    const r = await fetch('/admin/hub-auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pw }),
+    });
+    if (r.ok) {
+      localStorage.setItem('lp_hub_auth', '1');
+      document.getElementById('hub-lock').style.display = 'none';
+      document.body.style.overflow = '';
+    } else {
+      err.textContent = 'Incorrect password';
+      err.style.display = 'block';
+      inp.value = '';
+      inp.classList.remove('hub-shake');
+      void inp.offsetWidth;
+      inp.classList.add('hub-shake');
+      setTimeout(() => inp.classList.remove('hub-shake'), 450);
+      inp.focus();
+    }
+  } catch(e) {
+    err.textContent = 'Connection error — try again';
+    err.style.display = 'block';
+  }
+  btn.disabled = false; btn.textContent = 'Enter';
+}
+
 // ═══════════════════════════════════════════════════════════
 //  CONSTANTS
 // ═══════════════════════════════════════════════════════════
