@@ -647,6 +647,60 @@ table.rt { width:100%; border-collapse:collapse; font-size:14px; }
   </div>
 </div>
 
+<!-- Scheduler Modal -->
+<div class="overlay" id="modal-scheduler">
+  <div class="modal" style="width:460px">
+    <div class="modal-hdr">
+      <h3>Prospector Scheduler</h3>
+      <button class="mx" onclick="closeModal('modal-scheduler')">✕</button>
+    </div>
+    <div class="mf">
+      <div class="fg"><label>Location</label><input type="text" id="sched-loc" placeholder="City, State — e.g. Richmond, VA"></div>
+      <div class="mf-row">
+        <div class="fg"><label>Industry</label>
+          <select id="sched-ind">
+            <option value="">All Industries</option>
+            <option>Roofing</option><option>Solar</option><option>Landscaping</option>
+            <option>HVAC</option><option>Plumbing</option><option>Electrical</option>
+            <option>Painting</option><option>Cleaning</option>
+          </select>
+        </div>
+        <div class="fg"><label>Min Score</label><input type="number" id="sched-score" value="40" min="0" max="100"></div>
+      </div>
+    </div>
+    <div class="mfooter">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-scheduler')">Cancel</button>
+      <button class="btn btn-ghost btn-sm" onclick="runScheduledScan()" style="color:#52D99A;border-color:rgba(82,217,154,0.3)">▶ Run Now</button>
+      <button class="btn btn-red btn-sm" onclick="saveSchedulerConfig()">Save Config</button>
+    </div>
+  </div>
+</div>
+
+<!-- Email Sequences Modal -->
+<div class="overlay" id="modal-sequences">
+  <div class="modal" style="width:560px">
+    <div class="modal-hdr">
+      <h3>Email Sequences</h3>
+      <button class="mx" onclick="closeModal('modal-sequences')">✕</button>
+    </div>
+    <div id="sequences-body"></div>
+  </div>
+</div>
+
+<!-- Weekly Summary Modal -->
+<div class="overlay" id="modal-summary">
+  <div class="modal" style="width:500px">
+    <div class="modal-hdr">
+      <h3>Weekly Summary</h3>
+      <button class="mx" onclick="closeModal('modal-summary')">✕</button>
+    </div>
+    <div id="summary-body"></div>
+    <div class="mfooter" style="margin-top:20px">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-summary')">Close</button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div class="toast" id="toast"><div class="toast-bar"></div><span id="toast-msg"></span></div>
 
@@ -661,6 +715,8 @@ const K_CAMP = 'lp_campaigns';
 const K_CONT = 'lp_content';
 const K_TOTS = 'lp_total_leads';
 const K_LOG  = 'lp_agent_log';
+const K_SCHED = 'lp_sched_config';
+const K_SEQS  = 'lp_sequences';
 const STAGES = ['New','Emailed','Followed Up','Replied','Closed'];
 const STAGE_COLORS = { 'New':'rgba(255,255,255,0.25)', 'Emailed':'#3B82F6', 'Followed Up':'#F59E0B', 'Replied':'#22C55E', 'Closed':'#FF3B3B' };
 const PLAT_COLORS  = { Facebook:'#1877F2', Instagram:'#E1306C', LinkedIn:'#0A66C2', Email:'#FF3B3B' };
@@ -900,16 +956,20 @@ async function openScript(lead) {
 }
 
 function renderScript(text) {
-  const SECTION_RE = /^[\*\_\s]*(OPENER|PAIN POINT|PITCH|HANDLE OBJECTIONS|CLOSE)\s*:?[\*\_\s]*$/i;
+  if (!text || !text.trim()) {
+    document.getElementById('script-mbody').innerHTML = `<div style="color:var(--muted);font-size:13px;padding:10px 0">No script returned — verify ANTHROPIC_API_KEY is set in Render env vars.</div>`;
+    return;
+  }
+  const SECTION_RE = /^[*_#\s]*(OPENER|PAIN POINT|PITCH|(?:HANDLE\s+)?OBJECTIONS|CLOSE)[*_#\s]*:?[*_#\s]*$/i;
   const lines = text.split('\n');
   let html = '';
   for (const line of lines) {
     const trimmed = line.trim();
     if (!trimmed) { html += '<br>'; continue; }
     if (SECTION_RE.test(trimmed)) {
-      html += `<span class="sh">${trimmed.replace(/[\*\_]/g,'').replace(/:$/,'').trim()}</span>`;
+      html += `<span class="sh">${trimmed.replace(/[*_#]/g,'').replace(/:$/,'').trim()}</span>`;
     } else {
-      html += `<span class="sl">${trimmed.replace(/\*\*/g,'').replace(/</g,'&lt;')}</span>\n`;
+      html += `<span class="sl">${trimmed.replace(/\*\*([^*]+)\*\*/g,'$1').replace(/</g,'&lt;')}</span>\n`;
     }
   }
   document.getElementById('script-mbody').innerHTML = `<div class="script-body">${html}</div>`;
@@ -935,6 +995,168 @@ function pipelineWithScript() {
   updateAgentBadge();
   closeModal('modal-script');
   toast(`${_scriptLead.name} added to Pipeline with script`);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  AGENTS — PROSPECTOR SCHEDULER
+// ═══════════════════════════════════════════════════════════
+function openSchedulerConfig() {
+  const cfg = JSON.parse(localStorage.getItem(K_SCHED) || '{}');
+  document.getElementById('sched-loc').value = cfg.location || '';
+  document.getElementById('sched-ind').value = cfg.industry || '';
+  document.getElementById('sched-score').value = cfg.min_score || 40;
+  document.getElementById('modal-scheduler').classList.add('open');
+}
+function saveSchedulerConfig() {
+  const loc = document.getElementById('sched-loc').value.trim();
+  if (!loc) { toast('Enter a location first.'); return; }
+  const cfg = { location: loc, industry: document.getElementById('sched-ind').value, min_score: parseInt(document.getElementById('sched-score').value) || 40, savedAt: Date.now() };
+  localStorage.setItem(K_SCHED, JSON.stringify(cfg));
+  closeModal('modal-scheduler');
+  toast('Scheduler configured — click Run Now to scan!');
+  renderAgents();
+}
+function runScheduledScan() {
+  const cfg = JSON.parse(localStorage.getItem(K_SCHED) || '{}');
+  if (!cfg.location) { toast('Save a location first.'); return; }
+  closeModal('modal-scheduler');
+  document.getElementById('p-loc').value = cfg.location;
+  document.getElementById('p-ind').value = cfg.industry || '';
+  document.getElementById('p-min').value = cfg.min_score || 40;
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelector('[data-tab="prospector"]').classList.add('active');
+  document.getElementById('tab-prospector').classList.add('active');
+  cfg.lastRun = Date.now();
+  localStorage.setItem(K_SCHED, JSON.stringify(cfg));
+  addAgentLog('Prospector Scheduler', `Scan triggered for ${cfg.location}`);
+  runProspector();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  AGENTS — LEAD RE-SCORER
+// ═══════════════════════════════════════════════════════════
+async function runRescorer() {
+  const pipe = ls.get(K_PIPE);
+  if (!pipe.length) { toast('No leads in pipeline to rescore.'); return; }
+  const btn = document.getElementById('rescore-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Rescoring…'; }
+  const seen = new Map();
+  pipe.filter(l => l.city && l.city !== '—').forEach(l => seen.set(`${l.city}|${l.trade||'home services'}`, { city: l.city, trade: l.trade||'home services' }));
+  const combos = [...seen.values()].slice(0, 3);
+  let updated = 0;
+  for (const combo of combos) {
+    try {
+      const res = await fetch(API, { method:'POST', headers:{ 'Content-Type':'application/json', 'X-Internal-Key':IKEY }, body:JSON.stringify({ location:combo.city, industry:combo.trade, min_score:0 }) });
+      if (!res.ok) continue;
+      const data = await res.json();
+      const results = Array.isArray(data) ? data : (data.results || []);
+      const pipe2 = ls.get(K_PIPE);
+      results.forEach(r => {
+        const match = pipe2.find(l => l.name && r.name && l.name.toLowerCase() === r.name.toLowerCase());
+        if (match) { const ns = normScore(r.score ?? r.lead_score ?? 0); if (match.score !== ns) { match.score = ns; updated++; } }
+      });
+      ls.set(K_PIPE, pipe2);
+    } catch(e) { /* non-fatal */ }
+  }
+  addAgentLog('Lead Re-Scorer', `Rescored ${pipe.length} leads — ${updated} updated`);
+  toast(`Rescoring done — ${updated} score${updated !== 1 ? 's' : ''} updated`);
+  if (btn) { btn.disabled = false; btn.textContent = '🎯 Run Now'; }
+  renderAgents();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  AGENTS — WEEKLY SUMMARY
+// ═══════════════════════════════════════════════════════════
+function openWeeklySummary() {
+  const pipe = ls.get(K_PIPE), cont = ls.get(K_CONT);
+  const weekAgo = Date.now() - 7 * 86400000;
+  const newLeads    = pipe.filter(l => l.added > weekAgo).length;
+  const movedLeads  = pipe.filter(l => l.stageAt && l.stageAt > weekAgo && l.stageAt !== l.added).length;
+  const closedLeads = pipe.filter(l => l.stage === 'Closed' && l.stageAt && l.stageAt > weekAgo).length;
+  const staleLeads  = pipe.filter(l => l.stage !== 'Closed' && (Date.now()-(l.stageAt||l.added)) > 3*86400000).length;
+  const weekAgoStr  = new Date(weekAgo).toISOString().slice(0,10);
+  const todayStr    = new Date().toISOString().slice(0,10);
+  const posted      = cont.filter(c => c.status==='Posted' && c.date && c.date >= weekAgoStr && c.date <= todayStr).length;
+  const stageCounts = STAGES.map(s => ({ s, n: pipe.filter(l => l.stage === s).length }));
+  document.getElementById('summary-body').innerHTML = `
+    <div class="detail-grid" style="margin-bottom:16px">
+      <div class="di"><div class="di-l">New This Week</div><div class="di-v" style="font-size:22px;font-weight:800;color:#52D99A">${newLeads}</div></div>
+      <div class="di"><div class="di-l">Leads Moved</div><div class="di-v" style="font-size:22px;font-weight:800;color:#3B82F6">${movedLeads}</div></div>
+      <div class="di"><div class="di-l">Deals Closed</div><div class="di-v" style="font-size:22px;font-weight:800;color:var(--red)">${closedLeads}</div></div>
+      <div class="di"><div class="di-l">Content Posted</div><div class="di-v" style="font-size:22px;font-weight:800;color:#F59E0B">${posted}</div></div>
+    </div>
+    <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:8px">Pipeline Snapshot</div>
+    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px">
+      ${stageCounts.map(x => `<div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:12.5px;color:var(--muted);width:110px;flex-shrink:0">${x.s}</span>
+        <div style="flex:1;height:5px;background:var(--surface-3);border-radius:3px;overflow:hidden"><div style="width:${pipe.length ? Math.round((x.n/pipe.length)*100) : 0}%;height:100%;background:${STAGE_COLORS[x.s]||'#fff'};border-radius:3px"></div></div>
+        <span style="font-size:12.5px;font-weight:600;color:var(--text);width:20px;text-align:right">${x.n}</span>
+      </div>`).join('')}
+    </div>
+    ${staleLeads > 0
+      ? `<div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:8px;padding:10px 14px;font-size:13px;color:#F59E0B">⚠️ ${staleLeads} lead${staleLeads>1?'s':''} stale — no movement in 3+ days.</div>`
+      : `<div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.15);border-radius:8px;padding:10px 14px;font-size:13px;color:#22C55E">✓ Pipeline healthy — no stale leads this week.</div>`}`;
+  document.getElementById('modal-summary').classList.add('open');
+  addAgentLog('Weekly Summary', `Report generated — ${newLeads} new, ${closedLeads} closed`);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  AGENTS — EMAIL SEQUENCES
+// ═══════════════════════════════════════════════════════════
+const DEFAULT_SEQS = {
+  'New':         { subject:'Quick question about your {{trade}} website, {{name}}', body:'Hey, this is Josiah with LeadPro.\n\nI noticed your website might be missing a few things that help {{trade}} contractors pick up more calls from Google.\n\nWould love to show you what we\'ve built — takes 10 minutes.\n\nAre you open to a quick call this week?' },
+  'Emailed':     { subject:'Following up — {{name}}', body:'Hey, just wanted to circle back on my last email.\n\nI know things get busy running a {{trade}} business — totally get it.\n\nJust wanted to make sure my note didn\'t get lost. Happy to keep it quick, even 15 minutes is enough.\n\nStill interested?' },
+  'Followed Up': { subject:'Last one from me, {{name}}', body:'Hey, I promise this is my last reach-out.\n\nIf the timing isn\'t right for LeadPro, no worries at all.\n\nIf you ever want to see how other {{trade}} contractors in {{city}} are using it, my calendar is always open.\n\nTake care!' },
+  'Replied':     { subject:'Great connecting, {{name}}!', body:'Hey, really appreciated chatting.\n\nJust wanted to follow up with the link I mentioned:\n[INSERT DEMO LINK]\n\nFeel free to reply with any questions — I\'ll have everything ready for your {{trade}} business by our next call.' },
+};
+function openSequences() {
+  const saved = JSON.parse(localStorage.getItem(K_SEQS) || '{}');
+  const stages = STAGES.filter(s => s !== 'Closed');
+  document.getElementById('sequences-body').innerHTML = `
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.5">Per-stage email templates. Use <code style="background:var(--surface-3);padding:1px 5px;border-radius:3px;font-size:11.5px">{{name}}</code>, <code style="background:var(--surface-3);padding:1px 5px;border-radius:3px;font-size:11.5px">{{trade}}</code>, <code style="background:var(--surface-3);padding:1px 5px;border-radius:3px;font-size:11.5px">{{city}}</code> as variables.</p>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      ${stages.map(stage => {
+        const s = saved[stage] || DEFAULT_SEQS[stage] || { subject:'', body:'' };
+        const sid = stage.replace(/\s/g,'-');
+        return `<div class="di" style="border:1px solid var(--border-2)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <span style="font-size:12px;font-weight:700;color:${STAGE_COLORS[stage]||'rgba(240,240,245,0.6)'}">Stage: ${stage}</span>
+            <button class="btn btn-ghost btn-xs" onclick="copySeqTemplate('${stage}')">📋 Copy</button>
+          </div>
+          <input type="text" id="seq-s-${sid}" value="${(s.subject||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}" placeholder="Subject…" style="margin-bottom:8px;font-size:12.5px">
+          <textarea id="seq-b-${sid}" rows="3" placeholder="Email body…" style="font-size:12.5px;resize:vertical">${(s.body||'').replace(/</g,'&lt;')}</textarea>
+        </div>`;
+      }).join('')}
+    </div>
+    <div class="mfooter">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-sequences')">Close</button>
+      <button class="btn btn-red btn-sm" onclick="saveSequences()">Save All</button>
+    </div>`;
+  document.getElementById('modal-sequences').classList.add('open');
+}
+function saveSequences() {
+  const saved = {};
+  STAGES.filter(s => s !== 'Closed').forEach(stage => {
+    const sid = stage.replace(/\s/g,'-');
+    saved[stage] = {
+      subject: document.getElementById(`seq-s-${sid}`)?.value || '',
+      body:    document.getElementById(`seq-b-${sid}`)?.value || '',
+    };
+  });
+  localStorage.setItem(K_SEQS, JSON.stringify(saved));
+  closeModal('modal-sequences');
+  toast('Email sequences saved!');
+  renderAgents();
+}
+function copySeqTemplate(stage, lead) {
+  const saved = JSON.parse(localStorage.getItem(K_SEQS) || '{}');
+  const seq = saved[stage] || DEFAULT_SEQS[stage] || {};
+  const name = lead?.name || '{{name}}', trade = lead?.trade || '{{trade}}', city = lead?.city || '{{city}}';
+  const fill = str => (str||'').replace(/\{\{name\}\}/g,name).replace(/\{\{trade\}\}/g,trade).replace(/\{\{city\}\}/g,city);
+  navigator.clipboard.writeText(`Subject: ${fill(seq.subject)}\n\n${fill(seq.body)}`)
+    .then(() => toast(`"${stage}" template copied!`))
+    .catch(() => toast('Copy failed'));
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1324,32 +1546,36 @@ function renderAgents() {
       lastRun: 'Live',
     },
     {
-      id:'scheduler', icon:'🔍', name:'Prospector Scheduler', live:false,
-      desc:'Automatically runs prospecting scans on a set schedule — daily, weekly, or custom — and drops new leads into your pipeline.',
-      statLabel:'Scheduled scans', statVal:'—',
-      action:`<button class="btn btn-ghost btn-sm" disabled style="cursor:not-allowed;opacity:0.5">Configure</button>`,
-      lastRun:'Coming soon',
+      id:'scheduler', icon:'🔍', name:'Prospector Scheduler',
+      live: !!JSON.parse(localStorage.getItem(K_SCHED)||'{}').location,
+      desc:'Save a location + industry config and trigger one-click prospecting scans without filling out the form every time.',
+      statLabel:'Location', statVal: JSON.parse(localStorage.getItem(K_SCHED)||'{}').location || '—',
+      action:`<button class="btn btn-ghost btn-sm" onclick="openSchedulerConfig()" style="color:#52D99A;border-color:rgba(82,217,154,0.3)">⚙ Configure</button>`,
+      lastRun: (() => { const c=JSON.parse(localStorage.getItem(K_SCHED)||'{}'); return c.lastRun ? new Date(c.lastRun).toLocaleDateString() : (c.location ? 'Not run yet' : 'Not configured'); })(),
     },
     {
-      id:'sequences', icon:'📧', name:'Email Sequences', live:false,
-      desc:'Send multi-step campaign emails automatically when a lead enters or moves between pipeline stages.',
-      statLabel:'Active sequences', statVal:'—',
-      action:`<button class="btn btn-ghost btn-sm" disabled style="cursor:not-allowed;opacity:0.5">Set Up</button>`,
-      lastRun:'Coming soon',
+      id:'sequences', icon:'📧', name:'Email Sequences',
+      live: Object.keys(JSON.parse(localStorage.getItem(K_SEQS)||'{}')).length > 0,
+      desc:'Per-stage email templates with name, trade, and city variables — copy a pre-filled outreach email in one click.',
+      statLabel:'Templates saved', statVal: `${Object.keys(JSON.parse(localStorage.getItem(K_SEQS)||'{}')).length}`,
+      action:`<button class="btn btn-ghost btn-sm" onclick="openSequences()" style="color:#3B82F6;border-color:rgba(59,130,246,0.3)">📝 Set Up</button>`,
+      lastRun: Object.keys(JSON.parse(localStorage.getItem(K_SEQS)||'{}')).length > 0 ? 'Templates ready' : 'No templates yet',
     },
     {
-      id:'rescorer', icon:'🎯', name:'Lead Re-Scorer', live:false,
-      desc:'Re-runs the web presence scan on all pipeline leads and updates their scores to reflect the latest state of their websites.',
+      id:'rescorer', icon:'🎯', name:'Lead Re-Scorer',
+      live: pipe.length > 0,
+      desc:'Re-runs the web presence scan on pipeline leads by city and updates their scores to reflect the current state of their sites.',
       statLabel:'Leads to rescore', statVal:`${pipe.length}`,
-      action:`<button class="btn btn-ghost btn-sm" disabled style="cursor:not-allowed;opacity:0.5">Run Now</button>`,
-      lastRun:'Coming soon',
+      action:`<button id="rescore-btn" class="btn btn-ghost btn-sm" onclick="runRescorer()" ${pipe.length ? '' : 'disabled'} style="color:var(--orange);border-color:rgba(255,107,53,0.3)">🎯 Run Now</button>`,
+      lastRun: pipe.length ? 'Ready' : 'Add leads to pipeline first',
     },
     {
-      id:'summary', icon:'📊', name:'Weekly Summary', live:false,
-      desc:'Sends you an automated weekly email digest covering new leads found, pipeline movement, and content posted.',
-      statLabel:'Next report', statVal:'—',
-      action:`<button class="btn btn-ghost btn-sm" disabled style="cursor:not-allowed;opacity:0.5">Preview</button>`,
-      lastRun:'Coming soon',
+      id:'summary', icon:'📊', name:'Weekly Summary',
+      live: true,
+      desc:'Real-time digest of new leads found, pipeline movement, and content posted this week — pulled from your local data.',
+      statLabel:'New this week', statVal:`${pipe.filter(l=>l.added > Date.now()-7*86400000).length}`,
+      action:`<button class="btn btn-ghost btn-sm" onclick="openWeeklySummary()" style="color:#F59E0B;border-color:rgba(245,158,11,0.3)">📊 Preview</button>`,
+      lastRun:'Always live',
     },
   ];
 
