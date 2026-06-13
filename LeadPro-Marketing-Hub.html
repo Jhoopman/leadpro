@@ -509,7 +509,7 @@ table.rt { width:100%; border-collapse:collapse; font-size:14px; }
           </div>
           <div class="fg fg-sm">
             <label>Min Score (0–100)</label>
-            <input type="number" id="p-min" value="40" min="0" max="100">
+            <input type="number" id="p-min" value="0" min="0" max="100">
           </div>
           <div class="fg fg-sm" style="justify-content:flex-end;padding-bottom:1px">
             <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:12.5px;color:var(--text);padding-top:18px;text-transform:none;letter-spacing:0">
@@ -1978,6 +1978,15 @@ function openLead(id, focusNote=false) {
         <div class="di"><div class="di-l">Score</div><div class="di-v"><div class="score-ring ${sc} score-sm" style="display:inline-flex">${l.score||0}</div></div></div>
         ${l.website?`<div class="di" style="grid-column:span 2"><div class="di-l">Website</div><div class="di-v"><a href="${l.website}" target="_blank" style="color:var(--red-2)">${l.website}</a></div></div>`:''}
       </div>
+      <div style="margin-top:10px">
+        <label style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:5px;display:flex;align-items:center;gap:6px">
+          📧 Email <span style="font-weight:400;text-transform:none;letter-spacing:0;color:rgba(240,240,245,0.3);font-size:10px">— required for sequences</span>
+        </label>
+        <div style="display:flex;gap:8px">
+          <input type="email" id="lead-email-in" placeholder="owner@business.com" value="${l.email||''}" style="flex:1;font-size:13px">
+          <button class="btn btn-ghost btn-sm" onclick="saveLeadEmail()">Save</button>
+        </div>
+      </div>
     </div>
     <div style="margin-bottom:14px">
       <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:8px">Stage</div>
@@ -1991,7 +2000,8 @@ function openLead(id, focusNote=false) {
         <button class="btn btn-red btn-sm" onclick="saveNote()">Add</button>
       </div>
     </div>
-    <div style="display:flex;justify-content:flex-end">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <button class="btn btn-ghost btn-sm" style="color:#52D99A;border-color:rgba(82,217,154,0.3)" onclick="triggerSequenceStep1(ls.get(K_PIPE).find(x=>x.id==='${id}')||{});toast('Sequence triggered')">📧 Send Seq Step 1</button>
       <button class="btn btn-ghost btn-sm" style="color:var(--orange)" onclick="deleteLead('${id}')">🗑 Remove</button>
     </div>`;
   document.getElementById('modal-lead').classList.add('open');
@@ -2010,6 +2020,14 @@ function saveNote() {
   const nl = document.getElementById('nl');
   if (nl) { nl.innerHTML = l.notes.map(n=>`<div class="note-item"><div class="note-text">${n.text}</div><div class="note-time">${new Date(n.at).toLocaleString()}</div></div>`).join(''); nl.scrollTop=nl.scrollHeight; }
 }
+function saveLeadEmail() {
+  const email = document.getElementById('lead-email-in')?.value.trim() || '';
+  const pipe = ls.get(K_PIPE), l = pipe.find(x => x.id === editLeadId); if (!l) return;
+  l.email = email;
+  ls.set(K_PIPE, pipe);
+  toastGreen(email ? `Email saved — sequences will fire for ${l.name}` : 'Email cleared');
+}
+
 function deleteLead(id) {
   if (!confirm('Remove this lead?')) return;
   ls.set(K_PIPE, ls.get(K_PIPE).filter(x=>x.id!==id));
