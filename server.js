@@ -184,7 +184,6 @@ function setHubCookie(res) {
 app.post('/admin/hub-auth', (req, res) => {
   const { password } = req.body || {};
   const expected = cfg.hubPassword;
-  console.log('[hub-auth] expected len:', expected.length, '| received len:', (password||'').length, '| match:', password === expected);
   if (!expected || !password || password !== expected) {
     return res.status(401).json({ ok: false });
   }
@@ -329,6 +328,53 @@ app.post('/api/generate-script', (req, res) => {
     res.status(500).json({ error: e.message });
   });
   apiReq.write(payload);
+  apiReq.end();
+});
+
+// INTERNAL KEY BYPASS — generate social/email content via Anthropic
+app.post('/api/generate-content', (req, res) => {
+  if (req.headers['x-internal-key'] !== process.env.INTERNAL_API_KEY) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  if (!cfg.anthropicApiKey) {
+    return res.status(503).json({ error: 'ANTHROPIC_API_KEY not configured on server' });
+  }
+  const { platform = 'LinkedIn', topic = 'AI receptionist for contractors' } = req.body || {};
+  const formatGuide = {
+    LinkedIn:  'Professional tone, 150–250 words, 2–3 short paragraphs, ends with a soft question or CTA to useleadpro.net',
+    Instagram: 'Punchy hook first line, conversational, 80–120 words, 3–5 relevant hashtags at the end',
+    Facebook:  'Friendly and direct, 100–180 words, story-driven if possible, ends with CTA to useleadpro.net',
+    Email:     'Subject line on first line (prefix "Subject: "), then blank line, then 120–200 word body, professional but warm',
+  };
+  const guide = formatGuide[platform] || formatGuide.LinkedIn;
+  const systemPrompt = `You write social media and email content for LeadPro, an AI receptionist SaaS built for home-service contractors (roofing, HVAC, plumbing, landscaping, etc.). LeadPro answers missed calls 24/7, texts callers back instantly, and helps contractors never lose a lead again. Pain-point driven, conversational, no corporate jargon. Website: useleadpro.net.`;
+  const userPrompt = `Write a ${platform} post about: "${topic}". Format guide: ${guide}. Output the post text only — no commentary, no labels, no markdown formatting.`;
+
+  const https = require('https');
+  const body = JSON.stringify({
+    model: 'claude-haiku-4-5-20251001',
+    max_tokens: 512,
+    system: systemPrompt,
+    messages: [{ role: 'user', content: userPrompt }],
+  });
+  const options = {
+    hostname: 'api.anthropic.com', path: '/v1/messages', method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-api-key': cfg.anthropicApiKey, 'anthropic-version': '2023-06-01', 'Content-Length': Buffer.byteLength(body) },
+  };
+  const apiReq = https.request(options, apiRes => {
+    let d = '';
+    apiRes.on('data', c => d += c);
+    apiRes.on('end', () => {
+      try {
+        const parsed = JSON.parse(d);
+        if (apiRes.statusCode !== 200) { console.error('[generate-content] Anthropic error', apiRes.statusCode, d.slice(0,200)); return res.status(502).json({ error: parsed.error?.message || 'Anthropic error' }); }
+        const content = parsed.content?.[0]?.text || '';
+        res.json({ content });
+      } catch(e) { res.status(500).json({ error: 'Parse error' }); }
+    });
+  });
+  apiReq.on('error', e => { console.error('[generate-content] error:', e.message); res.status(500).json({ error: e.message }); });
+  apiReq.write(body);
   apiReq.end();
 });
 

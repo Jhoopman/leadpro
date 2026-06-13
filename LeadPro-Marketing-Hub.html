@@ -94,9 +94,9 @@ button { font-family:'DM Sans',sans-serif; }
 ══════════════════════════════ */
 .main { margin-left:230px; flex:1; height:100vh; overflow-y:auto; overflow-x:hidden; background:var(--bg); }
 
-.tab-pane { display:none; padding:32px; animation:tabIn 0.18s ease; }
-.tab-pane.active { display:block; }
-@keyframes tabIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+.tab-pane { display:none; padding:32px; }
+.tab-pane.active { display:block; animation:tabIn 0.18s cubic-bezier(0.16,1,0.3,1); }
+@keyframes tabIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
 
 /* ── Page header ── */
 .ph { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:28px; }
@@ -334,6 +334,65 @@ table.rt { width:100%; border-collapse:collapse; font-size:14px; }
 .note-text { font-size:13px; color:rgba(240,240,245,0.75); line-height:1.5; }
 .note-time { font-size:10.5px; color:rgba(240,240,245,0.28); margin-top:3px; }
 
+/* ── Card hover lift ── */
+.card { transition:transform 0.18s cubic-bezier(0.16,1,0.3,1),box-shadow 0.18s cubic-bezier(0.16,1,0.3,1); }
+.card.liftable:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(0,0,0,0.35); }
+
+/* ── Skeleton shimmer ── */
+@keyframes shimmer { 0%{background-position:-600px 0} 100%{background-position:600px 0} }
+.skel { border-radius:6px; background:linear-gradient(90deg,var(--surface-2) 25%,var(--surface-3) 50%,var(--surface-2) 75%); background-size:1200px 100%; animation:shimmer 1.5s infinite linear; }
+.skel-row  { height:52px; margin-bottom:5px; }
+.skel-text { height:13px; margin-bottom:8px; }
+.skel-w60  { width:60%; }
+.skel-w40  { width:40%; }
+
+/* ── Toast variants ── */
+.toast.toast-green .toast-bar { background:#52D99A; }
+.toast.toast-green { border-color:rgba(82,217,154,0.3); }
+
+/* ── Stale card indicators ── */
+.lcard.stale-amber { border-left:3px solid rgba(245,158,11,0.7); }
+.lcard.stale-red   { border-left:3px solid rgba(255,59,59,0.8); }
+
+/* ── Bulk select ── */
+.lcard-check { position:absolute;top:8px;right:8px;z-index:3;display:none;width:16px;height:16px;accent-color:#52D99A; }
+.bulk-mode .lcard-check { display:block; }
+.lcard.bulk-sel { border-color:rgba(82,217,154,0.5);background:rgba(82,217,154,0.04); }
+.bulk-bar { display:none;align-items:center;gap:10px;padding:10px 16px;background:rgba(82,217,154,0.06);border:1px solid rgba(82,217,154,0.2);border-radius:8px;margin-bottom:14px;font-size:13px;flex-wrap:wrap; }
+.bulk-bar.show { display:flex; }
+
+/* ── Velocity chip ── */
+.vel-chip { font-size:10px;color:rgba(240,240,245,0.28);padding:1px 6px;background:rgba(255,255,255,0.04);border-radius:99px;margin-left:3px; }
+
+/* ── Saved search pills ── */
+.saved-pills { display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px; }
+.saved-pill { display:inline-flex;align-items:center;gap:5px;background:var(--surface-2);border:1px solid var(--border-2);border-radius:99px;padding:4px 8px 4px 12px;font-size:12px;color:var(--text);cursor:pointer;transition:all 0.12s; }
+.saved-pill:hover { border-color:var(--red-border);background:var(--red-dim); }
+.saved-pill-x { color:var(--muted);font-size:10px;padding:2px 4px;line-height:1;border-radius:50%; }
+.saved-pill-x:hover { color:var(--red-2); }
+
+/* ── In-pipeline badge ── */
+.in-pipe-badge { display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:99px;padding:2px 8px;font-size:10.5px;color:var(--muted); }
+
+/* ── Today tab ── */
+.today-greeting { font-size:26px;font-weight:800;letter-spacing:-0.03em;margin-bottom:5px; }
+.today-date { font-size:14px;color:var(--muted); }
+.today-grid { display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px; }
+.qa-row { display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap; }
+.qa-btn { display:flex;align-items:center;gap:8px;padding:11px 18px;background:var(--surface);border:1px solid var(--border-2);border-radius:10px;font-size:13.5px;font-weight:600;color:var(--text);cursor:pointer;transition:all 0.14s;font-family:'DM Sans',sans-serif; }
+.qa-btn:hover { border-color:var(--red-border);background:var(--red-dim);color:var(--red-2); }
+.priority-item { display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface-2);border-radius:8px;margin-bottom:6px;font-size:13px; }
+.pulse-funnel { display:flex;flex-direction:column;gap:7px; }
+.pulse-stage { display:flex;align-items:center;gap:8px; }
+.pulse-lbl { font-size:11.5px;color:var(--muted);width:82px;text-align:right;flex-shrink:0; }
+.pulse-bar-wrap { flex:1;height:7px;background:var(--surface-3);border-radius:4px;overflow:hidden; }
+.pulse-bar-fill { height:100%;border-radius:4px;transition:width 0.7s cubic-bezier(.4,0,.2,1); }
+.pulse-cnt { font-size:13px;font-weight:700;color:var(--text);width:22px;text-align:right; }
+.wow-arrow { font-size:10px;width:30px;flex-shrink:0; }
+
+/* ── Content generator ── */
+.gen-preview { background:var(--surface-2);border:1px solid var(--border-2);border-radius:8px;padding:14px;font-size:13.5px;line-height:1.75;color:rgba(240,240,245,0.85);min-height:100px;white-space:pre-wrap;word-break:break-word; }
+
 /* ── HUB LOCK SCREEN ────────────────────────────────── */
 @keyframes hub-shake {
   0%,100% { transform:translateX(0); }
@@ -372,33 +431,47 @@ table.rt { width:100%; border-collapse:collapse; font-size:14px; }
   </div>
 
   <div class="sb-nav">
-    <div class="sb-section">Workspace</div>
-    <div class="nav-item active" data-tab="prospector"><span class="ni">🔍</span>Prospector</div>
-    <div class="nav-item" data-tab="pipeline"><span class="ni">📋</span>Pipeline</div>
-    <div class="nav-item" data-tab="campaigns"><span class="ni">📣</span>Campaigns</div>
-    <div class="nav-item" data-tab="content"><span class="ni">📅</span>Content</div>
+    <div class="sb-section">Command</div>
+    <div class="nav-item active" data-tab="today"><span class="ni">🏠</span>Today<span style="margin-left:auto;font-size:10px;color:rgba(240,240,245,0.18);font-weight:500">1</span></div>
 
-    <div class="sb-section" style="margin-top:8px">Insights</div>
-    <div class="nav-item" data-tab="analytics"><span class="ni">📊</span>Analytics</div>
+    <div class="sb-section" style="margin-top:4px">Workspace</div>
+    <div class="nav-item" data-tab="prospector"><span class="ni">🔍</span>Prospector<span style="margin-left:auto;font-size:10px;color:rgba(240,240,245,0.18);font-weight:500">2</span></div>
+    <div class="nav-item" data-tab="pipeline"><span class="ni">📋</span>Pipeline<span style="margin-left:auto;font-size:10px;color:rgba(240,240,245,0.18);font-weight:500">3</span></div>
+    <div class="nav-item" data-tab="campaigns"><span class="ni">📣</span>Campaigns<span style="margin-left:auto;font-size:10px;color:rgba(240,240,245,0.18);font-weight:500">4</span></div>
+    <div class="nav-item" data-tab="content"><span class="ni">📅</span>Content<span style="margin-left:auto;font-size:10px;color:rgba(240,240,245,0.18);font-weight:500">5</span></div>
 
-    <div class="sb-section" style="margin-top:8px">Automation</div>
+    <div class="sb-section" style="margin-top:4px">Insights</div>
+    <div class="nav-item" data-tab="analytics"><span class="ni">📊</span>Analytics<span style="margin-left:auto;font-size:10px;color:rgba(240,240,245,0.18);font-weight:500">6</span></div>
+
+    <div class="sb-section" style="margin-top:4px">Automation</div>
     <div class="nav-item" data-tab="agents">
       <span class="ni">⚡</span>Agents
       <span class="nav-badge pulse" id="agent-badge" style="display:none">0</span>
+      <span style="margin-left:auto;font-size:10px;color:rgba(240,240,245,0.18);font-weight:500">7</span>
     </div>
   </div>
 
-  <div class="sb-footer">
-    <div class="api-dot" id="api-dot"></div>
-    <div class="sb-footer-txt" id="api-status-txt">Checking API…</div>
+  <div class="sb-footer" style="flex-direction:column;align-items:flex-start;gap:6px">
+    <div style="display:flex;align-items:center;gap:8px;width:100%">
+      <div class="api-dot" id="api-dot"></div>
+      <div class="sb-footer-txt" id="api-status-txt">Checking API…</div>
+    </div>
+    <div style="font-size:10px;color:rgba(240,240,245,0.18);line-height:1.7">
+      <span style="opacity:0.7">1-7</span> tabs &nbsp;·&nbsp; <span style="opacity:0.7">/</span> search &nbsp;·&nbsp; <span style="opacity:0.7">Esc</span> close
+    </div>
   </div>
 </aside>
 
 <!-- ── MAIN ──────────────────────────────── -->
 <main class="main">
 
+  <!-- ══════════ TODAY ══════════ -->
+  <section class="tab-pane active" id="tab-today">
+    <div id="today-body"></div>
+  </section>
+
   <!-- ══════════ PROSPECTOR ══════════ -->
-  <section class="tab-pane active" id="tab-prospector">
+  <section class="tab-pane" id="tab-prospector">
     <div class="ph">
       <div class="ph-left">
         <h2>Prospector</h2>
@@ -408,11 +481,13 @@ table.rt { width:100%; border-collapse:collapse; font-size:14px; }
 
     <div class="card search-hero" style="margin-bottom:20px">
       <div class="search-hero-inner">
+        <div id="saved-search-wrap" class="saved-pills" style="display:none"></div>
         <div class="search-big">
           <div style="flex:1;position:relative">
             <div style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:16px;pointer-events:none">📍</div>
             <input type="text" id="p-loc" placeholder="City, State — e.g. West Chester, PA" style="padding-left:40px;font-size:15px;height:46px">
           </div>
+          <button class="btn btn-ghost" onclick="saveSearch()" title="Save this search" style="height:46px;padding:0 14px">🔖</button>
           <button class="btn btn-red" id="p-btn" onclick="runProspector()" style="height:46px;padding:0 26px;font-size:14.5px">
             🔍 Search
           </button>
@@ -436,6 +511,11 @@ table.rt { width:100%; border-collapse:collapse; font-size:14px; }
             <label>Min Score (0–100)</label>
             <input type="number" id="p-min" value="40" min="0" max="100">
           </div>
+          <div class="fg fg-sm" style="justify-content:flex-end;padding-bottom:1px">
+            <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:12.5px;color:var(--text);padding-top:18px;text-transform:none;letter-spacing:0">
+              <input type="checkbox" id="p-autoscript"> Auto-script
+            </label>
+          </div>
         </div>
       </div>
     </div>
@@ -456,9 +536,19 @@ table.rt { width:100%; border-collapse:collapse; font-size:14px; }
         <h2>Pipeline</h2>
         <p>Track and move leads through your outreach stages.</p>
       </div>
-      <div class="ph-right">
+      <div class="ph-right" style="gap:8px">
         <div class="pipe-health" id="pipe-health"></div>
+        <button class="btn btn-ghost btn-sm" onclick="toggleBulkMode()" id="bulk-toggle-btn">☑ Select</button>
       </div>
+    </div>
+    <div id="bulk-bar" class="bulk-bar">
+      <span id="bulk-count" style="color:#52D99A;font-weight:700"></span>
+      <button class="btn btn-ghost btn-xs" onclick="bulkMove('Emailed')">→ Emailed</button>
+      <button class="btn btn-ghost btn-xs" onclick="bulkMove('Followed Up')">→ Followed Up</button>
+      <button class="btn btn-ghost btn-xs" onclick="bulkMove('Closed')">→ Closed</button>
+      <button class="btn btn-ghost btn-xs" onclick="bulkExportCSV()">⬇ CSV</button>
+      <button class="btn btn-ghost btn-xs" style="color:var(--orange)" onclick="bulkDelete()">🗑 Delete</button>
+      <button class="btn btn-ghost btn-xs" onclick="clearBulk()" style="margin-left:auto">✕ Done</button>
     </div>
     <div class="kanban" id="kanban"></div>
   </section>
@@ -498,6 +588,8 @@ table.rt { width:100%; border-collapse:collapse; font-size:14px; }
         <button class="btn btn-ghost" onclick="calPrev()">← Prev</button>
         <button class="btn btn-ghost" onclick="calToday()">Today</button>
         <button class="btn btn-ghost" onclick="calNext()">Next →</button>
+        <button class="btn btn-ghost" onclick="fillMyWeek()" title="Generate Mon/Wed/Fri posts" style="color:#52D99A;border-color:rgba(82,217,154,0.3)">🗓 Fill Week</button>
+        <button class="btn btn-ghost" onclick="openContentGen(null)" style="color:#a29bfe;border-color:rgba(162,155,254,0.3)">✨ Generate</button>
         <button class="btn btn-red" onclick="openAddContent(null)">+ Add</button>
       </div>
     </div>
@@ -740,6 +832,43 @@ table.rt { width:100%; border-collapse:collapse; font-size:14px; }
   </div>
 </div>
 
+<!-- Content Generator Modal -->
+<div class="overlay" id="modal-content-gen">
+  <div class="modal" style="width:540px">
+    <div class="modal-hdr"><h3>✨ Generate Post</h3><button class="mx" onclick="closeModal('modal-content-gen')">✕</button></div>
+    <div class="mf">
+      <div class="mf-row">
+        <div class="fg"><label>Platform</label>
+          <select id="gen-platform">
+            <option>LinkedIn</option><option>Instagram</option><option>Facebook</option><option>Email</option>
+          </select>
+        </div>
+        <div class="fg"><label>Date</label><input type="date" id="gen-date" style="color-scheme:dark"></div>
+      </div>
+      <div class="fg">
+        <label>Topic</label>
+        <input type="text" id="gen-topic" placeholder="e.g. missed calls cost contractors money">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
+          <button class="btn btn-ghost btn-xs" onclick="document.getElementById('gen-topic').value='missed calls cost contractors money'">Missed calls</button>
+          <button class="btn btn-ghost btn-xs" onclick="document.getElementById('gen-topic').value='AI receptionist for home services'">AI receptionist</button>
+          <button class="btn btn-ghost btn-xs" onclick="document.getElementById('gen-topic').value='lead follow-up automation'">Lead follow-up</button>
+          <button class="btn btn-ghost btn-xs" onclick="document.getElementById('gen-topic').value=''" style="color:#a29bfe;border-color:rgba(162,155,254,0.3)">🎲 Surprise me</button>
+        </div>
+      </div>
+      <div id="gen-preview-wrap" style="display:none">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:8px">Preview</div>
+        <div class="gen-preview" id="gen-preview"></div>
+      </div>
+    </div>
+    <div class="mfooter">
+      <button class="btn btn-ghost" onclick="closeModal('modal-content-gen')">Cancel</button>
+      <button id="gen-regen-btn" class="btn btn-ghost" style="display:none" onclick="generatePost()">↺ Regenerate</button>
+      <button id="gen-btn" class="btn btn-red" onclick="generatePost()">✨ Generate</button>
+      <button id="gen-save-btn" class="btn btn-ghost" style="display:none;color:#52D99A;border-color:rgba(82,217,154,0.3)" onclick="saveGeneratedPost()">→ Add to Calendar</button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div class="toast" id="toast"><div class="toast-bar"></div><span id="toast-msg"></span></div>
 
@@ -809,6 +938,8 @@ const K_SUM_CFG    = 'lp_summary_cfg';
 const RESCORE_URL  = 'https://app.useleadpro.net/api/rescore-lead';
 const SEQ_URL      = 'https://app.useleadpro.net/api/send-sequence';
 const SUMMARY_URL  = 'https://app.useleadpro.net/api/send-weekly-summary';
+const K_SAVED = 'lp_saved_searches';
+const CONTENT_GEN_URL = 'https://app.useleadpro.net/api/generate-content';
 const STAGES = ['New','Emailed','Followed Up','Replied','Closed'];
 const STAGE_COLORS = { 'New':'rgba(255,255,255,0.25)', 'Emailed':'#3B82F6', 'Followed Up':'#F59E0B', 'Replied':'#22C55E', 'Closed':'#FF3B3B' };
 const PLAT_COLORS  = { Facebook:'#1877F2', Instagram:'#E1306C', LinkedIn:'#0A66C2', Email:'#FF3B3B' };
@@ -816,6 +947,8 @@ const MONTHS = ['January','February','March','April','May','June','July','August
 const TRADE_COLORS = ['#EF4444','#F97316','#EAB308','#22C55E','#06B6D4','#3B82F6','#8B5CF6','#EC4899','#14B8A6','#F43F5E','#84CC16','#0EA5E9'];
 
 let dragId = null, editLeadId = null, selCampId = null, calY, calM;
+let _bulkMode = false, _selected = new Set();
+let _genDate = null, _genText = '';
 
 // ═══════════════════════════════════════════════════════════
 //  STORAGE
@@ -832,32 +965,50 @@ const uid = () => 'lp' + Date.now().toString(36) + Math.random().toString(36).sl
 //  TOAST
 // ═══════════════════════════════════════════════════════════
 let _tt;
-function toast(msg) {
+function toast(msg, green) {
   document.getElementById('toast-msg').textContent = msg;
   const el = document.getElementById('toast');
+  el.className = 'toast' + (green ? ' toast-green' : '');
   el.classList.add('show');
   clearTimeout(_tt); _tt = setTimeout(() => el.classList.remove('show'), 2800);
 }
+function toastGreen(msg) { toast(msg, true); }
 
 // ═══════════════════════════════════════════════════════════
 //  NAV
 // ═══════════════════════════════════════════════════════════
+function switchTab(id) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  const navEl = document.querySelector(`[data-tab="${id}"]`);
+  const paneEl = document.getElementById('tab-' + id);
+  if (!navEl || !paneEl) return;
+  navEl.classList.add('active');
+  paneEl.classList.add('active');
+  if (id === 'today')     renderToday();
+  if (id === 'pipeline')  renderPipeline();
+  if (id === 'campaigns') renderCampaigns();
+  if (id === 'content')   renderCal();
+  if (id === 'analytics') renderAnalytics();
+  if (id === 'agents')    renderAgents();
+}
 document.querySelectorAll('.nav-item').forEach(el => {
-  el.addEventListener('click', () => {
-    const id = el.dataset.tab; if (!id) return;
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-    el.classList.add('active');
-    document.getElementById('tab-' + id).classList.add('active');
-    if (id === 'pipeline')  renderPipeline();
-    if (id === 'campaigns') renderCampaigns();
-    if (id === 'content')   renderCal();
-    if (id === 'analytics') renderAnalytics();
-    if (id === 'agents')    renderAgents();
-  });
+  el.addEventListener('click', () => { const id = el.dataset.tab; if (id) switchTab(id); });
 });
 
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function closeAllModals() { document.querySelectorAll('.overlay.open').forEach(o => o.classList.remove('open')); }
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  const inField = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable;
+  if (e.key === 'Escape') { if (inField) e.target.blur(); closeAllModals(); return; }
+  if (inField) return;
+  const tabs = ['today','prospector','pipeline','campaigns','content','analytics','agents'];
+  const n = parseInt(e.key);
+  if (n >= 1 && n <= tabs.length) { e.preventDefault(); switchTab(tabs[n-1]); return; }
+  if (e.key === '/') { e.preventDefault(); switchTab('prospector'); setTimeout(() => document.getElementById('p-loc').focus(), 80); }
+});
 
 // ═══════════════════════════════════════════════════════════
 //  API STATUS CHECK
@@ -876,6 +1027,91 @@ async function checkApiStatus() {
 checkApiStatus();
 
 // ═══════════════════════════════════════════════════════════
+//  TODAY TAB
+// ═══════════════════════════════════════════════════════════
+function renderToday() {
+  const h = new Date().getHours();
+  const greeting = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  const pipe = ls.get(K_PIPE), cont = ls.get(K_CONT), camps = ls.get(K_CAMP);
+  const todayStr = new Date().toISOString().slice(0,10);
+  const weekAgo  = Date.now() - 7*86400000;
+
+  const staleLeads   = pipe.filter(l => !['Closed'].includes(l.stage) && (Date.now()-(l.stageAt||l.added)) > 3*86400000);
+  const todayCont    = cont.filter(c => c.date === todayStr && c.status !== 'Posted');
+  const activeCamps  = camps.filter(c => c.status === 'Active');
+
+  const stagePulse = STAGES.map(s => {
+    const now   = pipe.filter(l => l.stage === s).length;
+    const added = pipe.filter(l => l.stage === s && (l.stageAt||l.added) > weekAgo).length;
+    return { s, now, added };
+  });
+  const maxNow = Math.max(...stagePulse.map(x => x.now), 1);
+
+  const log = ls.get(K_LOG);
+  const priorities = [
+    staleLeads.length  ? `<div class="priority-item"><div style="width:8px;height:8px;border-radius:50%;background:#F59E0B;flex-shrink:0"></div><span><strong>${staleLeads.length}</strong> lead${staleLeads.length>1?'s':''} stale — no movement in 3+ days</span><button class="btn btn-ghost btn-xs" style="margin-left:auto" onclick="switchTab('pipeline')">View</button></div>` : '',
+    todayCont.length   ? `<div class="priority-item"><div style="width:8px;height:8px;border-radius:50%;background:#3B82F6;flex-shrink:0"></div><span><strong>${todayCont.length}</strong> content item${todayCont.length>1?'s':''} due today</span><button class="btn btn-ghost btn-xs" style="margin-left:auto" onclick="switchTab('content')">View</button></div>` : '',
+    activeCamps.length ? `<div class="priority-item"><div style="width:8px;height:8px;border-radius:50%;background:#22C55E;flex-shrink:0"></div><span><strong>${activeCamps.length}</strong> active campaign${activeCamps.length>1?'s':''} running</span></div>` : '',
+  ].filter(Boolean).join('');
+
+  document.getElementById('today-body').innerHTML = `
+    <div style="margin-bottom:24px">
+      <div class="today-greeting">${greeting}, Josiah ☀️</div>
+      <div class="today-date">${new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})}</div>
+    </div>
+
+    <div class="qa-row">
+      <button class="qa-btn" onclick="switchTab('prospector')">🔍 Run Prospector Scan</button>
+      <button class="qa-btn" onclick="nextLeadToCall()">📞 Next Lead to Call</button>
+      <button class="qa-btn" onclick="switchTab('content')">📅 Today's Content</button>
+    </div>
+
+    <div class="today-grid">
+      <div class="card card-p liftable">
+        <div class="chart-title" style="margin-bottom:14px">Today's Priorities</div>
+        ${priorities || '<div style="font-size:13px;color:var(--muted);padding:6px 0">✓ Nothing urgent — you\'re ahead of the curve.</div>'}
+      </div>
+
+      <div class="card card-p liftable">
+        <div class="chart-title" style="margin-bottom:14px">Pipeline Pulse <span style="font-size:11px;font-weight:400;color:var(--muted)">(↑ added this week)</span></div>
+        <div class="pulse-funnel">
+          ${stagePulse.map(x => `
+            <div class="pulse-stage">
+              <span class="pulse-lbl">${x.s}</span>
+              <div class="pulse-bar-wrap">
+                <div class="pulse-bar-fill" style="width:${x.now ? Math.max((x.now/maxNow)*100,6) : 0}%;background:${STAGE_COLORS[x.s]||'rgba(255,255,255,0.2)'}"></div>
+              </div>
+              <span class="pulse-cnt">${x.now}</span>
+              <span class="wow-arrow" style="color:${x.added>0?'#22C55E':'rgba(240,240,245,0.2)'}">${x.added>0?'↑'+x.added:'—'}</span>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <div class="card card-p">
+      <div class="chart-title" style="margin-bottom:14px">Recent Activity</div>
+      ${log.length === 0
+        ? `<div style="font-size:13px;color:var(--muted)">No activity yet — run a scan or configure an agent.</div>`
+        : `<div style="display:flex;flex-direction:column;gap:5px">
+            ${log.slice(0,10).map(e => `
+              <div style="display:flex;align-items:center;gap:12px;padding:8px 12px;background:var(--surface-2);border-radius:7px">
+                <span class="dot dot-red" style="flex-shrink:0"></span>
+                <span style="font-size:12px;font-weight:600;color:var(--muted);width:130px;flex-shrink:0">${e.agent}</span>
+                <span style="font-size:13px;color:var(--text);flex:1">${e.msg}</span>
+                <span style="font-size:11px;color:rgba(240,240,245,0.3)">${new Date(e.at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</span>
+              </div>`).join('')}
+          </div>`}
+    </div>`;
+}
+
+function nextLeadToCall() {
+  const lead = ls.get(K_PIPE).filter(l => l.stage === 'New').sort((a,b) => (b.score||0)-(a.score||0))[0];
+  if (!lead) { toast('No leads in New stage.'); return; }
+  switchTab('prospector');
+  openScript(lead);
+}
+
+// ═══════════════════════════════════════════════════════════
 //  SCORE HELPERS
 // ═══════════════════════════════════════════════════════════
 function scoreClass(s) { return s >= 80 ? 'score-hi' : s >= 60 ? 'score-mid' : 'score-lo'; }
@@ -891,7 +1127,10 @@ function tradeColor(name) {
 // ═══════════════════════════════════════════════════════════
 function pSet(html) { document.getElementById('p-results').innerHTML = html; }
 function pLoading(n) {
-  pSet(`<div class="empty"><div class="spinner"></div><div style="font-size:13px;color:var(--muted)">${n > 0 ? `Retrying… attempt ${n+1}/3` : 'Scanning for leads…'}</div></div>`);
+  const skels = Array.from({length:6}, () => `<div class="skel skel-row"></div>`).join('');
+  pSet(n > 0
+    ? `<div style="padding:16px 20px;font-size:13px;color:var(--muted)">Retrying… attempt ${n+1}/3</div><div style="padding:0 20px 16px">${skels}</div>`
+    : `<div style="padding:16px 20px;font-size:13px;color:var(--muted)">Scanning for leads…</div><div style="padding:0 20px 16px">${skels}</div>`);
 }
 function pError(msg) {
   pSet(`<div class="empty"><div class="empty-icon">⚠️</div><h3>Search failed</h3><p>${msg}</p><button class="btn btn-ghost" onclick="runProspector()">Try Again</button></div>`);
@@ -958,7 +1197,11 @@ function renderTable(rows, loc) {
     pSet(`<div class="empty"><div class="empty-icon">📭</div><h3>No leads found</h3><p>Nothing matched near <strong>${loc}</strong>. Try a larger radius, lower min score, or different industry.</p></div>`);
     return;
   }
-  const trs = rows.map(r => {
+  const pipeNames = new Set(ls.get(K_PIPE).map(l => (l.name||'').toLowerCase().trim()));
+  const autoScript = document.getElementById('p-autoscript')?.checked;
+  const sorted = [...rows].sort((a,b) => normScore(b.score??b.lead_score??0) - normScore(a.score??a.lead_score??0));
+
+  const trs = sorted.map(r => {
     const name  = r.name || r.business_name || 'Unknown';
     const trade = r.industry || r.trade || r.type || '—';
     const city  = r.city || r.vicinity || r.location || '—';
@@ -969,11 +1212,15 @@ function renderTable(rows, loc) {
     const cls   = scoreClass(sc);
     const initials = name.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
     const avatarBg = tradeColor(trade);
+    const alreadyIn = pipeNames.has(name.toLowerCase().trim());
     const siteEl = site
       ? `<a class="site-link" href="${site}" target="_blank">${site.replace(/^https?:\/\//,'').split('/')[0]}</a>`
       : `<span class="no-site">No website</span>`;
     const lead = JSON.stringify({name,trade,city,website:site,phone,score:sc}).replace(/'/g,"&#39;");
-    return `<tr>
+    const pipeBtn = alreadyIn
+      ? `<span class="in-pipe-badge">✓ In pipeline</span>`
+      : `<button class="btn-pipe" onclick='addToPipeline(${lead})'>→ Pipeline</button>`;
+    return `<tr style="${alreadyIn?'opacity:0.5':''}">
       <td class="col-biz">
         <div class="biz-cell">
           <div class="biz-avatar" style="background:${avatarBg}">${initials}</div>
@@ -985,12 +1232,18 @@ function renderTable(rows, loc) {
       <td>${siteEl}</td>
       <td class="col-score"><div class="score-ring ${cls} score-sm">${sc}</div></td>
       <td style="font-size:12.5px;color:var(--muted)">${rating}</td>
-      <td><div style="display:flex;gap:6px;align-items:center"><button class="btn-pipe" onclick='addToPipeline(${lead})'>→ Pipeline</button><button class="script-btn" onclick='openScript(${lead})'>📞 Script</button></div></td>
+      <td><div style="display:flex;gap:6px;align-items:center">${pipeBtn}<button class="script-btn" onclick='openScript(${lead})'>📞 Script</button></div></td>
     </tr>`;
   }).join('');
+
+  const newCount = sorted.filter(r => !pipeNames.has((r.name||r.business_name||'').toLowerCase().trim())).length;
   document.getElementById('p-results').innerHTML = `
     <div class="results-bar">
-      <span><strong style="color:var(--text)">${rows.length}</strong> leads found near <strong style="color:var(--text)">${loc}</strong></span>
+      <span><strong style="color:var(--text)">${rows.length}</strong> leads found near <strong style="color:var(--text)">${loc}</strong>
+        ${newCount < rows.length ? `<span style="color:var(--muted);font-size:12px"> · ${rows.length-newCount} already in pipeline</span>` : ''}</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        ${newCount > 0 ? `<button class="btn btn-ghost btn-sm" onclick="batchAddToPipeline(5)">⚡ Add Top 5</button>` : ''}
+      </div>
     </div>
     <div class="rt-wrap">
       <table class="rt">
@@ -1010,7 +1263,70 @@ function addToPipeline(lead) {
   ls.set(K_PIPE, pipe);
   updateAgentBadge();
   triggerSequenceStep1({ ...lead, id: newLead.id });
-  toast(`${lead.name} added to Pipeline`);
+  toastGreen(`${lead.name} added to Pipeline`);
+  if (document.getElementById('p-autoscript')?.checked) {
+    openScript(lead);
+  }
+}
+
+function batchAddToPipeline(n) {
+  if (!window._lastRows || !window._lastRows.length) { toast('Run a search first.'); return; }
+  const sorted = [...window._lastRows].sort((a,b) => normScore(b.score??b.lead_score??0) - normScore(a.score??a.lead_score??0));
+  const pipe = ls.get(K_PIPE);
+  const existing = new Set(pipe.map(l => (l.name||'').toLowerCase().trim()));
+  let added = 0;
+  for (const r of sorted) {
+    if (added >= n) break;
+    const name = r.name || r.business_name || '';
+    if (!name || existing.has(name.toLowerCase().trim())) continue;
+    const lead = { id:uid(), stage:'New', added:Date.now(), stageAt:Date.now(), name, trade:r.industry||r.trade||'', city:r.city||r.vicinity||'', website:r.website||'', phone:r.phone||'', score:normScore(r.score??0), notes:[] };
+    pipe.push(lead); existing.add(name.toLowerCase().trim()); added++;
+  }
+  ls.set(K_PIPE, pipe);
+  updateAgentBadge();
+  toastGreen(`${added} lead${added!==1?'s':''} added to pipeline`);
+  addAgentLog('Batch Add', `${added} leads batch-added from ${document.getElementById('p-loc').value}`);
+  renderTable(window._lastRows, document.getElementById('p-loc').value);
+}
+
+// ─── SAVED SEARCHES ─────────────────────────────────────────
+function saveSearch() {
+  const loc = document.getElementById('p-loc').value.trim();
+  const ind = document.getElementById('p-ind').value;
+  if (!loc) { toast('Enter a location first.'); return; }
+  const label = ind ? `${ind} · ${loc}` : loc;
+  const saves = ls.get(K_SAVED);
+  if (saves.find(s => s.label === label)) { toast('Search already saved.'); return; }
+  saves.unshift({ id:uid(), label, loc, ind });
+  if (saves.length > 8) saves.length = 8;
+  ls.set(K_SAVED, saves);
+  renderSavedSearches();
+  toastGreen(`"${label}" saved`);
+}
+
+function renderSavedSearches() {
+  const saves = ls.get(K_SAVED);
+  const wrap = document.getElementById('saved-search-wrap');
+  if (!wrap) return;
+  if (!saves.length) { wrap.style.display='none'; return; }
+  wrap.style.display = 'flex';
+  wrap.innerHTML = saves.map(s => `
+    <span class="saved-pill" onclick="loadSavedSearch('${s.id}')">
+      ${s.label}
+      <span class="saved-pill-x" onclick="event.stopPropagation();deleteSavedSearch('${s.id}')">✕</span>
+    </span>`).join('');
+}
+
+function loadSavedSearch(id) {
+  const s = ls.get(K_SAVED).find(x => x.id === id); if (!s) return;
+  document.getElementById('p-loc').value = s.loc;
+  document.getElementById('p-ind').value = s.ind || '';
+  runProspector();
+}
+
+function deleteSavedSearch(id) {
+  ls.set(K_SAVED, ls.get(K_SAVED).filter(x => x.id !== id));
+  renderSavedSearches();
 }
 
 // ─── SCRIPT GENERATOR ───────────────────────────────────────
@@ -1487,14 +1803,20 @@ function renderPipeline() {
     : pipe.length ? `<span class="dot dot-green"></span><span>Pipeline healthy</span>` : '';
 
   document.getElementById('kanban').innerHTML = STAGES.map(stage => {
-    const cards = pipe.filter(l => l.stage === stage);
+    // Sort by score descending
+    const cards = pipe.filter(l => l.stage === stage).sort((a,b) => (b.score||0)-(a.score||0));
+    // Lead velocity: avg days spent in this stage for leads that have moved on
+    const graduated = pipe.filter(l => l.stage !== stage && l.stageAt && l.stageHistory && l.stageHistory[stage]);
+    const avgDays = graduated.length ? Math.round(graduated.reduce((s,l) => s + l.stageHistory[stage], 0) / graduated.length / 86400000) : null;
+    const velStr = avgDays !== null ? `<span class="vel-chip">avg ${avgDays}d</span>` : '';
+
     const cardsHtml = cards.length
       ? cards.map(l => renderCard(l, stage)).join('')
       : `<div class="kcol-empty">No leads yet</div>`;
     const accent = STAGE_COLORS[stage] || 'rgba(255,255,255,0.2)';
     return `<div class="kcol">
       <div class="kcol-head" style="--col-accent:${accent}">
-        <span class="kcol-title">${stage}</span>
+        <span class="kcol-title">${stage}${velStr}</span>
         <span class="kcol-cnt">${cards.length}</span>
       </div>
       <div class="kcol-body" data-stage="${stage}"
@@ -1516,20 +1838,32 @@ function renderCard(l, stage) {
   const days = Math.floor((Date.now() - (l.stageAt||l.added)) / 86400000);
   const dStr = days === 0 ? 'Today' : days === 1 ? '1 day' : `${days}d`;
   const accent = STAGE_COLORS[stage] || 'rgba(255,255,255,0.2)';
-  const stale = !['Closed'].includes(stage) && days >= 3;
-  return `<div class="lcard" draggable="true" data-id="${l.id}" style="--col-accent:${accent}" onclick="openLead('${l.id}')">
-    <div class="lcard-name">${l.name}${stale?` <span title="Stale" style="font-size:10px">🔴</span>`:''}</div>
+  let staleClass = '';
+  if (!['Closed'].includes(stage)) {
+    if (days >= 7) staleClass = ' stale-red';
+    else if (days >= 3) staleClass = ' stale-amber';
+  }
+  const selClass = _selected.has(l.id) ? ' bulk-sel' : '';
+  const staleIcon = days >= 7 ? ` <span title="7+ days stale" style="font-size:10px">🔴</span>` : days >= 3 ? ` <span title="3+ days stale" style="font-size:10px">🟡</span>` : '';
+  return `<div class="lcard${staleClass}${selClass}" draggable="true" data-id="${l.id}" style="--col-accent:${accent}" onclick="onCardClick(event,'${l.id}')">
+    <input type="checkbox" class="lcard-check" ${_selected.has(l.id)?'checked':''} onclick="event.stopPropagation();toggleCardSelect('${l.id}')">
+    <div class="lcard-name">${l.name}${staleIcon}</div>
     <div class="lcard-meta">${l.trade||'—'} · ${l.city||'—'}</div>
     <div class="lcard-foot">
       <div class="score-ring ${sc} score-sm">${l.score||0}</div>
       <div class="lcard-acts">
         <button title="Email" onclick="event.stopPropagation();cardEmail('${l.id}')">📧</button>
-        <button title="Call"  onclick="event.stopPropagation();cardCall('${l.id}')">📞</button>
+        <button title="Copy phone + open script" onclick="event.stopPropagation();cardCall('${l.id}')">📞</button>
         <button title="Note"  onclick="event.stopPropagation();openLead('${l.id}',true)">📝</button>
       </div>
       <span class="lcard-days">${dStr}</span>
     </div>
   </div>`;
+}
+
+function onCardClick(e, id) {
+  if (_bulkMode) { toggleCardSelect(id); return; }
+  openLead(id);
 }
 
 function onDragOver(e) { e.preventDefault(); e.currentTarget.classList.add('dover'); }
@@ -1550,7 +1884,80 @@ function onDrop(e, stage) {
 }
 
 function cardEmail(id) { const l = ls.get(K_PIPE).find(x => x.id===id); toast(l ? `Email action for ${l.name}` : 'Lead not found'); }
-function cardCall(id)  { const l = ls.get(K_PIPE).find(x => x.id===id); if (l?.phone && l.phone !== '—') window.location.href = `tel:${l.phone}`; else toast('No phone number on file'); }
+function cardCall(id) {
+  const l = ls.get(K_PIPE).find(x => x.id===id); if (!l) return;
+  if (l.phone && l.phone !== '—') {
+    navigator.clipboard.writeText(l.phone).catch(() => {});
+    toastGreen(`📋 ${l.phone} copied`);
+  }
+  openScript(l);
+}
+
+// ── Bulk select ────────────────────────────────────────────
+function toggleBulkMode() {
+  _bulkMode = !_bulkMode;
+  const kanban = document.getElementById('kanban');
+  if (kanban) kanban.classList.toggle('bulk-mode', _bulkMode);
+  if (!_bulkMode) { _selected.clear(); renderPipeline(); }
+  document.getElementById('bulk-toggle-btn').textContent = _bulkMode ? '✕ Cancel' : '☑ Select';
+  document.getElementById('bulk-bar').classList.toggle('show', _bulkMode);
+  updateBulkCount();
+}
+
+function toggleCardSelect(id) {
+  if (_selected.has(id)) _selected.delete(id);
+  else _selected.add(id);
+  const card = document.querySelector(`.lcard[data-id="${id}"]`);
+  if (card) {
+    card.classList.toggle('bulk-sel', _selected.has(id));
+    const cb = card.querySelector('.lcard-check');
+    if (cb) cb.checked = _selected.has(id);
+  }
+  updateBulkCount();
+}
+
+function updateBulkCount() {
+  const el = document.getElementById('bulk-count');
+  if (el) el.textContent = _selected.size ? `${_selected.size} selected` : 'Select leads';
+}
+
+function bulkMove(stage) {
+  if (!_selected.size) return;
+  const pipe = ls.get(K_PIPE);
+  pipe.forEach(l => { if (_selected.has(l.id)) { l.stage = stage; l.stageAt = Date.now(); } });
+  ls.set(K_PIPE, pipe);
+  toastGreen(`${_selected.size} lead${_selected.size>1?'s':''} moved to ${stage}`);
+  addAgentLog('Bulk Action', `${_selected.size} leads → ${stage}`);
+  clearBulk();
+}
+
+function bulkDelete() {
+  if (!_selected.size) return;
+  if (!confirm(`Delete ${_selected.size} lead${_selected.size>1?'s':''}?`)) return;
+  ls.set(K_PIPE, ls.get(K_PIPE).filter(l => !_selected.has(l.id)));
+  toast(`${_selected.size} lead${_selected.size>1?'s':''} deleted`);
+  clearBulk();
+}
+
+function bulkExportCSV() {
+  const pipe = ls.get(K_PIPE).filter(l => _selected.has(l.id));
+  if (!pipe.length) return;
+  const rows = [['Name','Trade','City','Phone','Website','Score','Stage']];
+  pipe.forEach(l => rows.push([l.name||'',l.trade||'',l.city||'',l.phone||'',l.website||'',l.score||0,l.stage||'']));
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'leadpro-export.csv'; a.click();
+  toastGreen(`${pipe.length} leads exported`);
+}
+
+function clearBulk() {
+  _selected.clear();
+  _bulkMode = false;
+  document.getElementById('kanban')?.classList.remove('bulk-mode');
+  document.getElementById('bulk-bar')?.classList.remove('show');
+  document.getElementById('bulk-toggle-btn').textContent = '☑ Select';
+  renderPipeline();
+}
 
 function openLead(id, focusNote=false) {
   const l = ls.get(K_PIPE).find(x => x.id===id); if (!l) return;
@@ -1769,13 +2176,27 @@ function saveContentItem() {
 // ═══════════════════════════════════════════════════════════
 //  ANALYTICS
 // ═══════════════════════════════════════════════════════════
+function countUp(el, target, duration) {
+  const isPercent = typeof target === 'string' && target.endsWith('%');
+  const num = parseInt(target) || 0;
+  const start = performance.now();
+  const tick = now => {
+    const p = Math.min((now - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - p, 3);
+    el.textContent = Math.round(num * ease) + (isPercent ? '%' : '');
+    if (p < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
 function renderAnalytics() {
   const pipe=ls.get(K_PIPE), camps=ls.get(K_CAMP), cont=ls.get(K_CONT);
   const closed=pipe.filter(l=>l.stage==='Closed').length;
-  document.getElementById('kpi-total').textContent = ls.getN(K_TOTS);
-  document.getElementById('kpi-pipe').textContent  = pipe.length;
-  document.getElementById('kpi-camp').textContent  = camps.filter(c=>c.status==='Active').length;
-  document.getElementById('kpi-conv').textContent  = pipe.length ? Math.round((closed/pipe.length)*100)+'%' : '0%';
+  const conv = pipe.length ? Math.round((closed/pipe.length)*100) + '%' : '0%';
+  countUp(document.getElementById('kpi-total'), ls.getN(K_TOTS), 700);
+  countUp(document.getElementById('kpi-pipe'),  pipe.length,     700);
+  countUp(document.getElementById('kpi-camp'),  camps.filter(c=>c.status==='Active').length, 700);
+  countUp(document.getElementById('kpi-conv'),  conv, 700);
 
   const stageCnts = STAGES.map(s=>({ s, n:pipe.filter(l=>l.stage===s).length }));
   const maxS = Math.max(...stageCnts.map(x=>x.n), 1);
@@ -1949,14 +2370,122 @@ function goContent() {
 }
 
 // ═══════════════════════════════════════════════════════════
+//  CONTENT GENERATOR
+// ═══════════════════════════════════════════════════════════
+function openContentGen(dateStr) {
+  _genText = '';
+  _genDate = dateStr;
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById('gen-date').value = dateStr || today;
+  document.getElementById('gen-topic').value = '';
+  document.getElementById('gen-preview-wrap').style.display = 'none';
+  document.getElementById('gen-preview').textContent = '';
+  document.getElementById('gen-regen-btn').style.display = 'none';
+  document.getElementById('gen-save-btn').style.display = 'none';
+  document.getElementById('gen-btn').style.display = '';
+  document.getElementById('modal-content-gen').classList.add('open');
+}
+
+async function generatePost() {
+  const platform = document.getElementById('gen-platform').value;
+  const topic    = document.getElementById('gen-topic').value.trim() || 'the value of never missing a customer call';
+  const btn = document.getElementById('gen-btn');
+  const regen = document.getElementById('gen-regen-btn');
+  btn.disabled = true; btn.textContent = '⏳ Generating…';
+  regen.disabled = true;
+  try {
+    const res = await fetch(CONTENT_GEN_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Internal-Key': IKEY },
+      body: JSON.stringify({ platform, topic }),
+    });
+    if (!res.ok) { const e = await res.json().catch(()=>{}); throw new Error(e?.error || `Server error ${res.status}`); }
+    const data = await res.json();
+    _genText = data.content || '';
+    document.getElementById('gen-preview').textContent = _genText;
+    document.getElementById('gen-preview-wrap').style.display = '';
+    document.getElementById('gen-regen-btn').style.display = '';
+    document.getElementById('gen-save-btn').style.display = '';
+    btn.textContent = '✨ Generate';
+  } catch(e) {
+    document.getElementById('gen-preview').textContent = `⚠️ ${e.message}`;
+    document.getElementById('gen-preview-wrap').style.display = '';
+    btn.textContent = '✨ Generate';
+  }
+  btn.disabled = false; regen.disabled = false;
+}
+
+function saveGeneratedPost() {
+  if (!_genText) return;
+  const platform = document.getElementById('gen-platform').value;
+  const dateVal  = document.getElementById('gen-date').value || new Date().toISOString().slice(0,10);
+  const items = ls.get(K_CONT);
+  const title = _genText.split('\n')[0].slice(0,60) || `${platform} post`;
+  items.push({ id:uid(), created:Date.now(), platform, type:'Post', title, caption:_genText, status:'Draft', date:dateVal });
+  ls.set(K_CONT, items);
+  closeModal('modal-content-gen');
+  // If calendar is showing that month, refresh
+  const d = new Date(dateVal);
+  if (d.getFullYear() === calY && d.getMonth() === calM) renderCal();
+  toastGreen(`"${title}" added to ${dateVal}`);
+  addAgentLog('Content Generator', `Post generated for ${platform} on ${dateVal}`);
+}
+
+async function fillMyWeek() {
+  const platforms = ['LinkedIn','Instagram','Facebook'];
+  const today = new Date();
+  // Find next Mon, Wed, Fri
+  const days = [1,3,5]; // Mon=1,Wed=3,Fri=5
+  const getDayDate = target => {
+    const d = new Date(today);
+    const diff = (target - d.getDay() + 7) % 7 || 7;
+    d.setDate(d.getDate() + diff);
+    return d.toISOString().slice(0,10);
+  };
+  const dates = days.map(getDayDate);
+  const topics = ['missed calls cost contractors thousands per year','why AI receptionists win more jobs for home service contractors','how to follow up with every lead automatically'];
+  const btn = document.querySelector('[onclick="fillMyWeek()"]');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Generating…'; }
+  let added = 0;
+  for (let i = 0; i < 3; i++) {
+    try {
+      const res = await fetch(CONTENT_GEN_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Internal-Key': IKEY },
+        body: JSON.stringify({ platform: platforms[i], topic: topics[i] }),
+      });
+      if (!res.ok) continue;
+      const data = await res.json();
+      const text = data.content || '';
+      if (!text) continue;
+      const items = ls.get(K_CONT);
+      const title = text.split('\n')[0].slice(0,60) || `${platforms[i]} post`;
+      items.push({ id:uid(), created:Date.now(), platform:platforms[i], type:'Post', title, caption:text, status:'Draft', date:dates[i] });
+      ls.set(K_CONT, items);
+      added++;
+    } catch(e) { /* non-fatal */ }
+  }
+  if (btn) { btn.disabled = false; btn.textContent = '🗓 Fill Week'; }
+  if (added) {
+    renderCal();
+    toastGreen(`${added} post${added>1?'s':''} added Mon/Wed/Fri`);
+    addAgentLog('Content Generator', `Fill My Week: ${added} posts generated`);
+  } else {
+    toast('Content generation failed — check ANTHROPIC_API_KEY on Render.');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════════════════════
 initCal();
 updateAgentBadge();
+renderToday();
+renderSavedSearches();
 checkScheduler();
 checkWeeklySummary();
 checkSequenceFollowUps();
-setInterval(checkScheduler, 5 * 60 * 1000); // re-check scheduler every 5 min
+setInterval(checkScheduler, 5 * 60 * 1000);
 </script>
 </body>
 </html>
